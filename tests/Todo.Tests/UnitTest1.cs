@@ -1,4 +1,4 @@
-﻿namespace Todo.Tests;
+namespace ToDoApp.Tests;
 
 public class UnitTest1
 {
