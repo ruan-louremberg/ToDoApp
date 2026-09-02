@@ -1,6 +1,6 @@
 using ToDoApp.Domain.Enums;
 
-namespace ToDoApp.Api.DTO;
+namespace ToDoApp.Application.DTO;
 
 public record CreateTaskRequest
 {
@@ -11,4 +11,6 @@ public record CreateTaskRequest
     public Priority Priority { get; set; }
 
     public DateTime? DueDate { get; set; }
+
+    public Guid? CategoryId { get; set; }
 }

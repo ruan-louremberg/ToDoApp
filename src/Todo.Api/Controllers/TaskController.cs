@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using ToDoApp.Api.DTO;
 using ToDoApp.Application.UseCases;
+using ToDoApp.Application.DTO;
 
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
-[Route("api/createtask")]
+[Route("api/task")]
 
 public class TaskController(CreateTaskUseCase createTaskUseCase) : ControllerBase
 {
@@ -18,7 +17,12 @@ public class TaskController(CreateTaskUseCase createTaskUseCase) : ControllerBas
 
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
-        var task = await _createTaskUseCase.ExecuteAsync(request.Title, request.Description, request.Priority, request.DueDate);
+        var task = await _createTaskUseCase.ExecuteAsync(request);
+
+        if (task.IsFailed)
+        {
+            return BadRequest(task.Errors[0].Message);
+        }
         return Ok(task);
     }
 }

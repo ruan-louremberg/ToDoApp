@@ -10,4 +10,3 @@ public interface IToDoRepository
     Task UpdateAsync(ToDo task, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
-

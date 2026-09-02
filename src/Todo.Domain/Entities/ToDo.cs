@@ -23,7 +23,7 @@ namespace ToDoApp.Domain.Entities
 
         public Category? Category { get; private set; }
 
-        public ToDo(string title, string? description, Priority priority, DateTime? dueDate)
+        public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
         {
             if (title.Length < 3 || string.IsNullOrWhiteSpace(title))
             {
@@ -34,9 +34,9 @@ namespace ToDoApp.Domain.Entities
             Status = Status.Pending;
             Priority = priority;
             DueDate = dueDate;
+            
+            CategoryId = categoryId;
         }
-
-
 
     }
 }

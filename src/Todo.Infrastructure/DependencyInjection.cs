@@ -18,6 +18,7 @@ public static class DependencyInjection
             options.UseSqlite(connectionString));
 
         services.AddScoped<IToDoRepository, TodoRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
 
         return services;
     }
