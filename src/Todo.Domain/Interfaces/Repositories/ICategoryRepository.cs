@@ -7,5 +7,5 @@ public interface ICategoryRepository
     Task AddAsync(Category category, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
-    
+    Task GetByIdAsync(Guid value, CancellationToken cancellationToken);
 }

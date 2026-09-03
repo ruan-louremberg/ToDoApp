@@ -1,7 +1,6 @@
 using FluentResults;
 using ToDoApp.Application.DTO;
 using ToDoApp.Domain.Entities;
-using ToDoApp.Domain.Enums;
 using ToDoApp.Domain.Interfaces.Repositories;
 
 namespace ToDoApp.Application.UseCases;
@@ -29,6 +28,8 @@ public class CreateTaskUseCase
             return Result.Fail("A categoria especificada não existe.");
         }
 
+
+        
         var task = new ToDo(request.Title, request.Description, request.Priority, request.DueDate, request.CategoryId);
         await _toDoRepository.AddAsync(task, cancellationToken);
         return task;
