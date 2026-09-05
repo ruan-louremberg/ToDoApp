@@ -23,6 +23,6 @@ public class TaskController(CreateTaskUseCase createTaskUseCase) : ControllerBas
         {
             return BadRequest(task.Errors[0].Message);
         }
-        return Ok(task);
+        return Ok(task.Value);
     }
 }
