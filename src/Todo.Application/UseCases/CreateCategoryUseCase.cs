@@ -17,7 +17,11 @@ public class CreateCategoryUseCase
     public async Task<Result<Category>> ExecuteAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
     {
         var category = new Category(request.Name, request.Color);
-
+        var existingCategory = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
+        if (existingCategory != null)
+        {
+            return Result.Fail("Categoria já existe.");
+        }
         await _categoryRepository.AddAsync(category, cancellationToken);
         return category;
     }
