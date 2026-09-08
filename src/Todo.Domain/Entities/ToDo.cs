@@ -37,6 +37,11 @@ namespace ToDoApp.Domain.Entities
             
             CategoryId = categoryId;
         }
+        public void SetCategory(Category category)
+        {
+            Category = category;
+            CategoryId = category.Id;
+        }
 
     }
 }

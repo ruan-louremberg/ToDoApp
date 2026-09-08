@@ -20,4 +20,13 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
     {
         return await _context.Categories.AnyAsync(c => c.Id == id, cancellationToken);
     }
+    public async Task<Category?> GetByIdAsync(Guid value, CancellationToken cancellationToken)
+    {
+        return await _context.Categories.FirstOrDefaultAsync(c => c.Id == value, cancellationToken);
+    }
+    public async Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        return await _context.Categories.FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
+    }
+    
 }
