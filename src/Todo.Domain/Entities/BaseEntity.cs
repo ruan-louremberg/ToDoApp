@@ -13,6 +13,10 @@ namespace ToDoApp.Domain.Entities
             Id = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
         }
+        public void SetUpdatedAt(DateTime updatedAt)
+        {
+            UpdatedAt = updatedAt;
+        }
     }
 
 }
