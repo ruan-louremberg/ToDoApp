@@ -6,17 +6,58 @@ using ToDoApp.Domain.Interfaces.Repositories;
 
 namespace ToDoApp.Application.UseCases;
 
-public class ListTaskUseCase
+public class ListTasksUseCase
 {
     private readonly IToDoRepository _toDoRepository;
 
-    public ListTaskUseCase(IToDoRepository toDoRepository)
+    public ListTasksUseCase(IToDoRepository toDoRepository)
     {
-        _toDoRepository = toDoRepository;
+        _toDoRepository = toDoRepository;    
     }
 
-    public async Task<Result<List<ToDo>>> ExecuteAsync(ListTasksRequest request, CancellationToken cancellationToken = default)
+    public async Task<ListTasksResponse> ExecuteAsync(ListTasksRequest request, CancellationToken cancellationToken = default)
     {
-        return await _toDoRepository.GetAllAsync(cancellationToken);
+        var safePage = Math.Max(request.Page, 1);
+        var safePageSize = Math.Clamp(request.PageSize, 1, 100);
+
+        var tasks = await _toDoRepository.GetAllAsync(
+            request.Status,
+            request.Priority,
+            request.CategoryId,
+            request.Search,
+            request.SortBy,
+            request.SortDirection,
+            request.Page,
+            request.PageSize,
+            cancellationToken
+        );
+
+        var totalItems = await _toDoRepository.CountAsync(
+            request.Status,
+            request.Priority,
+            request.CategoryId,
+            request.Search,
+            cancellationToken
+        );
+        var totalPages = (int)Math.Ceiling((double)totalItems / safePageSize);
+
+        return new ListTasksResponse
+        {
+            Items = tasks.Select(task => new TaskResponse
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                Status = task.Status,
+                Priority = task.Priority,
+                DueDate = task.DueDate,
+                CategoryId = task.CategoryId,
+            }).ToList(),
+
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalItems = totalItems,
+            TotalPages = totalPages
+        };
     }
 }

@@ -13,6 +13,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
+builder.Services.AddScoped<ListTasksUseCase>();
 
 var app = builder.Build();
 

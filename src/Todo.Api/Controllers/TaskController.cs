@@ -29,7 +29,6 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, ListTasksUseCas
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllAsync([FromQuery] ListTasksRequest request)
     {
         var tasks = await _listTasksUseCase.ExecuteAsync(request);
