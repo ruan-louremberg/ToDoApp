@@ -61,21 +61,23 @@ public class TodoRepository : IToDoRepository
                 x.Title.Contains(search));
         }
 
-        if (sortBy == "dueDate")
+        var isDescending = string.Equals(sortDirection, "desc", StringComparison.OrdinalIgnoreCase);
+
+        if (string.Equals(sortBy, "dueDate", StringComparison.OrdinalIgnoreCase))
         {
-            query = sortDirection == "desc"
+            query = isDescending
                 ? query.OrderByDescending(x => x.DueDate)
                 : query.OrderBy(x => x.DueDate);
         }
-        else if (sortBy == "priority")
+        else if (string.Equals(sortBy, "priority", StringComparison.OrdinalIgnoreCase))
         {
-            query = sortDirection == "desc"
-                ? query.OrderByDescending(x => x.Priority)
-                : query.OrderBy(x => x.Priority);
+            query = isDescending
+                ? query.OrderByDescending(x => x.Priority == Priority.High ? 3 : x.Priority == Priority.Medium ? 2 : 1)
+                : query.OrderBy(x => x.Priority == Priority.High ? 3 : x.Priority == Priority.Medium ? 2 : 1);
         }
         else
         {
-            query = sortDirection == "desc"
+            query = isDescending
                 ? query.OrderByDescending(x => x.CreatedAt)
                 : query.OrderBy(x => x.CreatedAt);
         }

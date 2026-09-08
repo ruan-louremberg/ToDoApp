@@ -41,7 +41,7 @@ public record ListTasksRequest
 
     public string? SortBy { get; set; } = "CreatedAt";
 
-    public string? SortDirection { get; set; } = "asc";
+    public string? SortDirection { get; set; } = "desc";
 
     public Guid? CategoryId { get; set; } = null;
 
