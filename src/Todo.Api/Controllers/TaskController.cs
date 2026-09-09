@@ -15,7 +15,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
+    [HttpPost]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
         var task = await _createTaskUseCase.ExecuteAsync(request);
@@ -26,16 +26,17 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
         }
         return Ok(task.Value);
     }
-    
-    [HttpPatch()]
+
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    
 
-    public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskRequest request)
+
+    public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateTaskRequest request)
+
     {
-        var result = await _updateTaskUseCase.ExecuteAsync(request);
+        var result = await _updateTaskUseCase.ExecuteAsync(id, request);
 
         if (result.IsFailed)
         {
