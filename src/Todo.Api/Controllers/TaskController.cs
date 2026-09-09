@@ -24,7 +24,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, ListTasksUseCas
         {
             return BadRequest(task.Errors[0].Message);
         }
-        return Ok(task);
+        return Ok(task.Value);
     }
 
     [HttpGet]
