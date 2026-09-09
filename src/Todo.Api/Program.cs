@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
+builder.Services.AddScoped<ListTasksUseCase>();
 builder.Services.AddScoped<CreateCategoryUseCase>();
 
 var app = builder.Build();
