@@ -3,7 +3,7 @@ namespace ToDoApp.Application.DTO;
 
 public record ListTasksResponse
 {
-    public List<TaskResponse> Items { get; set; } = [];
+    public List<TaskResponseList> Items { get; set; } = [];
 
     public int Page { get; set; }
 
@@ -14,7 +14,7 @@ public record ListTasksResponse
     public int TotalPages { get; set; }
 }
 
-public record TaskResponse
+public record TaskResponseList
 {
     public Guid Id { get; set; }
 
@@ -29,6 +29,8 @@ public record TaskResponse
     public DateTime? DueDate { get; set; }
 
     public Guid? CategoryId { get; set; }
+
+
 }
 
 public record ListTasksRequest

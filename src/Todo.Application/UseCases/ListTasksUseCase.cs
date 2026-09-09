@@ -43,7 +43,7 @@ public class ListTasksUseCase
 
         return new ListTasksResponse
         {
-            Items = tasks.Select(task => new TaskResponse
+            Items = tasks.Select(task => new TaskResponseList
             {
                 Id = task.Id,
                 Title = task.Title,
