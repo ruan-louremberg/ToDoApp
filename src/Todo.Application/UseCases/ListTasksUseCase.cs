@@ -27,8 +27,8 @@ public class ListTasksUseCase
             request.Search,
             request.SortBy,
             request.SortDirection,
-            request.Page,
-            request.PageSize,
+            safePage,
+            safePageSize,
             cancellationToken
         );
 
@@ -54,8 +54,8 @@ public class ListTasksUseCase
                 CategoryId = task.CategoryId,
             }).ToList(),
 
-            Page = request.Page,
-            PageSize = request.PageSize,
+            Page = safePage,
+            PageSize = safePageSize,
             TotalItems = totalItems,
             TotalPages = totalPages
         };
