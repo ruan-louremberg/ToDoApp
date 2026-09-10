@@ -28,9 +28,7 @@ public record TaskResponseList
 
     public DateTime? DueDate { get; set; }
 
-    public Guid? CategoryId { get; set; }
-
-
+    public CategoryResponse? Category { get; set; }
 }
 
 public record ListTasksRequest

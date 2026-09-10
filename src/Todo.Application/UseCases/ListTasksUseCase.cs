@@ -51,7 +51,13 @@ public class ListTasksUseCase
                 Status = task.Status,
                 Priority = task.Priority,
                 DueDate = task.DueDate,
-                CategoryId = task.CategoryId,
+                Category = task.Category is not null
+                    ? new CategoryResponse(
+                        task.Category.Id,
+                        task.Category.Name,
+                        task.Category.Color
+                    )
+                    : null
             }).ToList(),
 
             Page = safePage,
