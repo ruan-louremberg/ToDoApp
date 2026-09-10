@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Application.DTO;
-
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
 [Route("api/task")]
 
 public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase) : ControllerBase
+{
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
     private readonly ListTasksUseCase _listTasksUseCase = listTasksUseCase;
@@ -44,6 +44,8 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
             return BadRequest(result.Errors.Select(e => e.Message));
         }
         return Ok(result.Value);
+    }
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync([FromQuery] ListTasksRequest request)
