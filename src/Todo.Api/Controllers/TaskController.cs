@@ -7,15 +7,15 @@ namespace ToDoApp.Api.Controllers;
 [ApiController]
 [Route("api/task")]
 
-public class TaskController(CreateTaskUseCase createTaskUseCase, ListTasksUseCase listTasksUseCase) : ControllerBase
-{
+public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase) : ControllerBase
+
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
     private readonly ListTasksUseCase _listTasksUseCase = listTasksUseCase;
+    private readonly UpdateTaskUseCase _updateTaskUseCase = updateTaskUseCase;
 
-    [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
+    [HttpPost]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
         var task = await _createTaskUseCase.ExecuteAsync(request);
@@ -27,6 +27,23 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, ListTasksUseCas
         return Ok(task.Value);
     }
 
+    [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+
+    public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateTaskRequest request)
+
+    {
+        var result = await _updateTaskUseCase.ExecuteAsync(id, request);
+
+        if (result.IsFailed)
+        {
+            // Retorna 400 Bad Request com as mensagens do FluentResults
+            return BadRequest(result.Errors.Select(e => e.Message));
+        }
+        return Ok(result.Value);
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync([FromQuery] ListTasksRequest request)

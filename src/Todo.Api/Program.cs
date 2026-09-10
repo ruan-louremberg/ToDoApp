@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Infrastructure.Repositories;
 using ToDoApp.Domain.Interfaces.Repositories;
+using Scalar.AspNetCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
 builder.Services.AddScoped<ListTasksUseCase>();
 builder.Services.AddScoped<CreateCategoryUseCase>();
+builder.Services.AddScoped<UpdateTaskUseCase>();
 
 var app = builder.Build();
 
@@ -30,6 +33,8 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
