@@ -50,6 +50,8 @@ namespace ToDoApp.Domain.Entities
             Priority = priority ?? Priority;
             DueDate = dueDate ?? DueDate;
             CategoryId = categoryId ?? CategoryId;
+
+            SetUpdatedAt(DateTime.UtcNow);
         }
     }
 }

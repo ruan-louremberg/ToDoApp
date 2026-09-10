@@ -4,8 +4,6 @@ namespace ToDoApp.Application.DTO;
 
 public record UpdateTaskRequest
 {
-    public Guid TaskId { get; set; }
-
     public string? Title { get; set; }
 
     public string? Description { get; set; }

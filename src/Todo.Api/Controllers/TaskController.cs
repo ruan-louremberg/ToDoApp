@@ -40,16 +40,9 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            var errorMessage = result.Errors[0].Message;
-
-            if (errorMessage == "Tarefa não encontrada.")
-            {
-                return NotFound(errorMessage);
-            }
-
-            return BadRequest(errorMessage);
+            // Retorna 400 Bad Request com as mensagens do FluentResults
+            return BadRequest(result.Errors.Select(e => e.Message));
         }
-
         return Ok(result.Value);
     }
 }

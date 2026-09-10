@@ -1,6 +1,7 @@
 using FluentResults;
 using ToDoApp.Application.DTO;
 using ToDoApp.Domain.Interfaces.Repositories;
+using ToDoApp.Application.DTO;
 
 namespace ToDoApp.Application.UseCases;
 
@@ -13,10 +14,10 @@ public class UpdateTaskUseCase
         _toDoRepository = toDoRepository;
     }
 
-    public async Task<Result<UpdateTaskRequest>> ExecuteAsync(UpdateTaskRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<UpdateTaskRequest>> ExecuteAsync(Guid id, UpdateTaskRequest request, CancellationToken cancellationToken = default)
     {
 
-        var task = await _toDoRepository.GetByIdAsync(request.TaskId, cancellationToken);
+        var task = await _toDoRepository.GetByIdAsync(id, cancellationToken);
 
 
         if (task == null)
@@ -24,7 +25,7 @@ public class UpdateTaskUseCase
             return Result.Fail("Tarefa não encontrada.");
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Title) && request.Title.Length < 3)
+        if (string.IsNullOrWhiteSpace(task.Title) || task.Title.Length < 3)
         {
             return Result.Fail("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.");
         }
@@ -37,10 +38,9 @@ public class UpdateTaskUseCase
             request.CategoryId
         );
 
-        task.SetUpdatedAt(DateTime.UtcNow);
-
         await _toDoRepository.UpdateAsync(task, cancellationToken);
 
-        return Result.Ok(request);
+        return Result.Ok(TaskResponse)
+        //fazer um response para enviar de volta o resultado correto
     }
 }
