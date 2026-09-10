@@ -38,7 +38,7 @@ public class TodoRepository : IToDoRepository
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.ToDos.AsQueryable();
+        var query = _context.ToDos.Include(t => t.Category).AsNoTracking().AsQueryable();
 
         if (status.HasValue)
         {
@@ -97,7 +97,7 @@ public class TodoRepository : IToDoRepository
         string? search,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.ToDos.AsQueryable();
+        var query = _context.ToDos.Include(t => t.Category).AsNoTracking().AsQueryable();
 
         if (status.HasValue)
         {

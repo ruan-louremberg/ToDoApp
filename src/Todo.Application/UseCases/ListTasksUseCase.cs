@@ -43,7 +43,7 @@ public class ListTasksUseCase
 
         return new ListTasksResponse
         {
-            Items = tasks.Select(task => new TaskResponse
+            Items = tasks.Select(task => new TaskResponseList
             {
                 Id = task.Id,
                 Title = task.Title,
@@ -51,7 +51,13 @@ public class ListTasksUseCase
                 Status = task.Status,
                 Priority = task.Priority,
                 DueDate = task.DueDate,
-                CategoryId = task.CategoryId,
+                Category = task.Category is not null
+                    ? new CategoryResponse(
+                        task.Category.Id,
+                        task.Category.Name,
+                        task.Category.Color
+                    )
+                    : null
             }).ToList(),
 
             Page = safePage,
