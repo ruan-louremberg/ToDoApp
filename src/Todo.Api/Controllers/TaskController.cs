@@ -7,10 +7,10 @@ namespace ToDoApp.Api.Controllers;
 [ApiController]
 [Route("api/task")]
 
-public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase) : ControllerBase
-{
-    private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
+public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase) : ControllerBase
 
+    private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
+    private readonly ListTasksUseCase _listTasksUseCase = listTasksUseCase;
     private readonly UpdateTaskUseCase _updateTaskUseCase = updateTaskUseCase;
 
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -44,5 +44,11 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
             return BadRequest(result.Errors.Select(e => e.Message));
         }
         return Ok(result.Value);
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllAsync([FromQuery] ListTasksRequest request)
+    {
+        var tasks = await _listTasksUseCase.ExecuteAsync(request);
+        return Ok(tasks);
     }
 }

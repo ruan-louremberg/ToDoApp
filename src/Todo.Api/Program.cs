@@ -6,6 +6,7 @@ using ToDoApp.Infrastructure.Repositories;
 using ToDoApp.Domain.Interfaces.Repositories;
 using Scalar.AspNetCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
+builder.Services.AddScoped<ListTasksUseCase>();
 builder.Services.AddScoped<CreateCategoryUseCase>();
 builder.Services.AddScoped<UpdateTaskUseCase>();
 
