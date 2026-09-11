@@ -9,10 +9,12 @@ namespace ToDo.Api.Controllers;
 public class CategoryController : ControllerBase
 {
     private readonly CreateCategoryUseCase _createCategoryUseCase;
+    private readonly ListCategoriesUseCase _listCategoriesUseCase;
 
-    public CategoryController(CreateCategoryUseCase createCategoryUseCase)
+    public CategoryController(CreateCategoryUseCase createCategoryUseCase, ListCategoriesUseCase listCategoriesUseCase)
     {
         _createCategoryUseCase = createCategoryUseCase;
+        _listCategoriesUseCase = listCategoriesUseCase;
     }
 
     [HttpPost]
@@ -28,6 +30,14 @@ public class CategoryController : ControllerBase
             return BadRequest(category.Errors[0].Message);
         }
         return Ok(category.Value);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllAsync([FromQuery] ListCategoriesRequest request)
+    {
+        var categories = await _listCategoriesUseCase.ExecuteAsync(request);
+        return Ok(categories);
     }
 
 }

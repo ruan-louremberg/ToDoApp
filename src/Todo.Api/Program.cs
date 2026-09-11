@@ -18,8 +18,10 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
 builder.Services.AddScoped<ListTasksUseCase>();
 builder.Services.AddScoped<CreateCategoryUseCase>();
+builder.Services.AddScoped<ListCategoriesUseCase>();
 builder.Services.AddScoped<UpdateTaskUseCase>();
 builder.Services.AddScoped<CompleteTaskUseCase>();
+
 
 var app = builder.Build();
 
