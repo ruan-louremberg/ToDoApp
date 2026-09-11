@@ -26,7 +26,50 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
     }
     public async Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken)
     {
-        return await _context.Categories.FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
+        return await _context.Categories.FirstOrDefaultAsync(c => c.Name.Contains(name), cancellationToken);
     }
-    
+
+    public async Task<List<Category>> GetAllAsync(
+        string? name,
+        string? color,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Categories.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            query = query.Where(c => c.Name.Contains(name));
+        }
+
+        if (!string.IsNullOrEmpty(color))
+        {
+            query = query.Where(c => c.Color.Contains(color));
+        }
+
+        var skip = (page - 1) * pageSize;
+        return await query.Skip(skip).Take(pageSize).ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountAsync(
+        string? name,
+        string? color,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Categories.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            query = query.Where(c => c.Name.Contains(name));
+        }
+
+        if (!string.IsNullOrEmpty(color))
+        {
+            query = query.Where(c => c.Color.Contains(color));
+        }
+
+        return await query.CountAsync(cancellationToken);
+    }
+
 }
