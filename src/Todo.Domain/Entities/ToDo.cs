@@ -53,5 +53,26 @@ namespace ToDoApp.Domain.Entities
 
             SetUpdatedAt(DateTime.UtcNow);
         }
+
+        public void ChangeStatus(Status newStatus)
+        {
+        if (Status == Status.Completed && newStatus == Status.Completed)
+        {
+            return;
+        }
+
+        Status = newStatus;
+
+        if (newStatus == Status.Completed)
+        {
+            CompletedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            CompletedAt = null;
+        }
+
+        SetUpdatedAt(DateTime.UtcNow);
+        }
     }
 }
