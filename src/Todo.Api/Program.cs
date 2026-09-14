@@ -21,6 +21,9 @@ builder.Services.AddScoped<CreateCategoryUseCase>();
 builder.Services.AddScoped<ListCategoriesUseCase>();
 builder.Services.AddScoped<UpdateTaskUseCase>();
 builder.Services.AddScoped<CompleteTaskUseCase>();
+builder.Services.AddScoped<DeleteTaskUseCase>();
+builder.Services.AddScoped<GetTrashUseCase>();
+builder.Services.AddScoped<RestoreTaskUseCase>();
 
 
 var app = builder.Build();
@@ -29,7 +32,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<TodoDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+    await dbContext.Database.MigrateAsync();
 }
 
 // Configure the HTTP request pipeline.

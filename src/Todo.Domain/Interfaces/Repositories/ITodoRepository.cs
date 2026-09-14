@@ -25,5 +25,14 @@ public interface IToDoRepository
         string? search,
         CancellationToken cancellationToken = default);
     Task UpdateAsync(ToDo task, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<List<ToDo>> GetTrashAsync(CancellationToken cancellationToken = default);
+
+    Task<bool> RestoreAsync(
+    Guid id,
+    CancellationToken cancellationToken = default);
 }
