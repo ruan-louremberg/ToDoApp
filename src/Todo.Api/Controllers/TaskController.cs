@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Application.DTO;
+using ToDoApp.Domain.Exceptions;
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
