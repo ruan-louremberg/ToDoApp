@@ -38,6 +38,12 @@ public class CreateTaskUseCase
         {
             task.SetCategory(category);
         }
+
+        if (request.DueDate.HasValue && request.DueDate.Value < DateTime.UtcNow)
+        {
+            return Result.Fail("A data de vencimento não pode ser no passado.");
+        }
+
         await _toDoRepository.AddAsync(task, cancellationToken);
         var taskResponse = new TaskResponse(
             task.Id,

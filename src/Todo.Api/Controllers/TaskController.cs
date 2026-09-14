@@ -27,7 +27,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
         {
             return BadRequest(task.Errors[0].Message);
         }
-        return Ok(task.Value);
+        return CreatedAtAction(nameof(CreateTask), new { id = task.Value.Id }, task.Value);
     }
 
     [HttpPatch("{id:guid}")]

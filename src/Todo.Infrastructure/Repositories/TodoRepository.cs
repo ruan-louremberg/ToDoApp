@@ -24,6 +24,7 @@ public class TodoRepository : IToDoRepository
     public async Task<ToDo?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.ToDos
+            .Include(t => t.Category)
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
