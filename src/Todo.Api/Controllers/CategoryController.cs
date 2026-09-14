@@ -19,7 +19,7 @@ public class CategoryController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
 
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
     {
@@ -27,7 +27,7 @@ public class CategoryController : ControllerBase
 
         if (category.IsFailed)
         {
-            return BadRequest(category.Errors[0].Message);
+            return Conflict(category.Errors[0].Message);
         }
         return Ok(category.Value);
     }
