@@ -36,7 +36,7 @@ public class UpdateTaskUseCase
             }
         }
 
-         Category? category = null;
+        Category? category = null;
         if (request.CategoryId.HasValue)
         {
             category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value, cancellationToken);

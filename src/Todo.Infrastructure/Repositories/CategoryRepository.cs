@@ -72,4 +72,9 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
         return await query.CountAsync(cancellationToken);
     }
 
+    public async Task UpdateAsync(Category category, CancellationToken cancellationToken = default)
+    {
+        _context.Categories.Update(category);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

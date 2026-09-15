@@ -11,4 +11,9 @@ public class Category : BaseEntity
         Name = name;
         Color = color;
     }
+    public void UpdateCategory(string? name, string? color)
+    {
+        Name = name ?? Name;
+        Color = color ?? Color;
+    }
 }
