@@ -11,10 +11,22 @@ public class CategoryController : ControllerBase
     private readonly CreateCategoryUseCase _createCategoryUseCase;
     private readonly ListCategoriesUseCase _listCategoriesUseCase;
 
-    public CategoryController(CreateCategoryUseCase createCategoryUseCase, ListCategoriesUseCase listCategoriesUseCase)
+    private readonly DeleteCategoryUseCase _deleteCategoryUseCase;
+    public CategoryController
+    (
+        CreateCategoryUseCase createCategoryUseCase,
+
+        ListCategoriesUseCase listCategoriesUseCase,
+
+        DeleteCategoryUseCase deleteCategoryUseCase
+    )
+
     {
         _createCategoryUseCase = createCategoryUseCase;
+
         _listCategoriesUseCase = listCategoriesUseCase;
+        
+        _deleteCategoryUseCase = deleteCategoryUseCase;
     }
 
     [HttpPost]
@@ -38,6 +50,19 @@ public class CategoryController : ControllerBase
     {
         var categories = await _listCategoriesUseCase.ExecuteAsync(request);
         return Ok(categories);
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    {
+        var result = await _deleteCategoryUseCase.ExecuteAsync(id);
+        if (result.IsFailed)
+        {
+            return NotFound(result.Errors[0].Message);
+        }
+        return Ok();
     }
 
 }

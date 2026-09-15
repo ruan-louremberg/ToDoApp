@@ -26,6 +26,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost]
+    
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
         var task = await _createTaskUseCase.ExecuteAsync(request);

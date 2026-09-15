@@ -22,4 +22,6 @@ public interface ICategoryRepository
         string? name,
         string? color,
         CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Category category, CancellationToken cancellationToken = default);
 }

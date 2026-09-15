@@ -24,6 +24,7 @@ builder.Services.AddScoped<CompleteTaskUseCase>();
 builder.Services.AddScoped<DeleteTaskUseCase>();
 builder.Services.AddScoped<GetTrashUseCase>();
 builder.Services.AddScoped<RestoreTaskUseCase>();
+builder.Services.AddScoped<DeleteCategoryUseCase>();
 
 
 var app = builder.Build();
