@@ -7,7 +7,9 @@ namespace ToDoApp.Api.Controllers;
 [ApiController]
 [Route("api/task")]
 
-public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase, CompleteTaskUseCase completeTaskUseCase) : ControllerBase
+public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase,
+ CompleteTaskUseCase completeTaskUseCase, DeleteTaskUseCase deleteTaskUseCase, GetTrashUseCase getTrashUseCase,
+  RestoreTaskUseCase restoreTaskUseCase) : ControllerBase
 {
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
@@ -15,6 +17,11 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     private readonly UpdateTaskUseCase _updateTaskUseCase = updateTaskUseCase;
     private readonly CompleteTaskUseCase _completeTaskUseCase = completeTaskUseCase;
 
+    private readonly DeleteTaskUseCase _deleteTaskUseCase = deleteTaskUseCase;
+
+    private readonly GetTrashUseCase _getTrashUseCase = getTrashUseCase;
+
+    private readonly RestoreTaskUseCase _restoreTaskUseCase = restoreTaskUseCase;
 
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -70,5 +77,48 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
             return BadRequest(result.Errors.Select(e => e.Message));
         }
         return Ok(result.Value);
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTask(
+        [FromRoute] Guid id)
+    {
+        var result = await _deleteTaskUseCase.ExecuteAsync(id);
+
+        if (result.IsFailed)
+        {
+            return NotFound(result.Errors[0].Message);
+        }
+
+        return NoContent();
+    }
+
+
+    [HttpGet("trash")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTrash()
+    {
+        var tasks = await _getTrashUseCase.ExecuteAsync();
+
+        return Ok(tasks);
+    }
+
+
+    [HttpPatch("{id:guid}/restore")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RestoreTask(
+        [FromRoute] Guid id)
+    {
+        var result = await _restoreTaskUseCase.ExecuteAsync(id);
+
+        if (result.IsFailed)
+        {
+            return NotFound(result.Errors[0].Message);
+        }
+
+        return NoContent();
     }
 }

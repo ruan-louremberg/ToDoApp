@@ -25,7 +25,9 @@ public class TodoRepository : IToDoRepository
     {
         return await _context.ToDos
             .Include(t => t.Category)
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(
+                t => t.Id == id && !t.IsDeleted,
+                cancellationToken);
     }
 
    public async Task<List<ToDo>> GetAllAsync(
@@ -39,7 +41,11 @@ public class TodoRepository : IToDoRepository
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.ToDos.Include(t => t.Category).AsNoTracking().AsQueryable();
+        var query = _context.ToDos
+            .Include(t => t.Category)
+            .AsNoTracking()
+            .Where(t => !t.IsDeleted)
+            .AsQueryable();
 
         if (status.HasValue)
         {
@@ -98,7 +104,10 @@ public class TodoRepository : IToDoRepository
         string? search,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.ToDos.Include(t => t.Category).AsNoTracking().AsQueryable();
+        var query = _context.ToDos
+            .AsNoTracking()
+            .Where(t => !t.IsDeleted)
+            .AsQueryable();
 
         if (status.HasValue)
         {
@@ -130,14 +139,53 @@ public class TodoRepository : IToDoRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+     public async Task DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
-        var task = await GetByIdAsync(id, cancellationToken);
+        var task = await _context.ToDos
+            .FirstOrDefaultAsync(
+                t => t.Id == id && !t.IsDeleted,
+                cancellationToken);
+
         if (task is not null)
         {
-            _context.ToDos.Remove(task);
+            task.SoftDelete();
+
             await _context.SaveChangesAsync(cancellationToken);
         }
     }
+
+    public async Task<List<ToDo>> GetTrashAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.ToDos
+            .Include(t => t.Category)
+            .AsNoTracking()
+            .Where(t => t.IsDeleted)
+            .OrderByDescending(t => t.DeletedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> RestoreAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+{
+    var task = await _context.ToDos
+        .FirstOrDefaultAsync(
+            t => t.Id == id && t.IsDeleted,
+            cancellationToken);
+
+    if (task is null)
+    {
+        return false;
+    }
+
+    task.Restore();
+
+    await _context.SaveChangesAsync(cancellationToken);
+
+    return true;
+}
 }
 

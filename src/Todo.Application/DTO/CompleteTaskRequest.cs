@@ -1,10 +1,11 @@
-using System.Security.Cryptography.X509Certificates;
+using System.ComponentModel.DataAnnotations;
 using ToDoApp.Domain.Enums;
 namespace ToDoApp.Application.DTO;
 
 public record CompleteTaskRequest
 {
 
+    [EnumDataType(typeof(Status))]
     public Status Status { get; set; }
 };
 

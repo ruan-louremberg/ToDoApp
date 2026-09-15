@@ -23,6 +23,10 @@ namespace ToDoApp.Domain.Entities
 
         public Category? Category { get; private set; }
 
+        public bool IsDeleted { get; private set; }
+
+        public DateTime? DeletedAt { get; private set; }
+
         public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
         {
             if (title.Length < 3 || string.IsNullOrWhiteSpace(title))
@@ -73,6 +77,18 @@ namespace ToDoApp.Domain.Entities
         }
 
         SetUpdatedAt(DateTime.UtcNow);
+        }
+
+        public void SoftDelete()
+        {
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+        }
+
+        public void Restore()
+        {
+            IsDeleted = false;
+            DeletedAt = null;
         }
     }
 }

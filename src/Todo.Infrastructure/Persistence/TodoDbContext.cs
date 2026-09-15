@@ -27,6 +27,8 @@ public class TodoDbContext : DbContext
             builder.Property(t => t.CompletedAt);
             builder.Property(t => t.CreatedAt).IsRequired();
             builder.Property(t => t.UpdatedAt);
+            builder.Property(t => t.IsDeleted).IsRequired();
+            builder.Property(t => t.DeletedAt);
             builder.Property(t => t.CategoryId);
             builder.HasOne(t => t.Category).WithMany().HasForeignKey(t => t.CategoryId);
         });
