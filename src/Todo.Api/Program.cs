@@ -23,7 +23,9 @@ builder.Services.AddScoped<UpdateTaskUseCase>();
 builder.Services.AddScoped<CompleteTaskUseCase>();
 builder.Services.AddScoped<DeleteTaskUseCase>();
 builder.Services.AddScoped<GetTrashUseCase>();
+builder.Services.AddScoped<GetTrashCategoryUseCase>();
 builder.Services.AddScoped<RestoreTaskUseCase>();
+builder.Services.AddScoped<RestoreCategoryUseCase>();
 builder.Services.AddScoped<DeleteCategoryUseCase>();
 
 
