@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Application.DTO;
+using ToDoApp.Domain.Exceptions;
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
@@ -33,7 +34,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
         {
             return BadRequest(task.Errors[0].Message);
         }
-        return Ok(task.Value);
+        return CreatedAtAction(nameof(CreateTask), new { id = task.Value.Id }, task.Value);
     }
 
     [HttpPatch("{id:guid}")]
