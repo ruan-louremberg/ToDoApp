@@ -16,6 +16,7 @@ public class DeleteCategoryUseCase
             return Result.Fail("Categoria não encontrada.");
         }
         category.SoftDelete();
+        
         await _categoryRepository.UpdateAsync(category, cancellationToken);
         return Result.Ok();
     }

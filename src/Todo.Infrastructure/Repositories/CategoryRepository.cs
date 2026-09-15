@@ -77,5 +77,53 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
         _context.Categories.Update(category);
         await _context.SaveChangesAsync(cancellationToken);
     }
+    public async Task DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(
+                c => c.Id == id && !c.IsDeleted,
+                cancellationToken);
 
+        if (category is not null)
+        {
+            category.SoftDelete();
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public async Task<List<Category>> GetTrashAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories
+            .AsNoTracking()
+            .IgnoreQueryFilters()
+            .Where(c => c.IsDeleted)
+            .OrderByDescending(c => c.DeletedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> RestoreAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+{
+    var category = await _context.Categories
+        .IgnoreQueryFilters()
+        .FirstOrDefaultAsync(
+            c => c.Id == id && c.IsDeleted,
+            cancellationToken);
+
+    if (category is null)
+    {
+        return false;
+    }
+
+    category.Restore();
+
+    await _context.SaveChangesAsync(cancellationToken);
+
+    return true;
+}
 }
