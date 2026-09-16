@@ -47,13 +47,13 @@ namespace ToDoApp.Domain.Entities
             CategoryId = category.Id;
         }
 
-        public void SetUpdate(string? title, string? description, Priority? priority, DateTime? dueDate, Guid? categoryId)
+        public void SetUpdate(string? title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId)
         {
-            Title = title ?? Title;
-            Description = description ?? Description;
-            Priority = priority ?? Priority;
-            DueDate = dueDate ?? DueDate;
-            CategoryId = categoryId ?? CategoryId;
+            Title = title;
+            Description = description;
+            Priority = priority;
+            DueDate = dueDate;
+            CategoryId = categoryId;
 
             SetUpdatedAt(DateTime.UtcNow);
         }

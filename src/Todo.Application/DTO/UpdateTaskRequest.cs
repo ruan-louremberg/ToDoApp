@@ -1,18 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using ToDoApp.Application.Common;
 using ToDoApp.Domain.Enums;
 
 namespace ToDoApp.Application.DTO;
 
 public record UpdateTaskRequest
 {
-    public string? Title { get; set; }
-
-    public string? Description { get; set; }
-
+    public Option<string> Title { get; init; }
+    public Option<string> Description { get; init; }
+    
     [EnumDataType(typeof(Priority))]
-    public Priority? Priority { get; set; }
-
-    public DateTime? DueDate { get; set; }
-
-    public Guid? CategoryId { get; set; }
+    public Option<Priority> Priority { get; init; }
+    
+    public Option<DateTime?> DueDate { get; init; }
+    public Option<Guid?> CategoryId { get; init; }
 }

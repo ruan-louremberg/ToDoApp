@@ -5,6 +5,7 @@ using ToDoApp.Application.UseCases;
 using ToDoApp.Infrastructure.Repositories;
 using ToDoApp.Domain.Interfaces.Repositories;
 using Scalar.AspNetCore;
+using ToDoApp.Application.Common;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new OptionJsonConverterFactory());
+    });
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
