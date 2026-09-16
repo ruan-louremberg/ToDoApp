@@ -25,14 +25,16 @@ public class UpdateTaskUseCase
 
         if (task == null)
         {
-            return Result.Fail("Tarefa não encontrada.");
+            return Result.Fail(new Error("Tarefa não encontrada.")
+                .WithMetadata("statusCode", 404));
         }
 
         if (request.Title != null)
         {
             if (string.IsNullOrWhiteSpace(request.Title) || request.Title.Trim().Length < 3)
             {
-                return Result.Fail("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.");
+                return Result.Fail(new Error("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.")
+                    .WithMetadata("statusCode", 400));
             }
         }
 
@@ -42,13 +44,15 @@ public class UpdateTaskUseCase
             category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value, cancellationToken);
             if (category is null)
             {
-                return Result.Fail("Categoria não encontrada.");
+                return Result.Fail(new Error("Categoria não encontrada.")
+                    .WithMetadata("statusCode", 404));
             }
         }
 
         if (request.DueDate.HasValue && request.DueDate.Value < DateTime.UtcNow)
         {
-            return Result.Fail("A data de vencimento não pode ser no passado.");
+            return Result.Fail(new Error("A data de vencimento não pode ser no passado.")
+                .WithMetadata("statusCode", 400));
         }
 
         task.SetUpdate(

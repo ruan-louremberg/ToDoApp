@@ -22,14 +22,16 @@ public class RestoreCategoryUseCase
 
         if (categoria is null)
         {
-            return Result.Fail("Categoria não encontrada na lixeira.");
+            return Result.Fail(new Error("Categoria não encontrada na lixeira.")
+                .WithMetadata("statusCode", 404));
         }
 
         var existingCategory = await _categoryRepository.GetByNameAsync(categoria.Name, cancellationToken);
 
         if (existingCategory != null)
         {
-            return Result.Fail("Já existe uma categoria com o mesmo nome.");
+            return Result.Fail(new Error("Já existe uma categoria com o mesmo nome.")
+                .WithMetadata("statusCode", 409));
         }
 
         var restored = await _categoryRepository.RestoreAsync(
@@ -38,7 +40,8 @@ public class RestoreCategoryUseCase
 
         if (!restored)
         {
-            return Result.Fail("Categoria não encontrada na lixeira.");
+            return Result.Fail(new Error("Categoria não encontrada na lixeira.")
+                .WithMetadata("statusCode", 404));
         }
 
         return Result.Ok();

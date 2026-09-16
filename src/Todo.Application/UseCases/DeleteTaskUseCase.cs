@@ -23,7 +23,8 @@ public class DeleteTaskUseCase
 
         if (task is null)
         {
-            return Result.Fail("Tarefa não encontrada.");
+            return Result.Fail(new Error("Tarefa não encontrada.")
+                .WithMetadata("statusCode", 404));
         }
 
         await _toDoRepository.DeleteAsync(

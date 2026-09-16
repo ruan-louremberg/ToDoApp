@@ -20,7 +20,8 @@ namespace ToDoApp.Application.UseCases;
 
             if (task == null)
             {
-                return Result.Fail(new Error("Tarefa não encontrada."));
+                return Result.Fail(new Error("Tarefa não encontrada.")
+                    .WithMetadata("statusCode", 404));
             }
 
             task.ChangeStatus(request.Status);
