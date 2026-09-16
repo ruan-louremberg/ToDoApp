@@ -88,6 +88,7 @@ public class CategoryController : ControllerBase
     [HttpPatch("{id:guid}/restore")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RestoreCategory(
         [FromRoute] Guid id)
     {
@@ -95,7 +96,11 @@ public class CategoryController : ControllerBase
 
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            if (result.Errors[0].Message == "Categoria não encontrada na lixeira.")
+            {
+                return NotFound(result.Errors[0].Message);
+            }
+            return Conflict(result.Errors[0].Message);
         }
 
         return NoContent();

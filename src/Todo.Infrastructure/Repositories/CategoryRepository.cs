@@ -108,22 +108,32 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
     public async Task<bool> RestoreAsync(
     Guid id,
     CancellationToken cancellationToken = default)
-{
-    var category = await _context.Categories
-        .IgnoreQueryFilters()
-        .FirstOrDefaultAsync(
-            c => c.Id == id && c.IsDeleted,
-            cancellationToken);
-
-    if (category is null)
     {
-        return false;
+        var category = await _context.Categories
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(
+                c => c.Id == id && c.IsDeleted,
+                cancellationToken);
+
+        if (category is null)
+        {
+            return false;
+        }
+
+        category.Restore();
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
-
-    category.Restore();
-
-    await _context.SaveChangesAsync(cancellationToken);
-
-    return true;
-}
+public async Task<Category?> GetDeletedByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Categories
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(
+                c => c.Id == id && c.IsDeleted,
+                cancellationToken);
+    }
 }
