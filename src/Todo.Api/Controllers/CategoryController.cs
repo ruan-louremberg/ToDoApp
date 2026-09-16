@@ -21,6 +21,7 @@ public class CategoryController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
 
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
@@ -29,7 +30,18 @@ public class CategoryController : ControllerBase
 
         if (category.IsFailed)
         {
-            return Conflict(category.Errors[0].Message);
+            if(category.Errors[0].Message == "O nome da categoria deve ter entre 2 e 50 caracteres.")
+            {
+                return BadRequest(category.Errors[0].Message);
+            }
+            else if(category.Errors[0].Message == "A cor informada é inválida. Informe um código hexadecimal no formato #RRGGBB (ex: #FF5733).")
+            {
+                return BadRequest(category.Errors[0].Message);
+            }
+            else if(category.Errors[0].Message == "Categoria já existe.")
+            {
+                return Conflict(category.Errors[0].Message);
+            }
         }
         return Ok(category.Value);
     }
@@ -44,6 +56,7 @@ public class CategoryController : ControllerBase
 
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryRequest request)
@@ -57,6 +70,10 @@ public class CategoryController : ControllerBase
                 return NotFound(category.Errors[0].Message);
             }
             else if(category.Errors[0].Message == "O nome da categoria deve ter entre 2 e 50 caracteres e não pode ser vazio.")
+            {
+                return BadRequest(category.Errors[0].Message);
+            }
+            else if(category.Errors[0].Message == "A cor informada é inválida. Informe um código hexadecimal no formato #RRGGBB (ex: #FF5733).")
             {
                 return BadRequest(category.Errors[0].Message);
             }

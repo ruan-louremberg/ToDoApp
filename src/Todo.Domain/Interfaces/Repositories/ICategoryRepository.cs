@@ -10,7 +10,7 @@ public interface ICategoryRepository
 
     Task<Category?> GetByIdAsync(Guid value, CancellationToken cancellationToken);
 
-    Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken);
+    Task<Category?> GetByNameAsync(string? name, CancellationToken cancellationToken);
 
     Task<List<Category>> GetAllAsync(
         string? name,
