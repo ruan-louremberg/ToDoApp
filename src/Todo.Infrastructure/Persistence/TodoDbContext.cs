@@ -38,6 +38,9 @@ public class TodoDbContext : DbContext
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
             builder.Property(c => c.Color).IsRequired().HasMaxLength(50);
+            builder.HasQueryFilter(c => !c.IsDeleted);
+            builder.Property(c => c.IsDeleted).IsRequired();
+            builder.Property(c => c.DeletedAt);
         });
     }
 }

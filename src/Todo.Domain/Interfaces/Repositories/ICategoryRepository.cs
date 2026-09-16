@@ -22,4 +22,16 @@ public interface ICategoryRepository
         string? name,
         string? color,
         CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(Category category, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<List<Category>> GetTrashAsync(CancellationToken cancellationToken = default);
+
+    Task<bool> RestoreAsync(
+    Guid id,
+    CancellationToken cancellationToken = default);
 }
