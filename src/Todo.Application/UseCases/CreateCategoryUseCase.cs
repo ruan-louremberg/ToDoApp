@@ -20,7 +20,8 @@ public class CreateCategoryUseCase
         var existingCategory = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
         if (existingCategory != null)
         {
-            return Result.Fail("Categoria já existe.");
+            return Result.Fail(new Error("Categoria já existe.")
+                .WithMetadata("statusCode", 409));
         }
         await _categoryRepository.AddAsync(category, cancellationToken);
         return category;

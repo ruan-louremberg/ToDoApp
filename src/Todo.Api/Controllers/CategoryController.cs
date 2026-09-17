@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ToDoApp.Api.Controllers;
 using ToDoApp.Application.DTO;
 using ToDoApp.Application.UseCases;
 
@@ -6,7 +7,7 @@ namespace ToDo.Api.Controllers;
 
 [ApiController]
 [Route("api/categories")]
-public class CategoryController : ControllerBase
+public class CategoryController : ApiControllerBase
 {
     private readonly CreateCategoryUseCase _createCategoryUseCase;
     private readonly ListCategoriesUseCase _listCategoriesUseCase;
@@ -49,7 +50,7 @@ public class CategoryController : ControllerBase
 
         if (category.IsFailed)
         {
-            return Conflict(category.Errors[0].Message);
+            return FromErrors(category.Errors);
         }
         return Ok(category.Value);
     }
@@ -70,11 +71,11 @@ public class CategoryController : ControllerBase
         var result = await _deleteCategoryUseCase.ExecuteAsync(id);
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            return FromErrors(result.Errors);
         }
         return Ok();
     }
-    
+
     [HttpGet("trash")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTrash()
@@ -88,6 +89,7 @@ public class CategoryController : ControllerBase
     [HttpPatch("{id:guid}/restore")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RestoreCategory(
         [FromRoute] Guid id)
     {
@@ -95,7 +97,7 @@ public class CategoryController : ControllerBase
 
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            return FromErrors(result.Errors);
         }
 
         return NoContent();

@@ -22,7 +22,8 @@ public class RestoreTaskUseCase
 
         if (!restored)
         {
-            return Result.Fail("Tarefa não encontrada na lixeira.");
+            return Result.Fail(new Error("Tarefa não encontrada na lixeira.")
+                .WithMetadata("statusCode", 404));
         }
 
         return Result.Ok();

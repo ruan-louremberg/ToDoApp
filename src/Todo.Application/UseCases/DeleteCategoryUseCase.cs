@@ -13,7 +13,8 @@ public class DeleteCategoryUseCase
         var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
         if (category is null)
         {
-            return Result.Fail("Categoria não encontrada.");
+            return Result.Fail(new Error("Categoria não encontrada.")
+                .WithMetadata("statusCode", 404));
         }
         category.SoftDelete();
         

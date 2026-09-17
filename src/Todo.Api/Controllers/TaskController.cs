@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Application.DTO;
-using ToDoApp.Domain.Exceptions;
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
@@ -9,7 +8,7 @@ namespace ToDoApp.Api.Controllers;
 
 public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase,
  CompleteTaskUseCase completeTaskUseCase, DeleteTaskUseCase deleteTaskUseCase, GetTrashUseCase getTrashUseCase,
-  RestoreTaskUseCase restoreTaskUseCase) : ControllerBase
+    RestoreTaskUseCase restoreTaskUseCase) : ApiControllerBase
 {
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
@@ -33,7 +32,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (task.IsFailed)
         {
-            return BadRequest(task.Errors[0].Message);
+            return FromErrors(task.Errors);
         }
         return CreatedAtAction(nameof(CreateTask), new { id = task.Value.Id }, task.Value);
     }
@@ -51,8 +50,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            // Retorna 400 Bad Request com as mensagens do FluentResults
-            return BadRequest(result.Errors.Select(e => e.Message));
+            return FromErrors(result.Errors);
         }
         return Ok(result.Value);
     }
@@ -75,7 +73,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            return BadRequest(result.Errors.Select(e => e.Message));
+            return FromErrors(result.Errors);
         }
         return Ok(result.Value);
     }
@@ -90,7 +88,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            return FromErrors(result.Errors);
         }
 
         return NoContent();
@@ -117,7 +115,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            return FromErrors(result.Errors);
         }
 
         return NoContent();

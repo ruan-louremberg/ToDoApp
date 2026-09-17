@@ -34,4 +34,8 @@ public interface ICategoryRepository
     Task<bool> RestoreAsync(
     Guid id,
     CancellationToken cancellationToken = default);
+
+    Task<Category?> GetDeletedByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken = default);
 }

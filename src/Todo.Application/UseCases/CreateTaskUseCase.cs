@@ -20,7 +20,8 @@ public class CreateTaskUseCase
     {
         if (request.Title.Length < 3 || string.IsNullOrWhiteSpace(request.Title))
         {
-            return Result.Fail("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.");
+            return Result.Fail(new Error("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.")
+                .WithMetadata("statusCode", 400));
         }
 
         Category? category = null;
@@ -29,7 +30,8 @@ public class CreateTaskUseCase
             category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value, cancellationToken);
             if (category is null)
             {
-                return Result.Fail("Categoria não encontrada.");
+                return Result.Fail(new Error("Categoria não encontrada.")
+                    .WithMetadata("statusCode", 404));
             }
         }
         
@@ -41,7 +43,8 @@ public class CreateTaskUseCase
 
         if (request.DueDate.HasValue && request.DueDate.Value < DateTime.UtcNow)
         {
-            return Result.Fail("A data de vencimento não pode ser no passado.");
+            return Result.Fail(new Error("A data de vencimento não pode ser no passado.")
+                .WithMetadata("statusCode", 400));
         }
 
         await _toDoRepository.AddAsync(task, cancellationToken);
