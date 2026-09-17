@@ -1,4 +1,5 @@
 using FluentResults;
+using FluentValidation;
 using ToDoApp.Application.DTO;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Interfaces.Repositories;
@@ -9,18 +10,25 @@ public class CreateTaskUseCase
 {
     private readonly IToDoRepository _toDoRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IValidator<CreateTaskRequest> _validator;
 
-    public CreateTaskUseCase(IToDoRepository toDoRepository, ICategoryRepository categoryRepository)
+    public CreateTaskUseCase(
+        IToDoRepository toDoRepository,
+        ICategoryRepository categoryRepository,
+        IValidator<CreateTaskRequest> validator)
     {
         _toDoRepository = toDoRepository;
         _categoryRepository = categoryRepository;
+        _validator = validator;
     }
 
     public async Task<Result<TaskResponse>> ExecuteAsync(CreateTaskRequest request, CancellationToken cancellationToken = default)
     {
-        if (request.Title.Length < 3 || string.IsNullOrWhiteSpace(request.Title))
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return Result.Fail("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.");
+            return Result.Fail(validationResult.Errors.Select(error =>
+                new Error(error.ErrorMessage).WithMetadata("statusCode", 400)));
         }
 
         Category? category = null;
@@ -29,7 +37,8 @@ public class CreateTaskUseCase
             category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value, cancellationToken);
             if (category is null)
             {
-                return Result.Fail("Categoria não encontrada.");
+                return Result.Fail(new Error("Categoria não encontrada.")
+                    .WithMetadata("statusCode", 404));
             }
         }
         
@@ -37,11 +46,6 @@ public class CreateTaskUseCase
         if (category != null)
         {
             task.SetCategory(category);
-        }
-
-        if (request.DueDate.HasValue && request.DueDate.Value < DateTime.UtcNow)
-        {
-            return Result.Fail("A data de vencimento não pode ser no passado.");
         }
 
         await _toDoRepository.AddAsync(task, cancellationToken);

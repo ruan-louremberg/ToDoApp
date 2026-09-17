@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Application.DTO;
-using ToDoApp.Domain.Exceptions;
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
@@ -9,7 +9,7 @@ namespace ToDoApp.Api.Controllers;
 
 public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase,
  CompleteTaskUseCase completeTaskUseCase, DeleteTaskUseCase deleteTaskUseCase, GetTrashUseCase getTrashUseCase,
-  RestoreTaskUseCase restoreTaskUseCase) : ControllerBase
+    RestoreTaskUseCase restoreTaskUseCase, IValidator<ListTasksRequest> listTasksValidator) : ApiControllerBase
 {
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
@@ -22,6 +22,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     private readonly GetTrashUseCase _getTrashUseCase = getTrashUseCase;
 
     private readonly RestoreTaskUseCase _restoreTaskUseCase = restoreTaskUseCase;
+    private readonly IValidator<ListTasksRequest> _listTasksValidator = listTasksValidator;
 
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -33,7 +34,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (task.IsFailed)
         {
-            return BadRequest(task.Errors[0].Message);
+            return FromErrors(task.Errors);
         }
         return CreatedAtAction(nameof(CreateTask), new { id = task.Value.Id }, task.Value);
     }
@@ -51,8 +52,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            // Retorna 400 Bad Request com as mensagens do FluentResults
-            return BadRequest(result.Errors.Select(e => e.Message));
+            return FromErrors(result.Errors);
         }
         return Ok(result.Value);
     }
@@ -61,6 +61,12 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync([FromQuery] ListTasksRequest request)
     {
+        var validationResult = await _listTasksValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return FromValidationErrors(validationResult.Errors);
+        }
+
         var tasks = await _listTasksUseCase.ExecuteAsync(request);
         return Ok(tasks);
     }
@@ -75,7 +81,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            return BadRequest(result.Errors.Select(e => e.Message));
+            return FromErrors(result.Errors);
         }
         return Ok(result.Value);
     }
@@ -90,7 +96,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            return FromErrors(result.Errors);
         }
 
         return NoContent();
@@ -117,7 +123,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
 
         if (result.IsFailed)
         {
-            return NotFound(result.Errors[0].Message);
+            return FromErrors(result.Errors);
         }
 
         return NoContent();
