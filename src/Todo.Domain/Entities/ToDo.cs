@@ -29,16 +29,12 @@ namespace ToDoApp.Domain.Entities
 
         public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
         {
-            if (title.Length < 3 || string.IsNullOrWhiteSpace(title))
-            {
-                throw new DomainException("O título da tarefa deve ter pelo menos 3 caracteres e não pode ser vazio.");
-            }
             Title = title;
             Description = description;
             Status = Status.Pending;
             Priority = priority;
             DueDate = dueDate;
-            
+
             CategoryId = categoryId;
         }
         public void SetCategory(Category category)
