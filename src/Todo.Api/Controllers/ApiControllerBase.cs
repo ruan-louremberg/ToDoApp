@@ -1,4 +1,5 @@
 using FluentResults;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ToDoApp.Api.Controllers;
@@ -23,6 +24,25 @@ public abstract class ApiControllerBase : ControllerBase
         return new ObjectResult(problemDetails)
         {
             StatusCode = statusCode,
+            ContentTypes = { "application/problem+json" }
+        };
+    }
+
+    protected IActionResult FromValidationErrors(IEnumerable<ValidationFailure> errors)
+    {
+        var problemDetails = new ProblemDetails
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Erro de validação",
+            Detail = string.Join(" ", errors.Select(error => error.ErrorMessage)),
+            Instance = HttpContext.Request.Path
+        };
+
+        problemDetails.Extensions["traceId"] = HttpContext.TraceIdentifier;
+
+        return new ObjectResult(problemDetails)
+        {
+            StatusCode = StatusCodes.Status400BadRequest,
             ContentTypes = { "application/problem+json" }
         };
     }

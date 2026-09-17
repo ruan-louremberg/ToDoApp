@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 using ToDoApp.Api.Controllers;
 using ToDoApp.Application.DTO;
 using ToDoApp.Application.UseCases;
@@ -25,7 +26,8 @@ public class CategoryController : ApiControllerBase
 
         GetTrashCategoryUseCase getTrashCategoryUseCase,
 
-        RestoreCategoryUseCase restoreCategoryUseCase
+        RestoreCategoryUseCase restoreCategoryUseCase,
+            IValidator<ListCategoriesRequest> listCategoriesValidator
     )
 
     {
@@ -38,7 +40,11 @@ public class CategoryController : ApiControllerBase
         _getTrashCategoryUseCase = getTrashCategoryUseCase;
 
         _restoreCategoryUseCase = restoreCategoryUseCase;
+
+        _listCategoriesValidator = listCategoriesValidator;
     }
+
+    private readonly IValidator<ListCategoriesRequest> _listCategoriesValidator;
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -59,6 +65,12 @@ public class CategoryController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync([FromQuery] ListCategoriesRequest request)
     {
+        var validationResult = await _listCategoriesValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return FromValidationErrors(validationResult.Errors);
+        }
+
         var categories = await _listCategoriesUseCase.ExecuteAsync(request);
         return Ok(categories);
     }

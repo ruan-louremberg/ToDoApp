@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Application.DTO;
 namespace ToDoApp.Api.Controllers;
@@ -8,7 +9,7 @@ namespace ToDoApp.Api.Controllers;
 
 public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase,
  CompleteTaskUseCase completeTaskUseCase, DeleteTaskUseCase deleteTaskUseCase, GetTrashUseCase getTrashUseCase,
-    RestoreTaskUseCase restoreTaskUseCase) : ApiControllerBase
+    RestoreTaskUseCase restoreTaskUseCase, IValidator<ListTasksRequest> listTasksValidator) : ApiControllerBase
 {
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
@@ -21,6 +22,7 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     private readonly GetTrashUseCase _getTrashUseCase = getTrashUseCase;
 
     private readonly RestoreTaskUseCase _restoreTaskUseCase = restoreTaskUseCase;
+    private readonly IValidator<ListTasksRequest> _listTasksValidator = listTasksValidator;
 
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -59,6 +61,12 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync([FromQuery] ListTasksRequest request)
     {
+        var validationResult = await _listTasksValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return FromValidationErrors(validationResult.Errors);
+        }
+
         var tasks = await _listTasksUseCase.ExecuteAsync(request);
         return Ok(tasks);
     }
