@@ -18,6 +18,10 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
             .When(request => request.Title is not null)
             .WithMessage("O título deve ter no máximo 120 caracteres.");
 
+        RuleFor(request => request.Description)
+            .MaximumLength(1000)
+            .When(request => request.Description is not null);
+
         RuleFor(request => request.Priority)
             .IsInEnum()
             .When(request => request.Priority.HasValue)
