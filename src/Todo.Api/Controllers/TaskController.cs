@@ -8,12 +8,15 @@ namespace ToDoApp.Api.Controllers;
 
 public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase,
  CompleteTaskUseCase completeTaskUseCase, DeleteTaskUseCase deleteTaskUseCase, GetTrashUseCase getTrashUseCase,
-    RestoreTaskUseCase restoreTaskUseCase) : ApiControllerBase
+    RestoreTaskUseCase restoreTaskUseCase, GetSummaryUseCase getSummaryUseCase) : ApiControllerBase
 {
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
+
     private readonly ListTasksUseCase _listTasksUseCase = listTasksUseCase;
+
     private readonly UpdateTaskUseCase _updateTaskUseCase = updateTaskUseCase;
+
     private readonly CompleteTaskUseCase _completeTaskUseCase = completeTaskUseCase;
 
     private readonly DeleteTaskUseCase _deleteTaskUseCase = deleteTaskUseCase;
@@ -21,6 +24,8 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
     private readonly GetTrashUseCase _getTrashUseCase = getTrashUseCase;
 
     private readonly RestoreTaskUseCase _restoreTaskUseCase = restoreTaskUseCase;
+
+    private readonly GetSummaryUseCase _getSummaryUseCase = getSummaryUseCase;
 
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -119,5 +124,14 @@ public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCa
         }
 
         return NoContent();
+    }
+
+    [HttpGet("summary")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+
+    public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
+    {
+        var summary = await _getSummaryUseCase.ExecuteAsync(cancellationToken);
+        return Ok(summary);
     }
 }
