@@ -19,6 +19,7 @@ public static class DependencyInjection
 
         services.AddScoped<IToDoRepository, TodoRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ISummaryRepository, SummaryRepository>();
 
         return services;
     }

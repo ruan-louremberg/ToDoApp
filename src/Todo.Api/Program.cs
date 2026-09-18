@@ -30,6 +30,7 @@ builder.Services.AddScoped<GetTrashCategoryUseCase>();
 builder.Services.AddScoped<RestoreTaskUseCase>();
 builder.Services.AddScoped<RestoreCategoryUseCase>();
 builder.Services.AddScoped<DeleteCategoryUseCase>();
+builder.Services.AddScoped<GetSummaryUseCase>();
 
 
 var app = builder.Build();
