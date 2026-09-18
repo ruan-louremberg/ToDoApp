@@ -7,9 +7,16 @@ namespace ToDoApp.Api.Controllers;
 [ApiController]
 [Route("api/task")]
 
-public class TaskController(CreateTaskUseCase createTaskUseCase, UpdateTaskUseCase updateTaskUseCase, ListTasksUseCase listTasksUseCase,
- CompleteTaskUseCase completeTaskUseCase, DeleteTaskUseCase deleteTaskUseCase, GetTrashUseCase getTrashUseCase,
-    RestoreTaskUseCase restoreTaskUseCase, GetSummaryUseCase getSummaryUseCase) : ApiControllerBase
+public class TaskController(
+    CreateTaskUseCase createTaskUseCase,
+    UpdateTaskUseCase updateTaskUseCase,
+    ListTasksUseCase listTasksUseCase,
+    CompleteTaskUseCase completeTaskUseCase,
+    DeleteTaskUseCase deleteTaskUseCase,
+    GetTrashUseCase getTrashUseCase,
+    RestoreTaskUseCase restoreTaskUseCase,
+    GetSummaryUseCase getSummaryUseCase,
+    IValidator<ListTasksRequest> listTasksValidator) : ApiControllerBase
 {
 
     private readonly CreateTaskUseCase _createTaskUseCase = createTaskUseCase;
