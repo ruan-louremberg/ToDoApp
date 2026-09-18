@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Infrastructure.Repositories;
 using ToDoApp.Domain.Interfaces.Repositories;
+using ToDoApp.Application.Validators;
+using FluentValidation;
 using Scalar.AspNetCore;
 
 
@@ -13,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>();
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
