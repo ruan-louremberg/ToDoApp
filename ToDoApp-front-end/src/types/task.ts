@@ -9,9 +9,7 @@ export interface Task {
     status: Status;
     priority: Priority;
     dueDate: string | null;
-    categoryId: string | null;
-    createdAt: string;
-    updatedAt: string | null;
+    category: string | null;
     completedAt: string | null;
 
 }
