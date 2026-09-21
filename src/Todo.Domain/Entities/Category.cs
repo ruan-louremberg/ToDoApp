@@ -17,6 +17,12 @@ public class Category : BaseEntity
         IsDeleted = false;
         DeletedAt = null;
     }
+
+    public void Update(string name, string color)
+    {
+        Name = name;
+        Color = color;
+    }
     public void SoftDelete()
     {
         IsDeleted = true;

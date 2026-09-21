@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Domain.Exceptions;
 
@@ -31,6 +32,13 @@ public class ExceptionHandlingMiddleware
     {
         var problemDetails = exception switch
         {
+            JsonException jsonEx => new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Payload inválido",
+                Detail = jsonEx.Message,
+                Instance = context.Request.Path
+            },
             DomainException domainEx => new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,

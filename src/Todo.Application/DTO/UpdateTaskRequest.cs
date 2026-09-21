@@ -1,16 +1,17 @@
+using ToDoApp.Domain;
 using ToDoApp.Domain.Enums;
 
 namespace ToDoApp.Application.DTO;
 
 public record UpdateTaskRequest
 {
-    public string? Title { get; set; }
+    public Optional<string> Title { get; set; } = Optional<string>.Unset();
 
-    public string? Description { get; set; }
+    public Optional<string> Description { get; set; } = Optional<string>.Unset();
 
-    public Priority? Priority { get; set; }
+    public Optional<Priority?> Priority { get; set; } = Optional<Priority?>.Unset();
 
-    public DateTime? DueDate { get; set; }
+    public Optional<DateTime?> DueDate { get; set; } = Optional<DateTime?>.Unset();
 
-    public Guid? CategoryId { get; set; }
+    public Optional<Guid?> CategoryId { get; set; } = Optional<Guid?>.Unset();
 }

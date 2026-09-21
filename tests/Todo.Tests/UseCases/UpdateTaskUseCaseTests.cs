@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Moq;
 using ToDoApp.Application.DTO;
+using ToDoApp.Domain;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Enums;
@@ -17,7 +18,7 @@ public class UpdateTaskUseCaseTests
         var repository = new Mock<IToDoRepository>();
         repository.Setup(item => item.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ToDo?)null);
 
-        var result = await CreateSut(repository).ExecuteAsync(Guid.NewGuid(), new UpdateTaskRequest { Title = "Updated" });
+        var result = await CreateSut(repository).ExecuteAsync(Guid.NewGuid(), new UpdateTaskRequest { Title = Optional<string>.Of("Updated") });
 
         Assert.True(result.IsFailed);
         Assert.Equal(404, result.Errors[0].Metadata["statusCode"]);
@@ -32,10 +33,12 @@ public class UpdateTaskUseCaseTests
         var categoryRepository = new Mock<ICategoryRepository>();
         categoryRepository.Setup(item => item.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Category?)null);
 
-        var result = await CreateSut(repository, categoryRepository).ExecuteAsync(task.Id, new UpdateTaskRequest
+        var request = new UpdateTaskRequest
         {
-            CategoryId = Guid.NewGuid()
-        });
+            CategoryId = Optional<Guid?>.Of(Guid.NewGuid())
+        };
+
+        var result = await CreateSut(repository, categoryRepository).ExecuteAsync(task.Id, request);
 
         Assert.True(result.IsFailed);
         Assert.Equal(404, result.Errors[0].Metadata["statusCode"]);
@@ -50,14 +53,47 @@ public class UpdateTaskUseCaseTests
 
         var result = await CreateSut(repository).ExecuteAsync(task.Id, new UpdateTaskRequest
         {
-            Title = "Updated",
-            Priority = Priority.High
+            Title = Optional<string>.Of("Updated"),
+            Priority = Optional<Priority?>.Of(Priority.High)
         });
 
         Assert.True(result.IsSuccess);
         Assert.Equal("Updated", result.Value.Title);
         Assert.Equal(Priority.High, task.Priority);
         repository.Verify(item => item.UpdateAsync(task, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact(DisplayName = "Mantém a due date quando o campo não veio no PATCH parcial")]
+    public async Task GivenExistingDueDate_WhenPatchDoesNotIncludeDueDate_ThenKeepsCurrentValue()
+    {
+        var existingDueDate = DateTime.UtcNow.AddDays(3);
+        var task = new ToDo("Task", null, Priority.Low, existingDueDate);
+        var repository = new Mock<IToDoRepository>();
+        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+
+        var result = await CreateSut(repository).ExecuteAsync(task.Id, new UpdateTaskRequest
+        {
+            Title = Optional<string>.Of("Updated title")
+        });
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(existingDueDate, task.DueDate);
+    }
+
+    [Fact(DisplayName = "Permite limpar a due date quando o campo vier explicitamente como null")]
+    public async Task GivenExistingDueDate_WhenPatchIncludesDueDateNull_ThenClearsTheValue()
+    {
+        var task = new ToDo("Task", null, Priority.Low, DateTime.UtcNow.AddDays(3));
+        var repository = new Mock<IToDoRepository>();
+        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+
+        var result = await CreateSut(repository).ExecuteAsync(task.Id, new UpdateTaskRequest
+        {
+            DueDate = Optional<DateTime?>.Of(null)
+        });
+
+        Assert.True(result.IsSuccess);
+        Assert.Null(task.DueDate);
     }
 
     private static UpdateTaskUseCase CreateSut(Mock<IToDoRepository> repository, Mock<ICategoryRepository>? categoryRepository = null)

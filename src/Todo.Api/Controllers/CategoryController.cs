@@ -12,7 +12,7 @@ public class CategoryController : ApiControllerBase
 {
     private readonly CreateCategoryUseCase _createCategoryUseCase;
     private readonly ListCategoriesUseCase _listCategoriesUseCase;
-
+    private readonly UpdateCategoryUseCase _updateCategoryUseCase;
     private readonly DeleteCategoryUseCase _deleteCategoryUseCase;
     private readonly GetTrashCategoryUseCase _getTrashCategoryUseCase;
     private readonly RestoreCategoryUseCase _restoreCategoryUseCase;
@@ -21,6 +21,8 @@ public class CategoryController : ApiControllerBase
         CreateCategoryUseCase createCategoryUseCase,
 
         ListCategoriesUseCase listCategoriesUseCase,
+
+        UpdateCategoryUseCase updateCategoryUseCase,
 
         DeleteCategoryUseCase deleteCategoryUseCase,
 
@@ -34,6 +36,8 @@ public class CategoryController : ApiControllerBase
         _createCategoryUseCase = createCategoryUseCase;
 
         _listCategoriesUseCase = listCategoriesUseCase;
+
+        _updateCategoryUseCase = updateCategoryUseCase;
 
         _deleteCategoryUseCase = deleteCategoryUseCase;
 
@@ -73,6 +77,25 @@ public class CategoryController : ApiControllerBase
 
         var categories = await _listCategoriesUseCase.ExecuteAsync(request);
         return Ok(categories);
+    }
+
+    [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UpdateCategory(
+        [FromRoute] Guid id,
+        [FromBody] UpdateCategoryRequest request)
+    {
+        var result = await _updateCategoryUseCase.ExecuteAsync(id, request);
+
+        if (result.IsFailed)
+        {
+            return FromErrors(result.Errors);
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpDelete("{id:guid}")]
