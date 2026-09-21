@@ -15,4 +15,6 @@ public readonly struct Optional<T>
     public static Optional<T> Unset() => new(false, default);
 
     public static Optional<T> Of(T? value) => new(true, value);
+
+    public static Optional<T> Null() => new(true, default);
 }

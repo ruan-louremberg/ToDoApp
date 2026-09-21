@@ -38,7 +38,7 @@ public class ToDoTests
         var dueDate = DateTime.UtcNow.AddDays(1);
         var task = new ToDo("Original", "Description", Priority.Low, dueDate);
 
-        task.SetUpdate("Updated", null, Priority.High, Optional<DateTime?>.Unset(), Optional<Guid?>.Unset());
+        task.SetUpdate("Updated", Optional<string?>.Unset(), Priority.High, Optional<DateTime?>.Unset(), Optional<Guid?>.Unset());
 
         Assert.Equal("Updated", task.Title);
         Assert.Equal("Description", task.Description);

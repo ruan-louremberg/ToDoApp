@@ -7,7 +7,7 @@ public record UpdateTaskRequest
 {
     public Optional<string> Title { get; set; } = Optional<string>.Unset();
 
-    public Optional<string> Description { get; set; } = Optional<string>.Unset();
+    public Optional<string?> Description { get; set; } = Optional<string?>.Unset();
 
     public Optional<Priority?> Priority { get; set; } = Optional<Priority?>.Unset();
 

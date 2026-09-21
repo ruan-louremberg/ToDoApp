@@ -42,7 +42,7 @@ public class UpdateTaskRequestValidatorTests
         var result = new UpdateTaskRequestValidator().Validate(new UpdateTaskRequest
         {
             Title = Optional<string>.Of(null),
-            Description = Optional<string>.Of(null),
+            Description = Optional<string?>.Of(null),
             Priority = Optional<Priority?>.Of(null),
             DueDate = Optional<DateTime?>.Of(null),
             CategoryId = Optional<Guid?>.Of(null)

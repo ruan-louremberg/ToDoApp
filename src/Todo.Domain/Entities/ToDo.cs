@@ -43,10 +43,10 @@ namespace ToDoApp.Domain.Entities
             CategoryId = category.Id;
         }
 
-        public void SetUpdate(string? title, string? description, Priority? priority, Optional<DateTime?> dueDate, Optional<Guid?> categoryId)
+        public void SetUpdate(string? title, Optional<string?> description, Priority? priority, Optional<DateTime?> dueDate, Optional<Guid?> categoryId)
         {
             Title = title ?? Title;
-            Description = description ?? Description;
+            Description = description.IsSet ? description.Value : Description;
             Priority = priority ?? Priority;
             DueDate = dueDate.IsSet ? dueDate.Value : DueDate;
             CategoryId = categoryId.IsSet ? categoryId.Value : CategoryId;

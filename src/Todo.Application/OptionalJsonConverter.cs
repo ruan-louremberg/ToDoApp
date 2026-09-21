@@ -24,7 +24,7 @@ public sealed class OptionalJsonConverter<T> : JsonConverter<Optional<T>>
     {
         if (reader.TokenType == JsonTokenType.Null)
         {
-            return Optional<T>.Of(default);
+            return Optional<T>.Null();
         }
 
         if (reader.TokenType == JsonTokenType.StartObject)
@@ -38,7 +38,13 @@ public sealed class OptionalJsonConverter<T> : JsonConverter<Optional<T>>
 
     public override void Write(Utf8JsonWriter writer, Optional<T> value, JsonSerializerOptions options)
     {
-        if (!value.IsSet || value.Value is null)
+        if (!value.IsSet)
+        {
+            writer.WriteNullValue();
+            return;
+        }
+
+        if (value.Value is null)
         {
             writer.WriteNullValue();
             return;

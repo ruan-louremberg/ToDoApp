@@ -40,6 +40,7 @@ public class UpdateTaskUseCase
                 .WithMetadata("statusCode", 404));
         }
 
+        var optionalDescription = request.Description;
         var optionalDueDate = request.DueDate;
         var optionalCategoryId = request.CategoryId;
 
@@ -54,12 +55,11 @@ public class UpdateTaskUseCase
         }
 
         var title = request.Title.IsSet ? request.Title.Value : null;
-        var description = request.Description.IsSet ? request.Description.Value : null;
         var priority = request.Priority.IsSet ? request.Priority.Value : null;
 
         task.SetUpdate(
             title,
-            description,
+            optionalDescription,
             priority,
             optionalDueDate,
             optionalCategoryId
