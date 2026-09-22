@@ -34,17 +34,19 @@ public class UpdateTaskUseCase
 
         var task = await _toDoRepository.GetByIdAsync(id, cancellationToken);
 
-
         if (task == null)
         {
             return Result.Fail(new Error("Tarefa não encontrada.")
                 .WithMetadata("statusCode", 404));
         }
 
-         Category? category = null;
-        if (request.CategoryId.HasValue)
+        var optionalDescription = request.Description;
+        var optionalDueDate = request.DueDate;
+        var optionalCategoryId = request.CategoryId;
+
+        if (optionalCategoryId.IsSet && optionalCategoryId.Value is not null && optionalCategoryId.Value.HasValue)
         {
-            category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value, cancellationToken);
+            var category = await _categoryRepository.GetByIdAsync(optionalCategoryId.Value.Value, cancellationToken);
             if (category is null)
             {
                 return Result.Fail(new Error("Categoria não encontrada.")
@@ -52,12 +54,15 @@ public class UpdateTaskUseCase
             }
         }
 
+        var title = request.Title.IsSet ? request.Title.Value : null;
+        var priority = request.Priority.IsSet ? request.Priority.Value : null;
+
         task.SetUpdate(
-            request.Title,
-            request.Description,
-            request.Priority,
-            request.DueDate,
-            request.CategoryId
+            title,
+            optionalDescription,
+            priority,
+            optionalDueDate,
+            optionalCategoryId
         );
 
         await _toDoRepository.UpdateAsync(task, cancellationToken);
@@ -72,6 +77,5 @@ public class UpdateTaskUseCase
         );
 
         return Result.Ok(taskResponse);
-
     }
 }

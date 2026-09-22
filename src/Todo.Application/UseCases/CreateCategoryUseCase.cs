@@ -19,7 +19,7 @@ public class CreateCategoryUseCase
         _validator = validator;
     }
 
-    public async Task<Result<Category>> ExecuteAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<CategoryResponse>> ExecuteAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -36,6 +36,7 @@ public class CreateCategoryUseCase
                 .WithMetadata("statusCode", 409));
         }
         await _categoryRepository.AddAsync(category, cancellationToken);
-        return category;
+        var categoryResponse = new CategoryResponse(category.Id, category.Name, category.Color);
+        return Result.Ok(categoryResponse);
     }
 }

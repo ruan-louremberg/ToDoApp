@@ -5,7 +5,7 @@ using ToDoApp.Application.DTO;
 namespace ToDoApp.Api.Controllers;
 
 [ApiController]
-[Route("api/task")]
+[Route("api/tasks")]
 
 public class TaskController(
     CreateTaskUseCase createTaskUseCase,

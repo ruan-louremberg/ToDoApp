@@ -14,7 +14,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new ToDoApp.Application.OptionalJsonConverterFactory());
+});
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new ToDoApp.Application.OptionalJsonConverterFactory());
+});
 builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>();
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -27,6 +34,7 @@ builder.Services.AddScoped<CompleteTaskUseCase>();
 builder.Services.AddScoped<DeleteTaskUseCase>();
 builder.Services.AddScoped<GetTrashUseCase>();
 builder.Services.AddScoped<GetTrashCategoryUseCase>();
+builder.Services.AddScoped<UpdateCategoryUseCase>();
 builder.Services.AddScoped<RestoreTaskUseCase>();
 builder.Services.AddScoped<RestoreCategoryUseCase>();
 builder.Services.AddScoped<DeleteCategoryUseCase>();

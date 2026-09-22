@@ -1,3 +1,4 @@
+using ToDoApp.Domain;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Enums;
 
@@ -37,7 +38,7 @@ public class ToDoTests
         var dueDate = DateTime.UtcNow.AddDays(1);
         var task = new ToDo("Original", "Description", Priority.Low, dueDate);
 
-        task.SetUpdate("Updated", null, Priority.High, null, null);
+        task.SetUpdate("Updated", Optional<string?>.Unset(), Priority.High, Optional<DateTime?>.Unset(), Optional<Guid?>.Unset());
 
         Assert.Equal("Updated", task.Title);
         Assert.Equal("Description", task.Description);
