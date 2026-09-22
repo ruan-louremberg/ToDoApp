@@ -67,13 +67,21 @@ public class UpdateTaskUseCase
 
         await _toDoRepository.UpdateAsync(task, cancellationToken);
 
+        var updatedTask = await _toDoRepository.GetByIdAsync(id, cancellationToken);
+
+        if (updatedTask is null)
+        {
+            return Result.Fail(new Error("Erro ao recarregar a tarefa atualizada.")
+                .WithMetadata("statusCode", 500));
+        }
+
         var taskResponse = new TaskResponse(
-            task.Id,
-            task.Title.Trim(),
-            task.Description,
-            (int)task.Priority,
-            task.DueDate,
-            task.Category != null ? new CategoryResponse(task.Category.Id, task.Category.Name, task.Category.Color) : null
+            updatedTask.Id,
+            updatedTask.Title.Trim(),
+            updatedTask.Description,
+            (int)updatedTask.Priority,
+            updatedTask.DueDate,
+            updatedTask.Category != null ? new CategoryResponse(updatedTask.Category.Id, updatedTask.Category.Name, updatedTask.Category.Color) : null
         );
 
         return Result.Ok(taskResponse);
