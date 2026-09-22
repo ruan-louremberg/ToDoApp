@@ -1,10 +1,8 @@
-using ToDoApp.Domain;
-
 namespace ToDoApp.Application.DTO;
 
 public record UpdateCategoryRequest
 {
-    public Optional<string> Name { get; set; } = Optional<string>.Unset();
+    public string Name { get; set; } = string.Empty;
 
-    public Optional<string> Color { get; set; } = Optional<string>.Unset();
+    public string Color { get; set; } = string.Empty;
 }

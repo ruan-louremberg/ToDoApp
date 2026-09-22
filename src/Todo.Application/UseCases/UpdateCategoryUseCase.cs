@@ -37,29 +37,14 @@ public class UpdateCategoryUseCase
                 .WithMetadata("statusCode", 404));
         }
 
-        var optionalName = request.Name;
-        var optionalColor = request.Color;
-
-        var newName = category.Name;
-        if (optionalName.IsSet && optionalName.Value is not null)
+        var categoryWithSameName = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
+        if (categoryWithSameName is not null && categoryWithSameName.Id != category.Id)
         {
-            newName = optionalName.Value;
-
-            var categoryWithSameName = await _categoryRepository.GetByNameAsync(newName, cancellationToken);
-            if (categoryWithSameName is not null && categoryWithSameName.Id != category.Id)
-            {
-                return Result.Fail(new Error("Já existe uma categoria com esse nome.")
-                    .WithMetadata("statusCode", 409));
-            }
+            return Result.Fail(new Error("Já existe uma categoria com esse nome.")
+                .WithMetadata("statusCode", 409));
         }
 
-        var newColor = category.Color;
-        if (optionalColor.IsSet && optionalColor.Value is not null)
-        {
-            newColor = optionalColor.Value;
-        }
-
-        category.Update(newName, newColor);
+        category.Update(request.Name, request.Color);
         await _categoryRepository.UpdateAsync(category, cancellationToken);
 
         return Result.Ok(new CategoryResponse(category.Id, category.Name, category.Color));
