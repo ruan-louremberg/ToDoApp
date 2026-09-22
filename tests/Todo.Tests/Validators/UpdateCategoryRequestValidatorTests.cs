@@ -1,20 +1,35 @@
 using ToDoApp.Application.DTO;
 using ToDoApp.Application.Validators;
-using ToDoApp.Domain;
 
 namespace ToDoApp.Tests.Validators;
 
 public class UpdateCategoryRequestValidatorTests
 {
-    [Fact(DisplayName = "Aceita campo explicitamente nulo em patch de categoria")]
-    public void GivenExplicitNullField_WhenValidatingRequest_ThenReturnsSuccess()
+    [Fact(DisplayName = "Aceita categoria com nome e cor válidos")]
+    public void GivenValidCategoryUpdate_WhenValidatingRequest_ThenReturnsSuccess()
     {
         var result = new UpdateCategoryRequestValidator().Validate(new UpdateCategoryRequest
         {
-            Name = Optional<string>.Of(null),
-            Color = Optional<string>.Of(null)
+            Name = "Casa",
+            Color = "#FFAA00"
         });
 
         Assert.True(result.IsValid);
+    }
+
+    [Theory(DisplayName = "Rejeita categoria com nome ou cor vazios")]
+    [InlineData("", "#FFAA00")]
+    [InlineData("Casa", "")]
+    [InlineData(null, "#FFAA00")]
+    [InlineData("Casa", null)]
+    public void GivenMissingRequiredFields_WhenValidatingRequest_ThenReturnsFailure(string? name, string? color)
+    {
+        var result = new UpdateCategoryRequestValidator().Validate(new UpdateCategoryRequest
+        {
+            Name = name ?? string.Empty,
+            Color = color ?? string.Empty
+        });
+
+        Assert.False(result.IsValid);
     }
 }
