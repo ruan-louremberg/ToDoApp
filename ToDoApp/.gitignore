@@ -1,0 +1,29 @@
+## Build and output directories
+bin/
+obj/
+out/
+[Bb]in/
+[Oo]bj/
+
+## Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## Environment files
+.env
+.env.*
+!.env.example
+
+## IDE & User settings
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+
+## OS generated files
+Thumbs.db
+[Dd]esktop.ini

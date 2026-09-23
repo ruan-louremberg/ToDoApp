@@ -1,0 +1,90 @@
+using ToDoApp.Domain.Enums;
+using ToDoApp.Domain.Exceptions;
+
+
+namespace ToDoApp.Domain.Entities
+{
+    public class ToDo : BaseEntity
+    {
+
+        public string Title { get; private set; } = null!;
+
+        public string? Description { get; private set; }
+
+        public Status Status { get; private set; }
+
+        public Priority Priority { get; private set; }
+
+        public DateTime? DueDate { get; private set; }
+
+        public DateTime? CompletedAt { get; private set; }
+
+        public Guid? CategoryId { get; private set; }
+
+        public Category? Category { get; private set; }
+
+        public bool IsDeleted { get; private set; }
+
+        public DateTime? DeletedAt { get; private set; }
+
+        public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
+        {
+            Title = title;
+            Description = description;
+            Status = Status.Pending;
+            Priority = priority;
+            DueDate = dueDate;
+
+            CategoryId = categoryId;
+        }
+        public void SetCategory(Category category)
+        {
+            Category = category;
+            CategoryId = category.Id;
+        }
+
+        public void SetUpdate(string? title, string? description, Priority? priority, DateTime? dueDate, Guid? categoryId)
+        {
+            Title = title ?? Title;
+            Description = description ?? Description;
+            Priority = priority ?? Priority;
+            DueDate = dueDate ?? DueDate;
+            CategoryId = categoryId ?? CategoryId;
+
+            SetUpdatedAt(DateTime.UtcNow);
+        }
+
+        public void ChangeStatus(Status newStatus)
+        {
+        if (Status == Status.Completed && newStatus == Status.Completed)
+        {
+            return;
+        }
+
+        Status = newStatus;
+
+        if (newStatus == Status.Completed)
+        {
+            CompletedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            CompletedAt = null;
+        }
+
+        SetUpdatedAt(DateTime.UtcNow);
+        }
+
+        public void SoftDelete()
+        {
+            IsDeleted = true;
+            DeletedAt = DateTime.UtcNow;
+        }
+
+        public void Restore()
+        {
+            IsDeleted = false;
+            DeletedAt = null;
+        }
+    }
+}

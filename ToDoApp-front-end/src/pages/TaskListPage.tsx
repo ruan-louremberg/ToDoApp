@@ -7,8 +7,7 @@ export function TaskListPage() {
   const [ priority, setPriority ] = useState("");
   
 
-  const { data, loading, error, reload } = useTasks({ search, status, priority});
-  
+  const { data, loading, error } = useTasks({ search, status, priority});
 
   return (
     <main>
@@ -37,8 +36,11 @@ export function TaskListPage() {
           <option value="High">Alta</option>
         </select>
       </div>
-
-      {data?.items.length === 0 ? (
+      { loading ? (
+        <p>Carregando tarefas...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : data?.items.length === 0 ? (
         <p>Nenhuma tarefa cadastrada ainda.</p>
       ) : (
         <ul>
