@@ -62,10 +62,12 @@ public class TodoRepository : IToDoRepository
             query = query.Where(x => x.CategoryId == categoryId.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(search))
+        var safeSearch = search?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(safeSearch))
         {
             query = query.Where(x =>
-                x.Title.Contains(search));
+                x.Title.ToLower().Contains(safeSearch.ToLower()));
         }
 
         var isDescending = string.Equals(sortDirection, "desc", StringComparison.OrdinalIgnoreCase);
@@ -124,10 +126,12 @@ public class TodoRepository : IToDoRepository
             query = query.Where(x => x.CategoryId == categoryId.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(search))
+        var safeSearch = search?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(safeSearch))
         {
             query = query.Where(x =>
-                x.Title.Contains(search));
+                x.Title.ToLower().Contains(safeSearch.ToLower()));
         }
 
         return await query.CountAsync(cancellationToken);
