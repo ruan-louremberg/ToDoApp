@@ -6,7 +6,7 @@ public record CreateTaskRequest
 {
     public string Title { get; set; } = string.Empty;
 
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; } = null;
 
     public Priority Priority { get; set; }
 

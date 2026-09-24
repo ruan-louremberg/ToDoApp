@@ -8,10 +8,10 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
     public UpdateTaskRequestValidator()
     {
         RuleFor(request => request.Title.Value)
-            .NotEmpty()
+            .Must(value => value is null || !string.IsNullOrWhiteSpace(value))
             .When(request => request.Title.IsSet && request.Title.Value is not null)
             .WithMessage("O título não pode ser vazio.")
-            .MinimumLength(3)
+            .Must(value => value is null || value.Trim().Length >= 3)
             .When(request => request.Title.IsSet && request.Title.Value is not null)
             .WithMessage("O título deve ter pelo menos 3 caracteres.")
             .MaximumLength(120)
@@ -19,8 +19,12 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
             .WithMessage("O título deve ter no máximo 120 caracteres.");
 
         RuleFor(request => request.Description.Value)
+            .Must(value => value is null || value.Trim().Length >= 10)
+            .When(request => request.Description.IsSet && request.Description.Value is not null)
+            .WithMessage("A descrição da tarefa deve ter pelo menos 10 caracteres.")
             .MaximumLength(1000)
-            .When(request => request.Description.IsSet && request.Description.Value is not null);
+            .When(request => request.Description.IsSet && request.Description.Value is not null)
+            .WithMessage("A descrição da tarefa deve ter no máximo 1000 caracteres.");
 
         RuleFor(request => request.Priority.Value)
             .IsInEnum()
