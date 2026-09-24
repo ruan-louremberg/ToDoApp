@@ -13,3 +13,12 @@ export interface Task {
     completedAt: string | null;
 
 }
+
+export interface CreateTaskData {
+
+    title: string;
+    description?: string;
+    priority: number;
+    dueDate?: string | null;
+    
+}   

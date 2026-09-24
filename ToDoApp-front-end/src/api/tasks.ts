@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL;
 import type { ListTasksResponse } from "../types/ListTasksResponse";
+import type { CreateTaskData } from "../types/task";
 import type { TaskFilters } from "../types/taskFilters";
 
 
@@ -21,4 +22,19 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
         throw new Error("Erro ao buscar tarefas")
     }
     return response.json();
+}
+
+export async function createTask(data: CreateTaskData) {
+    const response = await fetch(`${API_URL}/api/task`,
+        { method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error("Erro ao criar tarefa")
+    }
 }
