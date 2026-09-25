@@ -16,7 +16,7 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
 
     const queryString = params.toString() ? `?${params.toString()}` : "";
 
-    const response = await fetch(`${API_URL}/api/task${queryString}`)
+    const response = await fetch(`${API_URL}/api/tasks${queryString}`)
 
     if (!response.ok) {
         throw new Error("Erro ao buscar tarefas")
@@ -25,7 +25,7 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
 }
 
 export async function createTask(data: CreateTaskData) {
-    const response = await fetch(`${API_URL}/api/task`,
+    const response = await fetch(`${API_URL}/api/tasks`,
         { method: "POST",
             headers: {
                 "Content-Type": "application/json",
