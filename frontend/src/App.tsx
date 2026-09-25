@@ -1,4 +1,5 @@
 import { TaskListPage } from "./pages/TaskListPage";
+import { TaskSummaryPage } from "./pages/TaskSummaryPage";
 
 export function App() {
 
@@ -10,6 +11,7 @@ export function App() {
           <p>ToDoApp</p>
         </div>
       }
+      <TaskSummaryPage />
       <TaskListPage />
     </div>
     

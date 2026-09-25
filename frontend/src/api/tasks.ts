@@ -2,6 +2,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { CreateTaskData } from "../types/task";
 import type { TaskFilters } from "../types/taskFilters";
+import type { TaskSummaryResponse } from "../types/TaskSummaryResponse";
 
 
 export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse> {
@@ -37,4 +38,12 @@ export async function createTask(data: CreateTaskData) {
     if (!response.ok) {
         throw new Error("Erro ao criar tarefa")
     }
+}
+
+export async function getTaskSummary(): Promise<TaskSummaryResponse> {
+    const response = await fetch(`${API_URL}/api/tasks/summary`);
+    if (!response.ok) {
+        throw new Error("Erro ao buscar resumo das tarefas")
+    }
+    return response.json();
 }
