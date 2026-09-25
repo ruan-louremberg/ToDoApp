@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { useTasks } from "../hooks/useTasks";
+import { CreateTaskModal } from "../components/createTaskModal";
 
 export function TaskListPage() {
   const [ search, setSearch ] = useState("");
   const [ status, setStatus ] = useState("");
   const [ priority, setPriority ] = useState("");
+  const [ isModalOpen, setIsModalOpen ] = useState(false)
   
 
-  const { data, loading, error } = useTasks({ search, status, priority});
+  const { data, loading, error, reload} = useTasks({ search, status, priority});
 
   return (
     <main>
       <h1>Minhas Tarefas</h1>
-
+      <button onClick={() => setIsModalOpen(true)}>+ Nova Tarefa</button>
       <div className="filters">
         <input 
         type="text"
@@ -51,6 +53,10 @@ export function TaskListPage() {
           ))}
         </ul>
       )}
+      <CreateTaskModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      onCreated={reload} />
     </main>
   );
 }

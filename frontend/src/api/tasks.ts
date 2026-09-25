@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL;
 import type { ListTasksResponse } from "../types/ListTasksResponse";
+import type { ProblemDetails } from "../types/problemDetails";
 import type { CreateTaskData } from "../types/task";
 import type { TaskFilters } from "../types/taskFilters";
 
@@ -16,7 +17,7 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
 
     const queryString = params.toString() ? `?${params.toString()}` : "";
 
-    const response = await fetch(`${API_URL}/api/task${queryString}`)
+    const response = await fetch(`${API_URL}/api/tasks${queryString}`)
 
     if (!response.ok) {
         throw new Error("Erro ao buscar tarefas")
@@ -24,17 +25,30 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
     return response.json();
 }
 
-export async function createTask(data: CreateTaskData) {
-    const response = await fetch(`${API_URL}/api/task`,
-        { method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        }
-    );
+
+export async function createTask(
+  data: CreateTaskData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(`${API_URL}/api/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
     if (!response.ok) {
-        throw new Error("Erro ao criar tarefa")
+      const problem: ProblemDetails = await response.json().catch(() => ({}));
+      
+      const errorMessage = problem.detail;
+      
+      return { success: false, error: errorMessage };
     }
+
+    return { success: true };
+  } catch {
+
+    return { success: false, error: "Não foi possível conectar ao servidor." };
+  }
 }
