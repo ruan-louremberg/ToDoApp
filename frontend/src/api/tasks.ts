@@ -19,6 +19,15 @@ export class ApiError extends Error {
   }
 }
 
+async function throwApiError(response: Response, fallbackMessage: string): Promise<never> {
+  const problem: ProblemDetails = await response.json().catch(() => ({}));
+
+  throw new ApiError(
+    problem.detail ?? fallbackMessage,
+    problem
+  );
+}
+
 
 export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse> {
     const params = new URLSearchParams();
@@ -35,11 +44,7 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
     const response = await fetch(`${API_URL}/api/tasks${queryString}`)
 
     if (!response.ok) {
-        const problem: ProblemDetails = await response.json().catch(() => ({}));
-        throw new ApiError(
-          problem.detail ?? "Erro ao buscar tarefas",
-          problem
-        );
+        await throwApiError(response, "Erro ao buscar tarefas");
     }
     return response.json();
 }
@@ -48,108 +53,77 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
 export async function createTask(
   data: CreateTaskData
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const response = await fetch(`${API_URL}/api/tasks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+  const response = await fetch(`${API_URL}/api/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
 
-    if (!response.ok) {
-      const problem: ProblemDetails = await response.json().catch(() => ({}));
-      
-      const errorMessage = problem.detail;
-      
-      return { success: false, error: errorMessage };
-    }
-
-    return { success: true };
-  } catch {
-
-    return { success: false, error: "Não foi possível conectar ao servidor." };
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao criar tarefa");
   }
+
+  return { success: true };
 }
 
 export async function editTask(
   id: string,
   data: Partial<CreateTaskData> & { categoryId?: string | null }
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const response = await fetch(`${API_URL}/api/tasks/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+  const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
 
-    if (!response.ok) {
-      const problem: ProblemDetails = await response.json().catch(() => ({}));
-
-      return { success: false, error: problem.detail };
-    }
-
-    return { success: true };
-  } catch {
-    return { success: false, error: "Não foi possível conectar ao servidor." };
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao editar tarefa");
   }
+
+  return { success: true };
 }
 
 export async function deleteTask(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const response = await fetch(`${API_URL}/api/tasks/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ deleted: true }),
-    });
-export async function createTask(data: CreateTaskData) {
-    const response = await fetch(`${API_URL}/api/tasks`,
-        { method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        }
-    );
+  const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+    method: "DELETE",
+  });
 
-    if (!response.ok) {
-      const problem: ProblemDetails = await response.json().catch(() => ({}));
-      return { success: false, error: problem.detail };
-    }
-    return { success: true };
-  } catch {
-    return { success: false, error: "Não foi possível conectar ao servidor." };
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao excluir tarefa");
   }
+
+  return { success: true };
 }
+
 
 export async function completeTask(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const response = await fetch(`${API_URL}/api/tasks/${id}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ completed: true }),
-    });
+  const response = await fetch(`${API_URL}/api/tasks/${id}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: 2 }),
+  });
 
-    if (!response.ok) {
-      const problem: ProblemDetails = await response.json().catch(() => ({}));
-      return { success: false, error: problem.detail };
-    }
-    return { success: true };
-  } catch {
-    return { success: false, error: "Não foi possível conectar ao servidor." };
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao concluir tarefa");
   }
-}
 
+  return { success: true };
 }
 
 export async function getTaskSummary(): Promise<TaskSummaryResponse> {
     const response = await fetch(`${API_URL}/api/tasks/summary`);
     if (!response.ok) {
-        throw new Error("Erro ao buscar resumo das tarefas")
+        await throwApiError(response, "Erro ao buscar resumo das tarefas");
     }
     return response.json();
 }
