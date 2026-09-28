@@ -1,27 +1,69 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getTaskSummary } from "../api/tasks";
 import type { TaskSummaryResponse } from "../types/TaskSummaryResponse";
 
-export function useTaskSummary() {
-  const [data, setData] = useState<TaskSummaryResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+interface UseTaskSummaryResult {
+  summary: TaskSummaryResponse | null;
+  isLoading: boolean;
+  error: string | null;
+  reload: () => Promise<void>;
+}
 
-  useEffect(() => {
-    async function fetchSummary() {
-      try {
-        setLoading(true);
-        const result = await getTaskSummary();
-        setData(result);
-      } catch {
-        setError("Erro ao carregar resumo");
-      } finally {
-        setLoading(false);
+export function useTaskSummary(): UseTaskSummaryResult {
+  const [summary, setSummary] =
+    useState<TaskSummaryResponse | null>(null);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const fetchSummary = useCallback(async (isBackground = false) => {
+    try {
+      if (!isBackground) {
+        setIsLoading(true);
+      }
+
+      setError(null);
+
+      const data = await getTaskSummary();
+
+      setSummary(data);
+    } catch {
+      setError(
+        "Não foi possível atualizar o resumo das tarefas."
+      );
+    } finally {
+      if (!isBackground) {
+        setIsLoading(false);
       }
     }
-
-    fetchSummary();
   }, []);
 
-  return { data, loading, error };
+  useEffect(() => {
+    fetchSummary(false);
+
+    const intervalId = window.setInterval(() => {
+      fetchSummary(true);
+    }, 30_000);
+
+    const handleFocus = () => {
+      fetchSummary(true);
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchSummary]);
+
+  return {
+    summary,
+    isLoading,
+    error,
+    reload: () => fetchSummary(false),
+  };
 }
