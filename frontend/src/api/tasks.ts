@@ -4,6 +4,7 @@ import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { ProblemDetails } from "../types/problemDetails";
 import type { CreateTaskData } from "../types/task";
 import type { TaskFilters } from "../types/taskFilters";
+import type { TaskSummaryResponse } from "../types/TaskSummaryResponse";
 
 export class ApiError extends Error {
   readonly problemDetails?: ProblemDetails;
@@ -104,6 +105,15 @@ export async function deleteTask(
       method: "PATCH",
       body: JSON.stringify({ deleted: true }),
     });
+export async function createTask(data: CreateTaskData) {
+    const response = await fetch(`${API_URL}/api/tasks`,
+        { method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        }
+    );
 
     if (!response.ok) {
       const problem: ProblemDetails = await response.json().catch(() => ({}));
@@ -134,3 +144,12 @@ export async function completeTask(
   }
 }
 
+}
+
+export async function getTaskSummary(): Promise<TaskSummaryResponse> {
+    const response = await fetch(`${API_URL}/api/tasks/summary`);
+    if (!response.ok) {
+        throw new Error("Erro ao buscar resumo das tarefas")
+    }
+    return response.json();
+}

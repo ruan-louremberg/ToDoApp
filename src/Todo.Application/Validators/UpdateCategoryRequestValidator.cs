@@ -8,9 +8,9 @@ public class UpdateCategoryRequestValidator : AbstractValidator<UpdateCategoryRe
     public UpdateCategoryRequestValidator()
     {
         RuleFor(request => request.Name)
-            .NotEmpty()
+            .Must(name => !string.IsNullOrWhiteSpace(name))
             .WithMessage("O nome da categoria é obrigatório.")
-            .MinimumLength(2)
+            .Must(name => name is null || name.Trim().Length >= 2)
             .WithMessage("O nome da categoria deve ter pelo menos 2 caracteres.")
             .MaximumLength(50)
             .WithMessage("O nome da categoria deve ter no máximo 50 caracteres.");
