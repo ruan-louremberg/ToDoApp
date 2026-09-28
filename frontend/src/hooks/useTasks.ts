@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getTasks } from "../api/tasks";
+import { ApiError, getTasks } from "../api/tasks";
 import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { TaskFilters } from "../types/taskFilters";
 
@@ -18,7 +18,11 @@ export function useTasks(filters?: TaskFilters) {
 
     } catch (err) {
       console.error(err);
-      setError("Erro ao carregar as tarefas");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível carregar as tarefas."
+      );
 
     } finally {
       if (!isBackground) setLoading(false);

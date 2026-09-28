@@ -1,8 +1,22 @@
 const API_URL = import.meta.env.VITE_API_URL;
+
 import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { ProblemDetails } from "../types/problemDetails";
 import type { CreateTaskData } from "../types/task";
 import type { TaskFilters } from "../types/taskFilters";
+
+export class ApiError extends Error {
+  readonly problemDetails?: ProblemDetails;
+
+  constructor(
+    message: string,
+    problemDetails?: ProblemDetails
+  ) {
+    super(message);
+    this.problemDetails = problemDetails;
+    this.name = "ApiError";
+  }
+}
 
 
 export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse> {
@@ -20,7 +34,11 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
     const response = await fetch(`${API_URL}/api/tasks${queryString}`)
 
     if (!response.ok) {
-        throw new Error("Erro ao buscar tarefas")
+        const problem: ProblemDetails = await response.json().catch(() => ({}));
+        throw new ApiError(
+          problem.detail ?? "Erro ao buscar tarefas",
+          problem
+        );
     }
     return response.json();
 }
@@ -52,3 +70,67 @@ export async function createTask(
     return { success: false, error: "Não foi possível conectar ao servidor." };
   }
 }
+
+export async function editTask(
+  id: string,
+  data: Partial<CreateTaskData> & { categoryId?: string | null }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const problem: ProblemDetails = await response.json().catch(() => ({}));
+
+      return { success: false, error: problem.detail };
+    }
+
+    return { success: true };
+  } catch {
+    return { success: false, error: "Não foi possível conectar ao servidor." };
+  }
+}
+
+export async function deleteTask(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ deleted: true }),
+    });
+
+    if (!response.ok) {
+      const problem: ProblemDetails = await response.json().catch(() => ({}));
+      return { success: false, error: problem.detail };
+    }
+    return { success: true };
+  } catch {
+    return { success: false, error: "Não foi possível conectar ao servidor." };
+  }
+}
+
+export async function completeTask(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const response = await fetch(`${API_URL}/api/tasks/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ completed: true }),
+    });
+
+    if (!response.ok) {
+      const problem: ProblemDetails = await response.json().catch(() => ({}));
+      return { success: false, error: problem.detail };
+    }
+    return { success: true };
+  } catch {
+    return { success: false, error: "Não foi possível conectar ao servidor." };
+  }
+}
+

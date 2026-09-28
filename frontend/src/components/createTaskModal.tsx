@@ -37,8 +37,7 @@ export function CreateTaskModal({
       dueDate: dueDate || null,
     };
 
-    const result = await createTask(data)
-
+    const result = await createTask(data);
     setSaving(false);
 
     if (!result.success){
