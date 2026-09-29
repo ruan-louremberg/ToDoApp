@@ -3,11 +3,13 @@ import { createTask } from "../api/tasks";
 import { TaskFormModal } from "../components/TaskFormModal";
 import { useEditTask } from "../hooks/useEditTask";
 import { useTasks } from "../hooks/useTasks";
+import { useDebounce } from "../hooks/useDebounce";
 import type { Task } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
 export function TaskListPage() {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -16,7 +18,7 @@ export function TaskListPage() {
   const [creating, setCreating] = useState(false);
   const { updateTask, saving: editing, error: editError } = useEditTask();
   const { data, loading, error, reload } = useTasks({
-    search,
+    search: debouncedSearch,
     status,
     priority,
   });

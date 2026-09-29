@@ -20,6 +20,9 @@ services:
       VITE_API_URL: "http://localhost:5080"
     depends_on:
       - api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
 volumes:
   todo-data:
