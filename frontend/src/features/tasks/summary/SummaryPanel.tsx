@@ -34,7 +34,7 @@ export function SummaryPanel() {
     <section className="summary-panel">
       <div className="summary-panel__header">
         <h2>Resumo</h2>
-
+ 
         {isLoading && (
           <span>Atualizando...</span>
         )}
@@ -42,27 +42,27 @@ export function SummaryPanel() {
 
       <div className="summary-panel__grid">
         <SummaryCard
-          title="Total"
+          title="Total "
           value={summary.totalTasks}
         />
 
         <SummaryCard
-          title="Pendentes"
+          title="Pendentes "
           value={summary.status.pending}
         />
 
         <SummaryCard
-          title="Em andamento"
+          title="Em andamento "
           value={summary.status.inProgress}
         />
 
         <SummaryCard
-          title="Concluídas"
+          title="Concluídas "
           value={summary.status.completed}
         />
 
         <SummaryCard
-          title="Atrasadas"
+          title="Atrasadas "
           value={summary.delays.overdue}
         />
       </div>

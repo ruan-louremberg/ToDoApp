@@ -4,6 +4,7 @@ import { TaskFormModal } from "../components/TaskFormModal";
 import { useEditTask } from "../hooks/useEditTask";
 import { useTasks } from "../hooks/useTasks";
 import { useDebounce } from "../hooks/useDebounce";
+import { useDeleteTask } from "../hooks/useDeleteTask";
 import type { Task } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
@@ -79,6 +80,26 @@ export function TaskListPage() {
       }
     : undefined;
 
+  const {
+    removeTask,
+    deletingTaskId,
+    error: deleteError,
+  } = useDeleteTask();
+
+  async function handleDeleteTask(task: Task) {
+    const confirmed = window.confirm(
+      `Tem certeza que deseja excluir "${task.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    const deleted = await removeTask(task.id);
+
+    if (deleted) {
+      await reload();
+    }
+  }
+
   return (
     <main>
       <h1>Minhas Tarefas</h1>
@@ -122,10 +143,17 @@ export function TaskListPage() {
               <button type="button" onClick={() => openEditModal(task)}>
                 Editar
               </button>
+              <button
+                type="button"
+                disabled={deletingTaskId !== null}
+                onClick={() => void handleDeleteTask(task)}>
+                {deletingTaskId === task.id ? "Excluindo..." : "Excluir"}
+              </button>
             </li>
           ))}
         </ul>
       )}
+      {deleteError && <p role="alert">{deleteError}</p>}
       <TaskFormModal
         isOpen={isModalOpen}
         title={selectedTask ? "Editar tarefa" : "Nova tarefa"}
