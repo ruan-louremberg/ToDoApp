@@ -1,24 +1,61 @@
-export type Status = "Pending" | "InProgress" | "Completed";
-export type Priority = "Low" | "Medium" | "High";
+import type { CategoryResponse } from "./category";
 
-export interface Task {
+export type Status = 0 | 1 | 2;
+export type Priority = 0 | 1 | 2;
 
+export type TaskStatusDto = Status;
+export type TaskPriorityDto = Priority;
+
+export interface TaskResponse {
     id: string;
     title: string;
     description: string | null;
-    status: Status;
-    priority: Priority;
+    priority: number;
     dueDate: string | null;
-    category: string | null;
-    completedAt: string | null;
-
+    category: CategoryResponse | null;
 }
 
-export interface CreateTaskData {
+export interface TaskResponseList {
+    id: string;
+    title: string;
+    description: string | null;
+    status: TaskStatusDto | null;
+    priority: TaskPriorityDto | null;
+    dueDate: string | null;
+    category: CategoryResponse | null;
+}
 
+export interface CompleteTaskRequest {
+    status: TaskStatusDto;
+}
+
+export interface CompleteTaskResponse {
+    id: string;
+    title: string;
+    description: string | null;
+    status: TaskStatusDto;
+    priority: TaskPriorityDto;
+    dueDate: string | null;
+    categoryId: string | null;
+    createdAt: string;
+    updatedAt: string | null;
+    completedAt: string | null;
+}
+
+export interface CreateTaskRequest {
     title: string;
     description?: string;
-    priority: number;
+    priority: TaskPriorityDto;
     dueDate?: string | null;
-    
-}   
+    categoryId?: string | null;
+}
+
+export type CreateTaskData = CreateTaskRequest;
+
+export interface UpdateTaskRequest {
+    title?: string;
+    description?: string | null;
+    priority?: TaskPriorityDto | null;
+    dueDate?: string | null;
+    categoryId?: string | null;
+}

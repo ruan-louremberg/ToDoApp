@@ -5,7 +5,7 @@ import { useEditTask } from "../hooks/useEditTask";
 import { useTasks } from "../hooks/useTasks";
 import { useDebounce } from "../hooks/useDebounce";
 import { useDeleteTask } from "../hooks/useDeleteTask";
-import type { Task } from "../types/task";
+import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
 export function TaskListPage() {
@@ -13,15 +13,17 @@ export function TaskListPage() {
   const debouncedSearch = useDebounce(search, 500);
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<TaskResponseList | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const statusFilter = status === "" ? undefined : Number(status) as TaskStatusDto;
+  const priorityFilter = priority === "" ? undefined : Number(priority) as TaskPriorityDto;
   const { updateTask, saving: editing, error: editError } = useEditTask();
   const { data, loading, error, reload } = useTasks({
     search: debouncedSearch,
-    status,
-    priority,
+    status: statusFilter,
+    priority: priorityFilter,
   });
 
   function openCreateModal() {
@@ -30,7 +32,7 @@ export function TaskListPage() {
     setIsModalOpen(true);
   }
 
-  function openEditModal(task: Task) {
+  function openEditModal(task: TaskResponseList) {
     setSelectedTask(task);
     setCreateError(null);
     setIsModalOpen(true);
@@ -75,7 +77,7 @@ export function TaskListPage() {
     ? {
         title: selectedTask.title,
         description: selectedTask.description ?? "",
-        priority: Number(selectedTask.priority),
+        priority: selectedTask.priority ?? 0,
         dueDate: selectedTask.dueDate?.slice(0, 10) ?? "",
       }
     : undefined;
@@ -86,7 +88,7 @@ export function TaskListPage() {
     error: deleteError,
   } = useDeleteTask();
 
-  async function handleDeleteTask(task: Task) {
+  async function handleDeleteTask(task: TaskResponseList) {
     const confirmed = window.confirm(
       `Tem certeza que deseja excluir "${task.title}"?`
     );
@@ -114,9 +116,9 @@ export function TaskListPage() {
 
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
           <option value="">Todos os Status</option>
-          <option value="Pending">Pendente</option>
-          <option value="InProgress">Em Progresso</option>
-          <option value="Completed">Concluída</option>
+          <option value="0">Pendente</option>
+          <option value="1">Em Progresso</option>
+          <option value="2">Concluída</option>
         </select>
 
         <select
@@ -124,9 +126,9 @@ export function TaskListPage() {
           onChange={(event) => setPriority(event.target.value)}
         >
           <option value="">Todas as Prioridades</option>
-          <option value="Low">Baixa</option>
-          <option value="Medium">Média</option>
-          <option value="High">Alta</option>
+          <option value="0">Baixa</option>
+          <option value="1">Média</option>
+          <option value="2">Alta</option>
         </select>
       </div>
       {loading ? (

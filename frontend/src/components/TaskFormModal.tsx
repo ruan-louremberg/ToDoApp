@@ -1,5 +1,6 @@
 import type { SubmitEvent } from "react";
 import { useEffect, useState } from "react";
+import type { Priority } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
 interface TaskFormModalProps {
@@ -90,7 +91,7 @@ export function TaskFormModal({
             <select
               value={formData.priority}
               onChange={(event) =>
-                updateField("priority", Number(event.target.value))
+                updateField("priority", Number(event.target.value) as Priority)
               }
             >
               <option value={0}>Baixa</option>
