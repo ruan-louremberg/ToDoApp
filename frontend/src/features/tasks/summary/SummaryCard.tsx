@@ -1,3 +1,5 @@
+import styles from "./SummaryCard.module.css";
+
 interface SummaryCardProps {
   title: string;
   value: number;
@@ -8,12 +10,12 @@ export function SummaryCard({
   value,
 }: SummaryCardProps) {
   return (
-    <div className="summary-card">
-      <span className="summary-card__title">
+    <div className={styles.card}>
+      <span className={styles.title}>
         {title}
       </span>
 
-      <strong className="summary-card__value">
+      <strong className={styles.value}>
         {value}
       </strong>
     </div>

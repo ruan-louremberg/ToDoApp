@@ -1,6 +1,12 @@
 export type Status = "Pending" | "InProgress" | "Completed";
 export type Priority = "Low" | "Medium" | "High";
 
+export interface Category {
+    id: string;
+    name: string;
+    color: string;
+}
+
 export interface Task {
 
     id: string;
@@ -9,7 +15,7 @@ export interface Task {
     status: Status;
     priority: Priority;
     dueDate: string | null;
-    category: string | null;
+    category: Category | null;
     completedAt: string | null;
 
 }
@@ -20,5 +26,5 @@ export interface CreateTaskData {
     description?: string;
     priority: number;
     dueDate?: string | null;
-    
+    categoryId?: string | null;
 }   

@@ -1,6 +1,7 @@
 import type { SubmitEvent } from "react";
 import { useEffect, useState } from "react";
 import type { TaskFormData } from "../types/taskForm";
+import type { Category } from "../types/task";
 
 interface TaskFormModalProps {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface TaskFormModalProps {
   initialData?: TaskFormData;
   saving: boolean;
   error: string | null;
+  categories: Category[];
+  categoriesLoading: boolean;
   onClose: () => void;
   onSubmit: (data: TaskFormData) => Promise<void>;
 }
@@ -18,6 +21,7 @@ const emptyForm: TaskFormData = {
   description: "",
   priority: 1,
   dueDate: "",
+  categoryId: "",
 };
 
 export function TaskFormModal({
@@ -27,6 +31,8 @@ export function TaskFormModal({
   initialData,
   saving,
   error,
+  categories,
+  categoriesLoading,
   onClose,
   onSubmit,
 }: TaskFormModalProps) {
@@ -106,6 +112,24 @@ export function TaskFormModal({
               value={formData.dueDate}
               onChange={(event) => updateField("dueDate", event.target.value)}
             />
+          </label>
+
+          <label>
+            Categoria
+            <select
+              value={formData.categoryId}
+              disabled={categoriesLoading}
+              onChange={(event) => updateField("categoryId", event.target.value)}
+            >
+              <option value="">
+                {categoriesLoading ? "Carregando categorias..." : "Sem categoria"}
+              </option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </label>
 
           {error && <p>{error}</p>}

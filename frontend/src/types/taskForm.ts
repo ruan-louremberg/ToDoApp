@@ -3,4 +3,5 @@ export interface TaskFormData {
   description: string;
   priority: number;
   dueDate: string;
+  categoryId: string;
 }
