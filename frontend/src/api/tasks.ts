@@ -2,7 +2,12 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { ProblemDetails } from "../types/problemDetails";
-import type { CompleteTaskRequest, CreateTaskRequest, UpdateTaskRequest } from "../types/task";
+import type {
+  CompleteTaskRequest,
+  CreateTaskRequest,
+  TaskResponseList,
+  UpdateTaskRequest,
+} from "../types/task";
 import type { ListTasksRequest } from "../types/taskFilters";
 import type { TaskSummaryResponse } from "../types/TaskSummaryResponse";
 
@@ -19,7 +24,7 @@ export class ApiError extends Error {
   }
 }
 
-async function throwApiError(response: Response, fallbackMessage: string): Promise<never> {
+export async function throwApiError(response: Response, fallbackMessage: string): Promise<never> {
   const problem: ProblemDetails = await response.json().catch(() => ({}));
 
   throw new ApiError(
@@ -101,6 +106,30 @@ export async function deleteTask(
 
   if (!response.ok) {
     await throwApiError(response, "Erro ao excluir tarefa");
+  }
+
+  return { success: true };
+}
+
+export async function getTrashTasks(): Promise<TaskResponseList[]> {
+  const response = await fetch(`${API_URL}/api/tasks/trash`);
+
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao buscar tarefas excluídas");
+  }
+
+  return response.json();
+}
+
+export async function restoreTask(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  const response = await fetch(`${API_URL}/api/tasks/${id}/restore`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao restaurar tarefa");
   }
 
   return { success: true };
