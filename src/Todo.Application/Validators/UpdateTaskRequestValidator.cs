@@ -19,11 +19,11 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
             .WithMessage("O título deve ter no máximo 120 caracteres.");
 
         RuleFor(request => request.Description.Value)
-            .Must(value => value is null || value.Trim().Length >= 10)
-            .When(request => request.Description.IsSet && request.Description.Value is not null)
+            .Must(value => string.IsNullOrWhiteSpace(value) || value.Trim().Length >= 10)
+            .When(request => request.Description.IsSet)
             .WithMessage("A descrição da tarefa deve ter pelo menos 10 caracteres.")
             .MaximumLength(1000)
-            .When(request => request.Description.IsSet && request.Description.Value is not null)
+            .When(request => request.Description.IsSet)
             .WithMessage("A descrição da tarefa deve ter no máximo 1000 caracteres.");
 
         RuleFor(request => request.Priority.Value)

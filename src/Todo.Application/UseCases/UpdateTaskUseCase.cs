@@ -1,6 +1,7 @@
 using FluentResults;
 using FluentValidation;
 using ToDoApp.Application.DTO;
+using ToDoApp.Domain;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Interfaces.Repositories;
 
@@ -43,6 +44,13 @@ public class UpdateTaskUseCase
         var optionalDescription = request.Description;
         var optionalDueDate = request.DueDate;
         var optionalCategoryId = request.CategoryId;
+
+
+        if (optionalDescription.IsSet &&
+            string.IsNullOrWhiteSpace(optionalDescription.Value))
+        {
+            optionalDescription = Optional<string?>.Null();
+        }
 
         if (optionalCategoryId.IsSet && optionalCategoryId.Value is not null && optionalCategoryId.Value.HasValue)
         {
