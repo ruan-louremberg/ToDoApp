@@ -20,7 +20,9 @@ public class CreateTaskRequestValidator : AbstractValidator<CreateTaskRequest>
             .WithMessage("A prioridade informada é inválida.");
 
         RuleFor(request => request.Description)
-            .Must(description => description is null || description.Trim().Length >= 10)
+            .Must(description =>
+                string.IsNullOrWhiteSpace(description) ||
+                description.Trim().Length >= 10)
             .WithMessage("A descrição da tarefa deve ter pelo menos 10 caracteres.")
             .MaximumLength(1000)
             .WithMessage("A descrição da tarefa deve ter no máximo 1000 caracteres.");
