@@ -10,7 +10,7 @@ public class ListCategoriesUseCase
     public ListCategoriesUseCase(ICategoryRepository categoryRepository)
     {
         _categoryRepository = categoryRepository;
-    }
+    }  
 
     public async Task<ListCategoriesResponse> ExecuteAsync(ListCategoriesRequest request, CancellationToken cancellationToken = default)
     {

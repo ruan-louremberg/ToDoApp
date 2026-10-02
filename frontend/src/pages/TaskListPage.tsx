@@ -5,6 +5,9 @@ import { useEditTask } from "../hooks/useEditTask";
 import { useTasks } from "../hooks/useTasks";
 import { useDebounce } from "../hooks/useDebounce";
 import { useDeleteTask } from "../hooks/useDeleteTask";
+import { TaskListLoadingState} from "../components/taskListStates";
+import { TaskListErrorState } from "../components/taskListStates";
+import { TaskListEmptyState } from "../components/taskListStates";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
@@ -132,11 +135,11 @@ export function TaskListPage() {
         </select>
       </div>
       {loading ? (
-        <p>Carregando tarefas...</p>
+        <TaskListLoadingState />
       ) : error ? (
-        <p>{error}</p>
+        <TaskListErrorState message={error} />
       ) : data?.items.length === 0 ? (
-        <p>Nenhuma tarefa cadastrada ainda.</p>
+        <TaskListEmptyState />
       ) : (
         <ul>
           {data?.items.map((task) => (
