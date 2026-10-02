@@ -10,6 +10,7 @@ import { TaskListLoadingState} from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
 import { StatusBadge } from "../components/StatusBadge";
+import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
@@ -41,6 +42,7 @@ export function TaskListPage() {
   const [priority, setPriority] = useState("");
   const [selectedTask, setSelectedTask] = useState<TaskResponseList | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<TaskResponseList | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const statusFilter = status === "" ? undefined : Number(status) as TaskStatusDto;
@@ -117,18 +119,16 @@ export function TaskListPage() {
     error: deleteError,
   } = useDeleteTask();
 
-  async function handleDeleteTask(task: TaskResponseList) {
-    const confirmed = window.confirm(
-      `Tem certeza que deseja excluir "${task.title}"?`
-    );
+  async function handleDeleteTask() {
+    if (!taskToDelete) return;
 
-    if (!confirmed) return;
-
-    const deleted = await removeTask(task.id);
+    const deleted = await removeTask(taskToDelete.id);
 
     if (deleted) {
       await reload();
     }
+
+    setTaskToDelete(null);
   }
 
   return (
@@ -208,7 +208,7 @@ export function TaskListPage() {
                     <button
                       type="button"
                       disabled={deletingTaskId !== null}
-                      onClick={() => void handleDeleteTask(task)}
+                      onClick={() => setTaskToDelete(task)}
                     >
                       {deletingTaskId === task.id ? "Excluindo..." : "Excluir"}
                     </button>
@@ -220,6 +220,13 @@ export function TaskListPage() {
         </div>
       )}
       {deleteError && <p role="alert">{deleteError}</p>}
+      <ConfirmDeleteModal
+        isOpen={taskToDelete !== null}
+        taskTitle={taskToDelete?.title ?? ""}
+        isLoading={deletingTaskId !== null}
+        onClose={() => setTaskToDelete(null)}
+        onConfirm={handleDeleteTask}
+      />
       <TaskFormModal
         isOpen={isModalOpen}
         title={selectedTask ? "Editar tarefa" : "Nova tarefa"}
