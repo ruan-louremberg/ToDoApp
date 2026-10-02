@@ -41,8 +41,12 @@ public class CreateTaskUseCase
                     .WithMetadata("statusCode", 404));
             }
         }
+
+        var description = string.IsNullOrWhiteSpace(request.Description)
+            ? null
+            : request.Description.Trim();
         
-        var task = new ToDo(request.Title, request.Description, request.Priority, request.DueDate, request.CategoryId);
+        var task = new ToDo(request.Title, description, request.Priority, request.DueDate, request.CategoryId);
         if (category != null)
         {
             task.SetCategory(category);

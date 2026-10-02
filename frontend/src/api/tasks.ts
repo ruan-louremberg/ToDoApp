@@ -2,8 +2,13 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { ProblemDetails } from "../types/problemDetails";
-import type { CreateTaskData } from "../types/task";
-import type { TaskFilters } from "../types/taskFilters";
+import type {
+  CompleteTaskRequest,
+  CreateTaskRequest,
+  TaskResponseList,
+  UpdateTaskRequest,
+} from "../types/task";
+import type { ListTasksRequest } from "../types/taskFilters";
 import type { TaskSummaryResponse } from "../types/TaskSummaryResponse";
 
 export class ApiError extends Error {
@@ -19,7 +24,7 @@ export class ApiError extends Error {
   }
 }
 
-async function throwApiError(response: Response, fallbackMessage: string): Promise<never> {
+export async function throwApiError(response: Response, fallbackMessage: string): Promise<never> {
   const problem: ProblemDetails = await response.json().catch(() => ({}));
 
   throw new ApiError(
@@ -29,15 +34,20 @@ async function throwApiError(response: Response, fallbackMessage: string): Promi
 }
 
 
-export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse> {
+export async function getTasks(filters?: ListTasksRequest): Promise<ListTasksResponse> {
     const params = new URLSearchParams();
     
     
     if (filters?.search) params.append("search", filters.search);
 
-    if (filters?.status) params.append("status", filters.status);
+    if (filters?.status !== undefined) params.append("status", String(filters.status));
 
-    if (filters?.priority) params.append("priority", filters.priority);
+    if (filters?.priority !== undefined) params.append("priority", String(filters.priority));
+    if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+    if (filters?.sortDirection) params.append("sortDirection", filters.sortDirection);
+    if (filters?.categoryId) params.append("categoryId", filters.categoryId);
+    if (filters?.page !== undefined) params.append("page", String(filters.page));
+    if (filters?.pageSize !== undefined) params.append("pageSize", String(filters.pageSize));
 
     const queryString = params.toString() ? `?${params.toString()}` : "";
 
@@ -51,7 +61,7 @@ export async function getTasks(filters?: TaskFilters): Promise<ListTasksResponse
 
 
 export async function createTask(
-  data: CreateTaskData
+  data: CreateTaskRequest
 ): Promise<{ success: boolean; error?: string }> {
   const response = await fetch(`${API_URL}/api/tasks`, {
     method: "POST",
@@ -70,7 +80,7 @@ export async function createTask(
 
 export async function editTask(
   id: string,
-  data: Partial<CreateTaskData> & { categoryId?: string | null }
+  data: UpdateTaskRequest
 ): Promise<{ success: boolean; error?: string }> {
   const response = await fetch(`${API_URL}/api/tasks/${id}`, {
     method: "PATCH",
@@ -101,16 +111,41 @@ export async function deleteTask(
   return { success: true };
 }
 
+export async function getTrashTasks(): Promise<TaskResponseList[]> {
+  const response = await fetch(`${API_URL}/api/tasks/trash`);
+
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao buscar tarefas excluídas");
+  }
+
+  return response.json();
+}
+
+export async function restoreTask(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  const response = await fetch(`${API_URL}/api/tasks/${id}/restore`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    await throwApiError(response, "Erro ao restaurar tarefa");
+  }
+
+  return { success: true };
+}
+
 
 export async function completeTask(
-  id: string
+  id: string,
+  data: CompleteTaskRequest = { status: 2 }
 ): Promise<{ success: boolean; error?: string }> {
   const response = await fetch(`${API_URL}/api/tasks/${id}/status`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ status: 2 }),
+    body: JSON.stringify(data),
   });
 
   if (!response.ok) {

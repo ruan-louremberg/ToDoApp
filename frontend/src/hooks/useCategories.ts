@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getCategories } from "../api/category";
-import type { Category } from "../types/task";
+import { getCategories, } from "../api/category";
+import type { CategoryResponse } from "../types/category";
 
 export function useCategories() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,7 +13,9 @@ export function useCategories() {
     async function loadCategories() {
       try {
         const result = await getCategories();
-        if (active) setCategories(result);
+        
+        if (active) setCategories(result.items);
+
       } catch (err) {
         if (active) {
           setError(

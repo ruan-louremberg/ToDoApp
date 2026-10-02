@@ -1,8 +1,8 @@
-import type { Task } from "./task";
+import type { TaskResponseList } from "./task";
 
 export interface ListTasksResponse {
 
-    items: Task[];
+    items: TaskResponseList[];
     page: number;
     pageSize: number;
     totalItems: number;

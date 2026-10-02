@@ -19,11 +19,11 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
             .WithMessage("O título deve ter no máximo 120 caracteres.");
 
         RuleFor(request => request.Description.Value)
-            .Must(value => value is null || value.Trim().Length >= 10)
-            .When(request => request.Description.IsSet && request.Description.Value is not null)
+            .Must(value => string.IsNullOrWhiteSpace(value) || value.Trim().Length >= 10)
+            .When(request => request.Description.IsSet)
             .WithMessage("A descrição da tarefa deve ter pelo menos 10 caracteres.")
             .MaximumLength(1000)
-            .When(request => request.Description.IsSet && request.Description.Value is not null)
+            .When(request => request.Description.IsSet)
             .WithMessage("A descrição da tarefa deve ter no máximo 1000 caracteres.");
 
         RuleFor(request => request.Priority.Value)
@@ -34,6 +34,6 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
         RuleFor(request => request.DueDate.Value)
             .Must(dueDate => !dueDate.HasValue || dueDate.Value >= DateTime.UtcNow)
             .When(request => request.DueDate.IsSet && request.DueDate.Value is not null && request.DueDate.Value.HasValue)
-            .WithMessage("A data de vencimento não pode ser no passado.");
+            .WithMessage("O prazo não pode ser no passado.");
     }
 }

@@ -1,7 +1,8 @@
 import type { SubmitEvent } from "react";
 import { useEffect, useState } from "react";
+import type { Priority } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
-import type { Category } from "../types/task";
+import type { CategoryResponse } from "../types/category";
 
 interface TaskFormModalProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface TaskFormModalProps {
   initialData?: TaskFormData;
   saving: boolean;
   error: string | null;
-  categories: Category[];
+  categories: CategoryResponse[];
   categoriesLoading: boolean;
   onClose: () => void;
   onSubmit: (data: TaskFormData) => Promise<void>;
@@ -36,6 +37,8 @@ export function TaskFormModal({
   onClose,
   onSubmit,
 }: TaskFormModalProps) {
+
+  console.log(categories)
   const [formData, setFormData] = useState<TaskFormData>(emptyForm);
 
   useEffect(() => {
@@ -96,7 +99,7 @@ export function TaskFormModal({
             <select
               value={formData.priority}
               onChange={(event) =>
-                updateField("priority", Number(event.target.value))
+                updateField("priority", Number(event.target.value) as Priority)
               }
             >
               <option value={0}>Baixa</option>
