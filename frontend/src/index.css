@@ -397,7 +397,3 @@ p {
   gap: 16px;
   margin-bottom: 50px;
 }
-
-.summary-panel__grid > * {
-  aspect-ratio: 1 / 1;
-}
