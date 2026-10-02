@@ -29,6 +29,6 @@ public class CreateTaskRequestValidator : AbstractValidator<CreateTaskRequest>
 
         RuleFor(request => request.DueDate)
             .Must(dueDate => !dueDate.HasValue || dueDate.Value >= DateTime.UtcNow)
-            .WithMessage("A data de vencimento não pode ser no passado.");
+            .WithMessage("O prazo não pode ser no passado.");
     }
 }

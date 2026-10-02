@@ -16,6 +16,7 @@ export function useEditTask() {
         description: data.description,
         priority: data.priority,
         dueDate: data.dueDate || null,
+        categoryId: data.categoryId || null,
       });
 
       return true;

@@ -2,11 +2,33 @@ import { useState } from "react";
 import { createTask } from "../api/tasks";
 import { TaskFormModal } from "../components/TaskFormModal";
 import { useEditTask } from "../hooks/useEditTask";
+import { useCategories } from "../hooks/useCategories";
 import { useTasks } from "../hooks/useTasks";
 import { useDebounce } from "../hooks/useDebounce";
 import { useDeleteTask } from "../hooks/useDeleteTask";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
+
+function getPriorityLabel(priority: TaskPriorityDto | null) {
+  const labels: Record<string, string> = {
+    "0": "Baixa",
+    "1": "Média",
+    "2": "Alta",
+    Low: "Baixa",
+    Medium: "Média",
+    High: "Alta",
+  };
+
+  return labels[String(priority)] ?? String(priority);
+}
+
+function formatDueDate(dueDate: string | null) {
+  if (!dueDate) return "Sem prazo";
+
+  return new Intl.DateTimeFormat("pt-BR").format(
+    new Date(`${dueDate.slice(0, 10)}T00:00:00`)
+  );
+}
 
 export function TaskListPage() {
   const [search, setSearch] = useState("");
@@ -20,6 +42,7 @@ export function TaskListPage() {
   const statusFilter = status === "" ? undefined : Number(status) as TaskStatusDto;
   const priorityFilter = priority === "" ? undefined : Number(priority) as TaskPriorityDto;
   const { updateTask, saving: editing, error: editError } = useEditTask();
+  const { categories, loading: categoriesLoading } = useCategories();
   const { data, loading, error, reload } = useTasks({
     search: debouncedSearch,
     status: statusFilter,
@@ -59,6 +82,7 @@ export function TaskListPage() {
         description: formData.description,
         priority: formData.priority,
         dueDate: formData.dueDate || null,
+        categoryId: formData.categoryId || null,
       });
       await reload();
       setIsModalOpen(false);
@@ -79,6 +103,7 @@ export function TaskListPage() {
         description: selectedTask.description ?? "",
         priority: selectedTask.priority ?? 0,
         dueDate: selectedTask.dueDate?.slice(0, 10) ?? "",
+        categoryId: selectedTask.category?.id ?? "",
       }
     : undefined;
 
@@ -104,15 +129,15 @@ export function TaskListPage() {
 
   return (
     <main>
-      <h1>Minhas Tarefas</h1>
-      <button onClick={openCreateModal}>+ Nova Tarefa</button>
-      <div className="filters">
-        <input
-          type="text"
-          placeholder="buscar por título..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
+      <div className="task-toolbar">
+        <button onClick={openCreateModal}>+ Nova Tarefa</button>
+        <div className="filters">
+          <input
+            type="text"
+            placeholder="buscar por título..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
 
         <select value={status} onChange={(event) => setStatus(event.target.value)}>
           <option value="">Todos os Status</option>
@@ -131,6 +156,7 @@ export function TaskListPage() {
           <option value="2">Alta</option>
         </select>
       </div>
+      </div>
       {loading ? (
         <p>Carregando tarefas...</p>
       ) : error ? (
@@ -138,22 +164,52 @@ export function TaskListPage() {
       ) : data?.items.length === 0 ? (
         <p>Nenhuma tarefa cadastrada ainda.</p>
       ) : (
-        <ul>
-          {data?.items.map((task) => (
-            <li key={task.id}>
-              <strong>{task.title}</strong> - {task.description}
-              <button type="button" onClick={() => openEditModal(task)}>
-                Editar
-              </button>
-              <button
-                type="button"
-                disabled={deletingTaskId !== null}
-                onClick={() => void handleDeleteTask(task)}>
-                {deletingTaskId === task.id ? "Excluindo..." : "Excluir"}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="task-table-wrapper">
+          <table className="task-table">
+            <thead>
+              <tr>
+                <th scope="col">Prioridade</th>
+                <th scope="col">Título</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Prazo</th>
+                <th scope="col">Categoria</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.items.map((task) => (
+                <tr key={task.id}>
+                  <td>{getPriorityLabel(task.priority)}</td>
+                  <td className="task-title-cell">{task.title}</td>
+                  <td>
+                    {task.description ? (
+                      <details className="task-description">
+                        <summary>Ver descrição</summary>
+                        <p>{task.description}</p>
+                      </details>
+                    ) : (
+                      <span className="muted-cell">Sem descrição</span>
+                    )}
+                  </td>
+                  <td>{formatDueDate(task.dueDate)}</td>
+                  <td>{task.category?.name ?? "Sem categoria"}</td>
+                  <td className="task-actions">
+                    <button type="button" onClick={() => openEditModal(task)}>
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deletingTaskId !== null}
+                      onClick={() => void handleDeleteTask(task)}
+                    >
+                      {deletingTaskId === task.id ? "Excluindo..." : "Excluir"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       {deleteError && <p role="alert">{deleteError}</p>}
       <TaskFormModal
@@ -163,9 +219,13 @@ export function TaskListPage() {
         initialData={formInitialData}
         saving={selectedTask ? editing : creating}
         error={selectedTask ? editError : createError}
+        categories={categories}
+        categoriesLoading={categoriesLoading}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
       />
     </main>
+
+
   );
 }

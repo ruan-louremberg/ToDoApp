@@ -5,4 +5,5 @@ export interface TaskFormData {
   description: string;
   priority: Priority;
   dueDate: string;
+  categoryId: string;
 }

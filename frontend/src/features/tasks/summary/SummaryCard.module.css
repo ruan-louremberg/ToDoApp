@@ -1,0 +1,21 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: white;
+}
+
+.title {
+    display: block;
+    text-align: center;
+}
+
+.value {
+    display: grid;
+    flex: 1;
+    place-items: center;
+    color: #172033;
+    font-size: 2rem;
+}
