@@ -296,6 +296,58 @@ p {
   color: #1e293b;
 }
 
+.confirm-modal {
+  width: min(100%, 420px);
+}
+
+.confirm-modal__message {
+  margin: 0 0 20px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.secondary-button,
+.danger-button {
+  min-height: 40px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-button {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.danger-button {
+  background-color: #dc2626;
+  color: white;
+}
+
+.secondary-button:hover {
+  background-color: #cbd5e1;
+}
+
+.danger-button:hover {
+  background-color: #b91c1c;
+}
+
+.secondary-button:disabled,
+.danger-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .modal form > button:hover {
   background-color: #1d4ed8;
 }
