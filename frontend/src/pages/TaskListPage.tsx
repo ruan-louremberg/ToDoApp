@@ -9,6 +9,7 @@ import { useDeleteTask } from "../hooks/useDeleteTask";
 import { TaskListLoadingState} from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
+import { StatusBadge } from "../components/StatusBadge";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
@@ -174,6 +175,7 @@ export function TaskListPage() {
                 <th scope="col">Prioridade</th>
                 <th scope="col">Título</th>
                 <th scope="col">Descrição</th>
+                <th scope="col">Status</th>
                 <th scope="col">Prazo</th>
                 <th scope="col">Categoria</th>
                 <th scope="col">Ações</th>
@@ -193,6 +195,9 @@ export function TaskListPage() {
                     ) : (
                       <span className="muted-cell">Sem descrição</span>
                     )}
+                  </td>
+                  <td className="task-status-cell">
+                    <StatusBadge status={task.status} />
                   </td>
                   <td>{formatDueDate(task.dueDate)}</td>
                   <td>{task.category?.name ?? "Sem categoria"}</td>
