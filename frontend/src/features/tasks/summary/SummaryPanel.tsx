@@ -52,7 +52,7 @@ export function SummaryPanel() {
         />
 
         <SummaryCard
-          title="Em andamento "
+          title="Em progresso "
           value={summary.status.inProgress}
         />
 
