@@ -5,6 +5,7 @@ using ToDoApp.Application.DTO;
 using ToDoApp.Application.UseCases;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Enums;
+using ToDoApp.Domain.Exceptions;
 using ToDoApp.Domain.Interfaces.Repositories;
 
 namespace ToDoApp.Tests.UseCases;
@@ -27,6 +28,7 @@ public class CompleteTaskUseCaseTests
     public async Task GivenExistingTask_WhenChangingStatusToCompleted_ThenUpdatesAndReturnsTask()
     {
         var task = new ToDo("Task", null, Priority.Medium, null);
+        task.ChangeStatus(Status.InProgress);
         var repository = new Mock<IToDoRepository>();
         repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
 
@@ -36,6 +38,22 @@ public class CompleteTaskUseCaseTests
         Assert.Equal(Status.Completed, result.Value.Status);
         Assert.NotNull(result.Value.CompletedAt);
         repository.Verify(item => item.UpdateAsync(task, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact(DisplayName = "Retorna conflito para transição de status não permitida")]
+    public async Task GivenDisallowedTransition_WhenChangingStatus_ThenReturnsConflict()
+    {
+        var task = new ToDo("Task", null, Priority.Medium, null);
+        var repository = new Mock<IToDoRepository>();
+        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+
+        var result = await CreateSut(repository).ExecuteAsync(
+            task.Id,
+            new CompleteTaskRequest { Status = Status.Completed });
+
+        Assert.True(result.IsFailed);
+        Assert.Equal(409, result.Errors[0].Metadata["statusCode"]);
+        repository.Verify(item => item.UpdateAsync(task, It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static CompleteTaskUseCase CreateSut(Mock<IToDoRepository> repository)

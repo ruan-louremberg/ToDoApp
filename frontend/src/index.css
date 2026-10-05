@@ -318,6 +318,20 @@ p {
   background-color: #f1f5f9;
 }
 
+.task-actions-menu__dropdown .task-actions-menu__status--complete {
+  color: #166534;
+}
+
+.task-actions-menu__dropdown .task-actions-menu__status--complete:hover {
+  background-color: #dcfce7;
+}
+
+.task-actions-menu__separator {
+  height: 1px;
+  margin: 5px 4px;
+  background-color: #e2e8f0;
+}
+
 .task-actions-menu__dropdown .task-actions-menu__delete {
   color: #b91c1c;
 }

@@ -6,6 +6,7 @@ import { useCategories } from "../hooks/useCategories";
 import { useTasks } from "../hooks/useTasks";
 import { useDebounce } from "../hooks/useDebounce";
 import { useDeleteTask } from "../hooks/useDeleteTask";
+import { useChangeTaskStatus } from "../hooks/useChangeTaskStatus";
 import { TaskListLoadingState } from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
@@ -136,6 +137,24 @@ export function TaskListPage() {
     deletingTaskId,
     error: deleteError,
   } = useDeleteTask();
+  const {
+    updateStatus,
+    updatingTaskId,
+    error: statusError,
+  } = useChangeTaskStatus();
+
+  async function handleTaskStatusChange(
+    taskId: string,
+    nextStatus: TaskStatusDto
+  ): Promise<boolean> {
+    const updated = await updateStatus(taskId, nextStatus);
+
+    if (updated) {
+      await reload();
+    }
+
+    return updated;
+  }
 
   async function handleDeleteTask() {
     if (!taskToDelete) return;
@@ -170,18 +189,55 @@ export function TaskListPage() {
       ) : data?.items.length === 0 ? (
         <TaskListEmptyState />
       ) : (
-        <>
-          <div className="task-table-wrapper">
-            <table className="task-table">
-              <thead>
-                <tr>
-                  <th scope="col">Título</th>
-                  <th scope="col">Descrição</th>
-                  <th scope="col">Prioridade</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Prazo</th>
-                  <th scope="col">Categoria</th>
-                  <th scope="col">Ações</th>
+        <div className="task-table-wrapper">
+          <table className="task-table">
+            <thead>
+              <tr>
+                <th scope="col">Título</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Prioridade</th>
+                <th scope="col">Status</th>
+                <th scope="col">Prazo</th>
+                <th scope="col">Categoria</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.items.map((task) => (
+                <tr key={task.id}>
+                  <td className="task-title-cell">{task.title}</td>
+                  <td>
+                    {task.description ? (
+                      <span className="task-description" title={task.description}>
+                        {task.description}
+                      </span>
+                    ) : (
+                      <span className="muted-cell">Sem descrição</span>
+                    )}
+                  </td>
+                   <td>
+                    <TaskBadge type="priority" value={task.priority} />
+                  </td>
+                  <td className="task-status-cell">
+                    <TaskBadge type="status" value={task.status} />
+                  </td>
+                  <td>{formatDueDate(task.dueDate)}</td>
+                  <td>{task.category?.name ?? "Sem categoria"}</td>
+                  <td className="task-actions">
+                    <TaskActionsMenu
+                      taskTitle={task.title}
+                      status={task.status}
+                      isDeleteDisabled={deletingTaskId !== null || updatingTaskId !== null}
+                      isDeleting={deletingTaskId === task.id}
+                      isStatusDisabled={updatingTaskId !== null || deletingTaskId !== null}
+                      isStatusUpdating={updatingTaskId === task.id}
+                      onEdit={() => openEditModal(task)}
+                      onDelete={() => setTaskToDelete(task)}
+                      onChangeStatus={(nextStatus) =>
+                        handleTaskStatusChange(task.id, nextStatus)
+                      }
+                    />
+                  </td>
                 </tr>
               </thead>
               <tbody>
@@ -232,6 +288,7 @@ export function TaskListPage() {
         </>
       )}
       {deleteError && <p role="alert">{deleteError}</p>}
+      {statusError && <p role="alert">{statusError}</p>}
       <ConfirmDeleteModal
         isOpen={taskToDelete !== null}
         taskTitle={taskToDelete?.title ?? ""}
