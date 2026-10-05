@@ -177,14 +177,19 @@ export function TaskListPage() {
           onPriorityChange={handlePriorityChange}
         />
       </div>
-      {loading ? (
+      {loading && !data ? (
         <TaskListLoadingState />
-      ) : error ? (
+      ) : error && !data ? (
         <TaskListErrorState message={error} />
       ) : data?.items.length === 0 ? (
         <TaskListEmptyState />
       ) : (
         <>
+          {loading && (
+            <p className="task-list-refreshing" role="status">
+              Atualizando tarefas...
+            </p>
+          )}
           <div className="task-table-wrapper">
             <table className="task-table">
               <thead>
