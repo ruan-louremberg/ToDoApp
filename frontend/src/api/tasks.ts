@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type { ProblemDetails } from "../types/problemDetails";
 import type {
-  CompleteTaskRequest,
+  ChangeTaskStatusRequest,
   CreateTaskRequest,
   TaskResponseList,
   UpdateTaskRequest,
@@ -135,10 +135,9 @@ export async function restoreTask(
   return { success: true };
 }
 
-
-export async function completeTask(
+export async function changeTaskStatus(
   id: string,
-  data: CompleteTaskRequest = { status: 2 }
+  data: ChangeTaskStatusRequest
 ): Promise<{ success: boolean; error?: string }> {
   const response = await fetch(`${API_URL}/api/tasks/${id}/status`, {
     method: "PATCH",
@@ -149,7 +148,7 @@ export async function completeTask(
   });
 
   if (!response.ok) {
-    await throwApiError(response, "Erro ao concluir tarefa");
+    await throwApiError(response, "Erro ao alterar status da tarefa");
   }
 
   return { success: true };

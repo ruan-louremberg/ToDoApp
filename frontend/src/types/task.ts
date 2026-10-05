@@ -25,8 +25,8 @@ export interface TaskResponseList {
     category: CategoryResponse | null;
 }
 
-export interface CompleteTaskRequest {
-    status: TaskStatusDto;
+export interface ChangeTaskStatusRequest {
+  status: TaskStatusDto;
 }
 
 export interface CompleteTaskResponse {
