@@ -3,6 +3,7 @@ using FluentValidation;
 using ToDoApp.Application.DTO;
 using ToDoApp.Domain.Interfaces.Repositories;
 using ToDoApp.Domain.Enums;
+using ToDoApp.Domain.Exceptions;
 
 namespace ToDoApp.Application.UseCases;
 
@@ -36,7 +37,15 @@ namespace ToDoApp.Application.UseCases;
                     .WithMetadata("statusCode", 404));
             }
 
-            task.ChangeStatus(request.Status);
+            try
+            {
+                task.ChangeStatus(request.Status);
+            }
+            catch (DomainException exception)
+            {
+                return Result.Fail(new Error(exception.Message)
+                    .WithMetadata("statusCode", 409));
+            }
 
             await _toDoRepository.UpdateAsync(task, cancellationToken);
 

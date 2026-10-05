@@ -51,6 +51,7 @@ public class ToDoTests
     public void GivenPendingTask_WhenChangingStatusToCompleted_ThenSetsCompletionDate()
     {
         var task = new ToDo("Task", null, Priority.Low, null);
+        task.ChangeStatus(Status.InProgress);
 
         task.ChangeStatus(Status.Completed);
 
@@ -59,11 +60,24 @@ public class ToDoTests
         Assert.NotNull(task.UpdatedAt);
     }
 
-    [Fact(DisplayName = "Remove data de conclusão ao reabrir tarefa")]
-    public void GivenCompletedTask_WhenChangingStatusToPending_ThenClearsCompletionDate()
+    [Fact(DisplayName = "Remove data de conclusão ao reabrir tarefa em progresso")]
+    public void GivenCompletedTask_WhenChangingStatusToInProgress_ThenClearsCompletionDate()
     {
         var task = new ToDo("Task", null, Priority.Low, null);
+        task.ChangeStatus(Status.InProgress);
         task.ChangeStatus(Status.Completed);
+
+        task.ChangeStatus(Status.InProgress);
+
+        Assert.Equal(Status.InProgress, task.Status);
+        Assert.Null(task.CompletedAt);
+    }
+
+    [Fact(DisplayName = "Permite retornar tarefa em progresso para pendente")]
+    public void GivenInProgressTask_WhenChangingStatusToPending_ThenChangesStatus()
+    {
+        var task = new ToDo("Task", null, Priority.Low, null);
+        task.ChangeStatus(Status.InProgress);
 
         task.ChangeStatus(Status.Pending);
 
@@ -71,10 +85,28 @@ public class ToDoTests
         Assert.Null(task.CompletedAt);
     }
 
+    [Theory]
+    [InlineData(Status.Pending, Status.Completed)]
+    [InlineData(Status.Completed, Status.Pending)]
+    public void GivenDisallowedTransition_WhenChangingStatus_ThenThrowsDomainException(
+        Status initialStatus,
+        Status newStatus)
+    {
+        var task = new ToDo("Task", null, Priority.Low, null);
+        if (initialStatus != Status.Pending)
+        {
+            task.ChangeStatus(Status.InProgress);
+            task.ChangeStatus(initialStatus);
+        }
+
+        Assert.Throws<Domain.Exceptions.DomainException>(() => task.ChangeStatus(newStatus));
+    }
+
     [Fact(DisplayName = "Mantém data ao concluir tarefa já concluída")]
     public void GivenCompletedTask_WhenCompletingAgain_ThenKeepsExistingCompletionDate()
     {
         var task = new ToDo("Task", null, Priority.Low, null);
+        task.ChangeStatus(Status.InProgress);
         task.ChangeStatus(Status.Completed);
         var completedAt = task.CompletedAt;
 

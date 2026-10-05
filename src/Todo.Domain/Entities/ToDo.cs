@@ -56,23 +56,28 @@ namespace ToDoApp.Domain.Entities
 
         public void ChangeStatus(Status newStatus)
         {
-        if (Status == Status.Completed && newStatus == Status.Completed)
-        {
-            return;
-        }
+            if (Status == newStatus)
+            {
+                return;
+            }
 
-        Status = newStatus;
+            var isAllowedTransition = (Status, newStatus) switch
+            {
+                (Status.Pending, Status.InProgress) => true,
+                (Status.InProgress, Status.Pending or Status.Completed) => true,
+                (Status.Completed, Status.InProgress) => true,
+                _ => false,
+            };
 
-        if (newStatus == Status.Completed)
-        {
-            CompletedAt = DateTime.UtcNow;
-        }
-        else
-        {
-            CompletedAt = null;
-        }
+            if (!isAllowedTransition)
+            {
+                throw new DomainException(
+                    $"Não é permitido alterar o status de '{Status}' para '{newStatus}'.");
+            }
 
-        SetUpdatedAt(DateTime.UtcNow);
+            Status = newStatus;
+            CompletedAt = newStatus == Status.Completed ? DateTime.UtcNow : null;
+            SetUpdatedAt(DateTime.UtcNow);
         }
 
         public void SoftDelete()
