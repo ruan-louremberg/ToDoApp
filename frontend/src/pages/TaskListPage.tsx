@@ -6,27 +6,15 @@ import { useCategories } from "../hooks/useCategories";
 import { useTasks } from "../hooks/useTasks";
 import { useDebounce } from "../hooks/useDebounce";
 import { useDeleteTask } from "../hooks/useDeleteTask";
-import { TaskListLoadingState} from "../components/taskListStates";
+import { TaskListLoadingState } from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
-import { StatusBadge } from "../components/StatusBadge";
+import { TaskBadge } from "../components/TaskBadge";
+import { TaskActionsMenu } from "../components/TaskActionsMenu";
 import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
 import { TaskFilters } from "../components/TaskFilters";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
-
-function getPriorityLabel(priority: TaskPriorityDto | null) {
-  const labels: Record<string, string> = {
-    "0": "Baixa",
-    "1": "Média",
-    "2": "Alta",
-    Low: "Baixa",
-    Medium: "Média",
-    High: "Alta",
-  };
-
-  return labels[String(priority)] ?? String(priority);
-}
 
 function formatDueDate(dueDate: string | null) {
   if (!dueDate) return "Sem prazo";
@@ -106,12 +94,12 @@ export function TaskListPage() {
 
   const formInitialData = selectedTask
     ? {
-        title: selectedTask.title,
-        description: selectedTask.description ?? "",
-        priority: selectedTask.priority ?? 0,
-        dueDate: selectedTask.dueDate?.slice(0, 10) ?? "",
-        categoryId: selectedTask.category?.id ?? "",
-      }
+      title: selectedTask.title,
+      description: selectedTask.description ?? "",
+      priority: selectedTask.priority ?? 0,
+      dueDate: selectedTask.dueDate?.slice(0, 10) ?? "",
+      categoryId: selectedTask.category?.id ?? "",
+    }
     : undefined;
 
   const {
@@ -157,9 +145,9 @@ export function TaskListPage() {
           <table className="task-table">
             <thead>
               <tr>
-                <th scope="col">Prioridade</th>
                 <th scope="col">Título</th>
                 <th scope="col">Descrição</th>
+                <th scope="col">Prioridade</th>
                 <th scope="col">Status</th>
                 <th scope="col">Prazo</th>
                 <th scope="col">Categoria</th>
@@ -169,34 +157,31 @@ export function TaskListPage() {
             <tbody>
               {data?.items.map((task) => (
                 <tr key={task.id}>
-                  <td>{getPriorityLabel(task.priority)}</td>
                   <td className="task-title-cell">{task.title}</td>
                   <td>
                     {task.description ? (
-                      <details className="task-description">
-                        <summary>Ver descrição</summary>
-                        <p>{task.description}</p>
-                      </details>
+                      <span className="task-description" title={task.description}>
+                        {task.description}
+                      </span>
                     ) : (
                       <span className="muted-cell">Sem descrição</span>
                     )}
                   </td>
+                   <td>
+                    <TaskBadge type="priority" value={task.priority} />
+                  </td>
                   <td className="task-status-cell">
-                    <StatusBadge status={task.status} />
+                    <TaskBadge type="status" value={task.status} />
                   </td>
                   <td>{formatDueDate(task.dueDate)}</td>
                   <td>{task.category?.name ?? "Sem categoria"}</td>
                   <td className="task-actions">
-                    <button type="button" onClick={() => openEditModal(task)}>
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      disabled={deletingTaskId !== null}
-                      onClick={() => setTaskToDelete(task)}
-                    >
-                      {deletingTaskId === task.id ? "Excluindo..." : "Excluir"}
-                    </button>
+                    <TaskActionsMenu
+                      isDeleteDisabled={deletingTaskId !== null}
+                      isDeleting={deletingTaskId === task.id}
+                      onEdit={() => openEditModal(task)}
+                      onDelete={() => setTaskToDelete(task)}
+                    />
                   </td>
                 </tr>
               ))}
@@ -225,7 +210,5 @@ export function TaskListPage() {
         onSubmit={handleSubmit}
       />
     </main>
-
-
   );
 }
