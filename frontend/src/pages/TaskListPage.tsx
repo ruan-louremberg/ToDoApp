@@ -10,20 +10,11 @@ import { useChangeTaskStatus } from "../hooks/useChangeTaskStatus";
 import { TaskListLoadingState } from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
-import { TaskBadge } from "../components/TaskBadge";
-import { TaskActionsMenu } from "../components/TaskActionsMenu";
 import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
 import { TaskFilters } from "../components/TaskFilters";
+import { TaskRow } from "../components/TaskRow";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
-
-function formatDueDate(dueDate: string | null) {
-  if (!dueDate) return "Sem prazo";
-
-  return new Intl.DateTimeFormat("pt-BR").format(
-    new Date(`${dueDate.slice(0, 10)}T00:00:00`)
-  );
-}
 
 export function TaskListPage() {
   const [search, setSearch] = useState("");
@@ -175,41 +166,21 @@ export function TaskListPage() {
             </thead>
             <tbody>
               {data?.items.map((task) => (
-                <tr key={task.id}>
-                  <td className="task-title-cell">{task.title}</td>
-                  <td>
-                    {task.description ? (
-                      <span className="task-description" title={task.description}>
-                        {task.description}
-                      </span>
-                    ) : (
-                      <span className="muted-cell">Sem descrição</span>
-                    )}
-                  </td>
-                   <td>
-                    <TaskBadge type="priority" value={task.priority} />
-                  </td>
-                  <td className="task-status-cell">
-                    <TaskBadge type="status" value={task.status} />
-                  </td>
-                  <td>{formatDueDate(task.dueDate)}</td>
-                  <td>{task.category?.name ?? "Sem categoria"}</td>
-                  <td className="task-actions">
-                    <TaskActionsMenu
-                      taskTitle={task.title}
-                      status={task.status}
-                      isDeleteDisabled={deletingTaskId !== null || updatingTaskId !== null}
-                      isDeleting={deletingTaskId === task.id}
-                      isStatusDisabled={updatingTaskId !== null || deletingTaskId !== null}
-                      isStatusUpdating={updatingTaskId === task.id}
-                      onEdit={() => openEditModal(task)}
-                      onDelete={() => setTaskToDelete(task)}
-                      onChangeStatus={(nextStatus) =>
-                        handleTaskStatusChange(task.id, nextStatus)
-                      }
-                    />
-                  </td>
-                </tr>
+                <TaskRow
+                  key={task.id}
+                  task={task}
+                  isDeleteDisabled={
+                    deletingTaskId !== null || updatingTaskId !== null
+                  }
+                  isDeleting={deletingTaskId === task.id}
+                  isStatusDisabled={
+                    updatingTaskId !== null || deletingTaskId !== null
+                  }
+                  isStatusUpdating={updatingTaskId === task.id}
+                  onEdit={() => openEditModal(task)}
+                  onDelete={() => setTaskToDelete(task)}
+                  onChangeStatus={handleTaskStatusChange}
+                />
               ))}
             </tbody>
           </table>
