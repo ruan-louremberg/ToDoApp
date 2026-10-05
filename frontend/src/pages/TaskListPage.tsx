@@ -12,6 +12,7 @@ import { TaskListEmptyState } from "../components/taskListStates";
 import { TaskBadge } from "../components/TaskBadge";
 import { TaskActionsMenu } from "../components/TaskActionsMenu";
 import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
+import { TaskFilters } from "../components/TaskFilters";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
@@ -123,31 +124,15 @@ export function TaskListPage() {
     <main>
       <div className="task-toolbar">
         <button onClick={openCreateModal}>+ Nova Tarefa</button>
-        <div className="filters">
-          <input
-            type="text"
-            placeholder="buscar por título..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
 
-          <select value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">Todos os Status</option>
-            <option value="0">Pendente</option>
-            <option value="1">Em Progresso</option>
-            <option value="2">Concluída</option>
-          </select>
-
-          <select
-            value={priority}
-            onChange={(event) => setPriority(event.target.value)}
-          >
-            <option value="">Todas as Prioridades</option>
-            <option value="0">Baixa</option>
-            <option value="1">Média</option>
-            <option value="2">Alta</option>
-          </select>
-        </div>
+        <TaskFilters
+          search={search}
+          status={status}
+          priority={priority}
+          onSearchChange={setSearch}
+          onStatusChange={setStatus}
+          onPriorityChange={setPriority}
+        />
       </div>
       {loading ? (
         <TaskListLoadingState />
@@ -225,7 +210,5 @@ export function TaskListPage() {
         onSubmit={handleSubmit}
       />
     </main>
-
-
   );
 }
