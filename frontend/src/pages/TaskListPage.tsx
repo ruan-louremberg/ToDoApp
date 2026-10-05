@@ -13,6 +13,7 @@ import { TaskListEmptyState } from "../components/taskListStates";
 import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
 import { TaskFilters } from "../components/TaskFilters";
 import { TaskRow } from "../components/TaskRow";
+import { Pagination } from "../components/Pagination";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
@@ -26,6 +27,8 @@ export function TaskListPage() {
   const [taskToDelete, setTaskToDelete] = useState<TaskResponseList | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const statusFilter = status === "" ? undefined : Number(status) as TaskStatusDto;
   const priorityFilter = priority === "" ? undefined : Number(priority) as TaskPriorityDto;
   const { updateTask, saving: editing, error: editError } = useEditTask();
@@ -34,7 +37,37 @@ export function TaskListPage() {
     search: debouncedSearch,
     status: statusFilter,
     priority: priorityFilter,
+    page: currentPage,
+    pageSize,
   });
+
+  function handleSearchChange(value: string) {
+    setCurrentPage(1);
+    setSearch(value);
+  }
+
+  function handleStatusChange(value: string) {
+    setCurrentPage(1);
+    setStatus(value);
+  }
+
+  function handlePriorityChange(value: string) {
+    setCurrentPage(1);
+    setPriority(value);
+  }
+
+  function handlePageSizeChange(nextPageSize: number) {
+    if (
+      !Number.isInteger(nextPageSize) ||
+      nextPageSize < 1 ||
+      nextPageSize > 100
+    ) {
+      return;
+    }
+
+    setCurrentPage(1);
+    setPageSize(nextPageSize);
+  }
 
   function openCreateModal() {
     setSelectedTask(null);
@@ -139,9 +172,9 @@ export function TaskListPage() {
           search={search}
           status={status}
           priority={priority}
-          onSearchChange={setSearch}
-          onStatusChange={setStatus}
-          onPriorityChange={setPriority}
+          onSearchChange={handleSearchChange}
+          onStatusChange={handleStatusChange}
+          onPriorityChange={handlePriorityChange}
         />
       </div>
       {loading ? (
@@ -151,40 +184,53 @@ export function TaskListPage() {
       ) : data?.items.length === 0 ? (
         <TaskListEmptyState />
       ) : (
-        <div className="task-table-wrapper">
-          <table className="task-table">
-            <thead>
-              <tr>
-                <th scope="col">Título</th>
-                <th scope="col">Descrição</th>
-                <th scope="col">Prioridade</th>
-                <th scope="col">Status</th>
-                <th scope="col">Prazo</th>
-                <th scope="col">Categoria</th>
-                <th scope="col">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.items.map((task) => (
-                <TaskRow
-                  key={task.id}
-                  task={task}
-                  isDeleteDisabled={
-                    deletingTaskId !== null || updatingTaskId !== null
-                  }
-                  isDeleting={deletingTaskId === task.id}
-                  isStatusDisabled={
-                    updatingTaskId !== null || deletingTaskId !== null
-                  }
-                  isStatusUpdating={updatingTaskId === task.id}
-                  onEdit={() => openEditModal(task)}
-                  onDelete={() => setTaskToDelete(task)}
-                  onChangeStatus={handleTaskStatusChange}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="task-table-wrapper">
+            <table className="task-table">
+              <thead>
+                <tr>
+                  <th scope="col">Título</th>
+                  <th scope="col">Descrição</th>
+                  <th scope="col">Prioridade</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Prazo</th>
+                  <th scope="col">Categoria</th>
+                  <th scope="col">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.items.map((task) => (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    isDeleteDisabled={
+                      deletingTaskId !== null || updatingTaskId !== null
+                    }
+                    isDeleting={deletingTaskId === task.id}
+                    isStatusDisabled={
+                      updatingTaskId !== null || deletingTaskId !== null
+                    }
+                    isStatusUpdating={updatingTaskId === task.id}
+                    onEdit={() => openEditModal(task)}
+                    onDelete={() => setTaskToDelete(task)}
+                    onChangeStatus={handleTaskStatusChange}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {data && (
+            <Pagination
+              currentPage={data.page}
+              totalPages={data.totalPages}
+              pageSize={pageSize}
+              disabled={loading}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={handlePageSizeChange}
+            />
+          )}
+        </>
       )}
       {deleteError && <p role="alert">{deleteError}</p>}
       {statusError && <p role="alert">{statusError}</p>}
