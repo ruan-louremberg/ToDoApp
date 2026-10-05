@@ -27,7 +27,13 @@ export function useTasks(filters?: TaskFilters) {
     } finally {
       if (!isBackground) setLoading(false);
     }
-  }, [filters?.search, filters?.status, filters?.priority]);
+  }, [
+    filters?.search,
+    filters?.status,
+    filters?.priority,
+    filters?.page,
+    filters?.pageSize,
+  ]);
 
   useEffect(() => {
     fetchTasks(false);

@@ -105,7 +105,6 @@ p {
 .task-table td {
   padding: 14px 16px;
   border-bottom: 1px solid #e2e8f0;
-  vertical-align: top;
 }
 
 .task-table th {
@@ -121,6 +120,59 @@ p {
 
 .task-table tbody tr:hover {
   background-color: #f8fafc;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: white;
+  color: #1e293b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.1rem;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination span {
+  color: #475569;
+  font-weight: 700;
+}
+
+.pagination__page-size {
+  min-width: 72px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background-color: white;
+  color: #1e293b;
+  cursor: pointer;
+  font: inherit;
+}
+
+.pagination__page-size:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .task-title-cell {
@@ -230,7 +282,6 @@ p {
 }
 
 .task-actions-menu__trigger span {
-  margin-top: -7px;
   font-size: 1.2rem;
   letter-spacing: 2px;
 }
