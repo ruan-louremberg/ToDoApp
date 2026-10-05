@@ -123,6 +123,12 @@ p {
   background-color: #f8fafc;
 }
 
+.task-list-refreshing {
+  margin: 0 0 10px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 .pagination {
   display: flex;
   align-items: center;
