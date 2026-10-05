@@ -10,6 +10,7 @@ import { TaskListLoadingState } from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
 import { TaskBadge } from "../components/TaskBadge";
+import { TaskActionsMenu } from "../components/TaskActionsMenu";
 import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
@@ -159,9 +160,9 @@ export function TaskListPage() {
           <table className="task-table">
             <thead>
               <tr>
-                <th scope="col">Prioridade</th>
                 <th scope="col">Título</th>
                 <th scope="col">Descrição</th>
+                <th scope="col">Prioridade</th>
                 <th scope="col">Status</th>
                 <th scope="col">Prazo</th>
                 <th scope="col">Categoria</th>
@@ -171,9 +172,6 @@ export function TaskListPage() {
             <tbody>
               {data?.items.map((task) => (
                 <tr key={task.id}>
-                  <td>
-                    <TaskBadge type="priority" value={task.priority} />
-                  </td>
                   <td className="task-title-cell">{task.title}</td>
                   <td>
                     {task.description ? (
@@ -184,22 +182,21 @@ export function TaskListPage() {
                       <span className="muted-cell">Sem descrição</span>
                     )}
                   </td>
+                   <td>
+                    <TaskBadge type="priority" value={task.priority} />
+                  </td>
                   <td className="task-status-cell">
                     <TaskBadge type="status" value={task.status} />
                   </td>
                   <td>{formatDueDate(task.dueDate)}</td>
                   <td>{task.category?.name ?? "Sem categoria"}</td>
                   <td className="task-actions">
-                    <button type="button" onClick={() => openEditModal(task)}>
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      disabled={deletingTaskId !== null}
-                      onClick={() => setTaskToDelete(task)}
-                    >
-                      {deletingTaskId === task.id ? "Excluindo..." : "Excluir"}
-                    </button>
+                    <TaskActionsMenu
+                      isDeleteDisabled={deletingTaskId !== null}
+                      isDeleting={deletingTaskId === task.id}
+                      onEdit={() => openEditModal(task)}
+                      onDelete={() => setTaskToDelete(task)}
+                    />
                   </td>
                 </tr>
               ))}

@@ -207,31 +207,77 @@ p {
 
 .task-actions {
   white-space: nowrap;
+  width: 72px;
+  text-align: center;
 }
 
-.task-actions button {
-  padding: 8px 12px;
-  margin-right: 8px;
+.task-actions-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.task-actions-menu__trigger {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
   border: 0;
-  border-radius: 6px;
+  border-radius: 50%;
   background-color: #e2e8f0;
   color: #1e293b;
   cursor: pointer;
   font: inherit;
 }
 
-.task-actions button:last-child {
-  margin-right: 0;
-  background-color: #fee2e2;
-  color: #b91c1c;
+.task-actions-menu__trigger span {
+  margin-top: -7px;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
 }
 
-.task-actions button:hover {
+.task-actions-menu__trigger:hover,
+.task-actions-menu__trigger[aria-expanded="true"] {
   background-color: #cbd5e1;
 }
 
-.task-actions button:last-child:hover {
-  background-color: #fecaca;
+.task-actions-menu__dropdown {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  min-width: 130px;
+  padding: 6px;
+  border: 1px solid #dbe2ea;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 15%);
+}
+
+.task-actions-menu__dropdown button {
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 5px;
+  background-color: transparent;
+  color: #1e293b;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.task-actions-menu__dropdown button:hover {
+  background-color: #f1f5f9;
+}
+
+.task-actions-menu__dropdown .task-actions-menu__delete {
+  color: #b91c1c;
+}
+
+.task-actions-menu__dropdown .task-actions-menu__delete:hover {
+  background-color: #fee2e2;
+}
+
+.task-actions-menu__dropdown button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .modal-backdrop {
