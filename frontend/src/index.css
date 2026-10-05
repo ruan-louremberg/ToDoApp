@@ -105,7 +105,7 @@ p {
 .task-table td {
   padding: 14px 16px;
   border-bottom: 1px solid #e2e8f0;
-  vertical-align: top;
+  
 }
 
 .task-table th {
@@ -283,7 +283,6 @@ p {
 }
 
 .task-actions-menu__trigger span {
-  margin-top: -7px;
   font-size: 1.2rem;
   letter-spacing: 2px;
 }
