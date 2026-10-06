@@ -26,6 +26,8 @@ public record TaskResponseList
 
     public Priority? Priority { get; set; }
 
+    public DateTime? DeletedAt { get; set; }
+
     public DateTime? DueDate { get; set; }
 
     public CategoryResponse? Category { get; set; }

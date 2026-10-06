@@ -24,6 +24,7 @@ public class GetTrashUseCase
             Description = task.Description,
             Status = task.Status,
             Priority = task.Priority,
+            DeletedAt = task.DeletedAt,
             DueDate = task.DueDate,
             Category = task.Category is not null
                 ? new CategoryResponse(

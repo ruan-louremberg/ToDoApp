@@ -270,6 +270,91 @@ p {
   text-align: center;
 }
 
+.trash-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.trash-page__header h1 {
+  margin-bottom: 8px;
+}
+
+.trash-page__header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.trash-page__count {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background-color: #e2e8f0;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.trash-page__empty,
+.trash-page__error {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid #dbe2ea;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.trash-page__error {
+  margin-bottom: 16px;
+  border-color: #fecaca;
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.trash-page__error-state {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.trash-page__error-state p {
+  margin: 0;
+  color: #b91c1c;
+}
+
+.trash-task-table {
+  min-width: 1080px;
+}
+
+.trash-task-actions {
+  width: 120px;
+  white-space: nowrap;
+}
+
+.restore-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 6px;
+  background-color: #2563eb;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.restore-button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.restore-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .task-actions-menu {
   position: relative;
   display: inline-block;
@@ -515,6 +600,11 @@ p {
   }
 
   .task-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .trash-page__header {
     align-items: stretch;
     flex-direction: column;
   }

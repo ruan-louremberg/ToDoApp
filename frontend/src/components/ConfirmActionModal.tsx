@@ -1,18 +1,26 @@
-interface ConfirmDeleteModalProps {
+interface ConfirmActionModalProps {
   isOpen: boolean;
-  taskTitle: string;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  loadingLabel: string;
+  confirmButtonClassName?: string;
   isLoading?: boolean;
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
 }
 
-export function ConfirmDeleteModal({
+export function ConfirmActionModal({
   isOpen,
-  taskTitle,
+  title,
+  message,
+  confirmLabel,
+  loadingLabel,
+  confirmButtonClassName = "danger-button",
   isLoading = false,
   onClose,
   onConfirm,
-}: ConfirmDeleteModalProps) {
+}: ConfirmActionModalProps) {
   if (!isOpen) {
     return null;
   }
@@ -20,10 +28,10 @@ export function ConfirmDeleteModal({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal confirm-modal" onClick={(event) => event.stopPropagation()}>
-        <h2>Excluir tarefa</h2>
+        <h2>{title}</h2>
 
         <p className="confirm-modal__message">
-          Tem certeza que deseja excluir <strong>{taskTitle}</strong>?
+          {message}
         </p>
 
         <div className="modal-actions">
@@ -38,11 +46,11 @@ export function ConfirmDeleteModal({
 
           <button
             type="button"
-            className="danger-button"
+            className={confirmButtonClassName}
             onClick={() => void onConfirm()}
             disabled={isLoading}
           >
-            {isLoading ? "Excluindo..." : "Excluir"}
+            {isLoading ? loadingLabel : confirmLabel}
           </button>
         </div>
       </div>

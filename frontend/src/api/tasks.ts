@@ -5,7 +5,7 @@ import type { ProblemDetails } from "../types/problemDetails";
 import type {
   ChangeTaskStatusRequest,
   CreateTaskRequest,
-  TaskResponseList,
+  ListTrashTasks,
   UpdateTaskRequest,
 } from "../types/task";
 import type { ListTasksRequest } from "../types/taskFilters";
@@ -111,7 +111,7 @@ export async function deleteTask(
   return { success: true };
 }
 
-export async function getTrashTasks(): Promise<TaskResponseList[]> {
+export async function getTrashTasks(): Promise<ListTrashTasks[]> {
   const response = await fetch(`${API_URL}/api/tasks/trash`);
 
   if (!response.ok) {
