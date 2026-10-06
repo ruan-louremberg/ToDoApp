@@ -30,7 +30,12 @@ public interface IToDoRepository
         Guid id,
         CancellationToken cancellationToken = default);
 
-    Task<List<ToDo>> GetTrashAsync(CancellationToken cancellationToken = default);
+    Task<List<ToDo>> GetTrashAsync(
+        int page = 1,
+        int pageSize = 20,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountTrashAsync(CancellationToken cancellationToken = default);
 
     Task<bool> RestoreAsync(
     Guid id,

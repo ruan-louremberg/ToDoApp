@@ -1,31 +1,44 @@
-import { useEffect, useState } from "react";
-import { getCategories, } from "../api/category";
-import type { CategoryResponse } from "../types/category";
+import { useCallback, useEffect, useState } from "react";
+import { getCategories } from "../api/category";
+import type {
+  CategoryResponse,
+  ListCategoriesRequest,
+  ListCategoriesResponse,
+} from "../types/category";
 
-export function useCategories() {
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function useCategories(filters: ListCategoriesRequest = {}) {
+  const { name, color, page, pageSize } = filters;
+  const [data, setData] = useState<ListCategoriesResponse | null>(null);
+  const [reloadVersion, setReloadVersion] = useState(0);
+  const [loadedQuery, setLoadedQuery] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<{
+    query: string;
+    message: string;
+  } | null>(null);
+  const query = JSON.stringify([name, color, page, pageSize, reloadVersion]);
 
   useEffect(() => {
     let active = true;
 
     async function loadCategories() {
       try {
-        const result = await getCategories();
-        
-        if (active) setCategories(result.items);
-
+        const result = await getCategories({ name, color, page, pageSize });
+        if (active) {
+          setData(result);
+          setRequestError(null);
+        }
       } catch (err) {
         if (active) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Não foi possível carregar as categorias."
-          );
+          setRequestError({
+            query,
+            message:
+              err instanceof Error
+                ? err.message
+                : "Não foi possível carregar as categorias.",
+          });
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) setLoadedQuery(query);
       }
     }
 
@@ -34,7 +47,14 @@ export function useCategories() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [name, color, page, pageSize, query]);
 
-  return { categories, loading, error };
+  const reload = useCallback(() => {
+    setReloadVersion((version) => version + 1);
+  }, []);
+  const categories: CategoryResponse[] = data?.items ?? [];
+  const loading = loadedQuery !== query;
+  const error = requestError?.query === query ? requestError.message : null;
+
+  return { categories, data, loading, error, reload };
 }

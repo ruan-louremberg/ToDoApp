@@ -14,23 +14,39 @@ public class GetTrashUseCaseTests
         var task = new ToDo("Deleted", null, Priority.Low, null);
         task.SoftDelete();
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetTrashAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<ToDo> { task });
+        repository
+            .Setup(item => item.GetTrashAsync(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ToDo> { task });
+        repository
+            .Setup(item => item.CountTrashAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
 
         var result = await new GetTrashUseCase(repository.Object).ExecuteAsync();
 
-        Assert.Single(result);
-        Assert.Equal(task.Id, result[0].Id);
-        Assert.Equal("Deleted", result[0].Title);
+        Assert.Single(result.Items);
+        Assert.Equal(task.Id, result.Items[0].Id);
+        Assert.Equal("Deleted", result.Items[0].Title);
     }
 
     [Fact(DisplayName = "Retorna lista vazia quando a lixeira está vazia")]
     public async Task GivenEmptyTrash_WhenGettingTrash_ThenReturnsEmptyList()
     {
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetTrashAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<ToDo>());
+        repository
+            .Setup(item => item.GetTrashAsync(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ToDo>());
+        repository
+            .Setup(item => item.CountTrashAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
 
         var result = await new GetTrashUseCase(repository.Object).ExecuteAsync();
 
-        Assert.Empty(result);
+        Assert.Empty(result.Items);
     }
 }

@@ -117,9 +117,11 @@ public class TaskController(
 
     [HttpGet("trash")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTrash()
+    public async Task<IActionResult> GetTrash(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
     {
-        var tasks = await _getTrashUseCase.ExecuteAsync();
+        var tasks = await _getTrashUseCase.ExecuteAsync(page, pageSize);
 
         return Ok(tasks);
     }

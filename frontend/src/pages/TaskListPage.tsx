@@ -16,7 +16,6 @@ import { TaskRow } from "../components/TaskRow";
 import { Pagination } from "../components/Pagination";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
-import { TrashPage } from "./TrashPage";
 
 export function TaskListPage() {
   const [search, setSearch] = useState("");
@@ -237,7 +236,6 @@ export function TaskListPage() {
             />
           )}
 
-          <TrashPage />
         </>
       )}
       {deleteError && <p role="alert">{deleteError}</p>}

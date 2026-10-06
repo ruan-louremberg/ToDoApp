@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, getTrashTasks } from "../api/tasks";
-import type { ListTrashTasks } from "../types/task";
+import type { ListTasksResponse } from "../types/ListTasksResponse";
 
-export function useTrashTasks() {
-  const [data, setData] = useState<ListTrashTasks[] | null>(null);
+export function useTrashTasks(page: number, pageSize: number) {
+  const [data, setData] = useState<ListTasksResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +11,7 @@ export function useTrashTasks() {
     try {
       if (!isBackground) setLoading(true);
       setError(null);
-      const result = await getTrashTasks();
+      const result = await getTrashTasks(page, pageSize);
       setData(result);
 
     } catch (err) {
@@ -24,7 +24,7 @@ export function useTrashTasks() {
     } finally {
       if (!isBackground) setLoading(false);
     }
-  }, []);
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchTrashTasks();

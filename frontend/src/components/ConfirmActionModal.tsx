@@ -6,6 +6,7 @@ interface ConfirmActionModalProps {
   loadingLabel: string;
   confirmButtonClassName?: string;
   isLoading?: boolean;
+  error?: string | null;
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
 }
@@ -18,6 +19,7 @@ export function ConfirmActionModal({
   loadingLabel,
   confirmButtonClassName = "danger-button",
   isLoading = false,
+  error,
   onClose,
   onConfirm,
 }: ConfirmActionModalProps) {
@@ -26,13 +28,19 @@ export function ConfirmActionModal({
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div
+      className="modal-backdrop"
+      onClick={() => {
+        if (!isLoading) onClose();
+      }}
+    >
       <div className="modal confirm-modal" onClick={(event) => event.stopPropagation()}>
         <h2>{title}</h2>
 
         <p className="confirm-modal__message">
           {message}
         </p>
+        {error && <p role="alert">{error}</p>}
 
         <div className="modal-actions">
           <button

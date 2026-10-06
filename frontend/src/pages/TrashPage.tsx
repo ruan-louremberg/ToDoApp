@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TrashTaskRow } from "../components/TrashTaskRow";
 import { ConfirmActionModal } from "../components/ConfirmActionModal";
+import { Pagination } from "../components/Pagination";
 import {
   TaskListErrorState,
   TaskListLoadingState,
@@ -10,7 +11,9 @@ import { useTrashTasks } from "../hooks/useTrashTasks";
 import type { ListTrashTasks } from "../types/task";
 
 export function TrashPage() {
-  const { data, loading, error, fetchTrashTasks } = useTrashTasks();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { data, loading, error, fetchTrashTasks } = useTrashTasks(currentPage, pageSize);
   const [taskToRestore, setTaskToRestore] = useState<ListTrashTasks | null>(null);
   const {
     restore,
@@ -37,7 +40,7 @@ export function TrashPage() {
 
         {data && (
           <span className="trash-page__count">
-            {data.length} {data.length === 1 ? "tarefa" : "tarefas"}
+            {data.totalItems} {data.totalItems === 1 ? "tarefa" : "tarefas"}
           </span>
         )}
       </header>
@@ -53,15 +56,8 @@ export function TrashPage() {
       ) : error && !data ? (
         <div className="trash-page__error-state">
           <TaskListErrorState message={error} />
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => fetchTrashTasks()}
-          >
-            Tentar novamente
-          </button>
         </div>
-      ) : data?.length === 0 ? (
+      ) : data?.items.length === 0 ? (
         <p className="trash-page__empty">A lixeira está vazia.</p>
       ) : (
         <div className="task-table-wrapper" aria-busy={loading}>
@@ -84,14 +80,14 @@ export function TrashPage() {
               </tr>
             </thead>
             <tbody>
-              {data?.map((task) => (
+              {data?.items.map((task) => (
                 <TrashTaskRow
                   key={task.id}
                   task={task}
                   isRestoring={restoringTaskId === task.id}
                   isRestoreDisabled={restoringTaskId !== null}
                   onRestore={(taskId) => {
-                    const selectedTask = data?.find((task) => task.id === taskId);
+                    const selectedTask = data?.items.find((task) => task.id === taskId);
                     if (selectedTask) {
                       setTaskToRestore(selectedTask);
                     }
@@ -101,6 +97,21 @@ export function TrashPage() {
             </tbody>
           </table>
         </div>
+      )}
+      {data && data.items.length > 0 && (
+        <Pagination
+          currentPage={data.page}
+          totalPages={data.totalPages}
+          pageSize={pageSize}
+          itemLabel="tarefas na lixeira"
+          disabled={loading}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(nextPageSize) => {
+            if (nextPageSize < 1 || nextPageSize > 100) return;
+            setCurrentPage(1);
+            setPageSize(nextPageSize);
+          }}
+        />
       )}
 
       <ConfirmActionModal
