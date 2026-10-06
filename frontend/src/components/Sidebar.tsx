@@ -60,6 +60,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <span>Categorias</span>
             <span className="sidebar__link-arrow" aria-hidden="true">›</span>
           </NavLink>
+          <NavLink
+            to="/trash"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `sidebar__link${isActive ? " sidebar__link--active" : ""}`
+            }
+          >
+            <span className="sidebar__icon sidebar__icon--trash" aria-hidden="true">
+              ✗
+            </span>
+            <span>Lixeira</span>
+            <span className="sidebar__link-arrow" aria-hidden="true">›</span>
+          </NavLink>
         </nav>
         <div className="sidebar__note">
           <span className="sidebar__note-mark" aria-hidden="true">✦</span>

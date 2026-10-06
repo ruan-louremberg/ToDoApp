@@ -5,7 +5,6 @@ import type { ProblemDetails } from "../types/problemDetails";
 import type {
   ChangeTaskStatusRequest,
   CreateTaskRequest,
-  TaskResponseList,
   UpdateTaskRequest,
 } from "../types/task";
 import type { ListTasksRequest } from "../types/taskFilters";
@@ -111,8 +110,15 @@ export async function deleteTask(
   return { success: true };
 }
 
-export async function getTrashTasks(): Promise<TaskResponseList[]> {
-  const response = await fetch(`${API_URL}/api/tasks/trash`);
+export async function getTrashTasks(
+  page = 1,
+  pageSize = 20
+): Promise<ListTasksResponse> {
+  const params = new URLSearchParams({
+    page: String(page),
+    pageSize: String(pageSize),
+  });
+  const response = await fetch(`${API_URL}/api/tasks/trash?${params}`);
 
   if (!response.ok) {
     await throwApiError(response, "Erro ao buscar tarefas excluídas");

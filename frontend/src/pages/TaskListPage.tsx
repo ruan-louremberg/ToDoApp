@@ -10,7 +10,7 @@ import { useChangeTaskStatus } from "../hooks/useChangeTaskStatus";
 import { TaskListLoadingState } from "../components/taskListStates";
 import { TaskListErrorState } from "../components/taskListStates";
 import { TaskListEmptyState } from "../components/taskListStates";
-import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
+import { ConfirmActionModal } from "../components/ConfirmActionModal";
 import { TaskFilters } from "../components/TaskFilters";
 import { TaskRow } from "../components/TaskRow";
 import { Pagination } from "../components/Pagination";
@@ -239,13 +239,17 @@ export function TaskListPage({ onTasksChanged }: TaskListPageProps) {
               onPageSizeChange={handlePageSizeChange}
             />
           )}
+
         </>
       )}
       {deleteError && <p role="alert">{deleteError}</p>}
       {statusError && <p role="alert">{statusError}</p>}
-      <ConfirmDeleteModal
+      <ConfirmActionModal
         isOpen={taskToDelete !== null}
-        taskTitle={taskToDelete?.title ?? ""}
+        title="Excluir tarefa"
+        message={`Tem certeza que deseja excluir "${taskToDelete?.title ?? ""}"?`}
+        confirmLabel="Excluir"
+        loadingLabel="Excluindo..."
         isLoading={deletingTaskId !== null}
         onClose={() => setTaskToDelete(null)}
         onConfirm={handleDeleteTask}

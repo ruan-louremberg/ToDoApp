@@ -10,6 +10,7 @@ import {
 import { Sidebar } from "./components/Sidebar";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { TaskListPage } from "./pages/TaskListPage";
+import { TrashPage } from "./pages/TrashPage";
 import { SummaryPanel } from "./features/tasks/summary/SummaryPanel";
 import { useTaskSummary } from "./hooks/useTaskSummary";
 
@@ -74,6 +75,7 @@ export function App() {
           <Route index element={<Navigate to="/tasks" replace />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/trash" element={<TrashPage />} />
           <Route path="*" element={<Navigate to="/tasks" replace />} />
         </Route>
       </Routes>

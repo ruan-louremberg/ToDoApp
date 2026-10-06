@@ -21,6 +21,7 @@ export interface TaskResponseList {
     description: string | null;
     status: TaskStatusDto | null;
     priority: TaskPriorityDto | null;
+    deletedAt: string | null;
     dueDate: string | null;
     category: CategoryResponse | null;
 }
@@ -58,4 +59,15 @@ export interface UpdateTaskRequest {
     priority?: TaskPriorityDto | null;
     dueDate?: string | null;
     categoryId?: string | null;
+}
+
+export interface ListTrashTasks {
+    id: string;
+    title: string;
+    description: string | null;
+    deletedAt: string | null;
+    status: TaskStatusDto | null;
+    priority: TaskPriorityDto | null;
+    dueDate: string | null;
+    category: CategoryResponse | null;
 }
