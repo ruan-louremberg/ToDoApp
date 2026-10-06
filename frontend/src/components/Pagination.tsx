@@ -2,6 +2,7 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   pageSize: number;
+  itemLabel?: string;
   disabled?: boolean;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
@@ -11,6 +12,7 @@ export function Pagination({
   currentPage,
   totalPages,
   pageSize,
+  itemLabel = "tarefas",
   disabled = false,
   onPageChange,
   onPageSizeChange,
@@ -31,7 +33,7 @@ export function Pagination({
   }
 
   return (
-    <nav className="pagination" aria-label="Paginação das tarefas">
+    <nav className="pagination" aria-label={`Paginação de ${itemLabel}`}>
       <button
         type="button"
         onClick={handlePrevious}
@@ -56,7 +58,7 @@ export function Pagination({
 
       <select
         className="pagination__page-size"
-        aria-label="Quantidade de tarefas por página"
+        aria-label={`Quantidade de ${itemLabel} por página`}
         value={pageSize}
         disabled={disabled}
         onChange={(event) => onPageSizeChange(Number(event.target.value))}

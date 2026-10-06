@@ -38,9 +38,11 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
     {
         var query = _context.Categories.AsNoTracking().AsQueryable();
 
-        if (!string.IsNullOrEmpty(name))
+        var safeName = name?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(safeName))
         {
-            query = query.Where(c => c.Name.Contains(name));
+            query = query.Where(c => c.Name.ToLower().Contains(safeName.ToLower()));
         }
 
         if (!string.IsNullOrEmpty(color))
@@ -59,9 +61,11 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
     {
         var query = _context.Categories.AsNoTracking().AsQueryable();
 
-        if (!string.IsNullOrEmpty(name))
+        var safeName = name?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(safeName))
         {
-            query = query.Where(c => c.Name.Contains(name));
+            query = query.Where(c => c.Name.ToLower().Contains(safeName.ToLower()));
         }
 
         if (!string.IsNullOrEmpty(color))
