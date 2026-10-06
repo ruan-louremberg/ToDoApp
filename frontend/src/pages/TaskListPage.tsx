@@ -17,7 +17,11 @@ import { Pagination } from "../components/Pagination";
 import type { TaskPriorityDto, TaskResponseList, TaskStatusDto } from "../types/task";
 import type { TaskFormData } from "../types/taskForm";
 
-export function TaskListPage() {
+interface TaskListPageProps {
+  onTasksChanged: () => Promise<void>;
+}
+
+export function TaskListPage({ onTasksChanged }: TaskListPageProps) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
   const [status, setStatus] = useState("");
@@ -86,7 +90,7 @@ export function TaskListPage() {
       const updated = await updateTask(selectedTask.id, formData);
 
       if (updated) {
-        await reload();
+        await Promise.all([reload(), onTasksChanged()]);
         setIsModalOpen(false);
       }
 
@@ -104,7 +108,7 @@ export function TaskListPage() {
         dueDate: formData.dueDate || null,
         categoryId: formData.categoryId || null,
       });
-      await reload();
+      await Promise.all([reload(), onTasksChanged()]);
       setIsModalOpen(false);
     } catch (err) {
       setCreateError(
@@ -145,7 +149,7 @@ export function TaskListPage() {
     const updated = await updateStatus(taskId, nextStatus);
 
     if (updated) {
-      await reload();
+      await Promise.all([reload(), onTasksChanged()]);
     }
 
     return updated;
@@ -157,7 +161,7 @@ export function TaskListPage() {
     const deleted = await removeTask(taskToDelete.id);
 
     if (deleted) {
-      await reload();
+      await Promise.all([reload(), onTasksChanged()]);
     }
 
     setTaskToDelete(null);

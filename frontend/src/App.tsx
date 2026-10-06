@@ -11,6 +11,22 @@ import { Sidebar } from "./components/Sidebar";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { TaskListPage } from "./pages/TaskListPage";
 import { SummaryPanel } from "./features/tasks/summary/SummaryPanel";
+import { useTaskSummary } from "./hooks/useTaskSummary";
+
+function TasksPage() {
+  const summaryState = useTaskSummary();
+
+  return (
+    <>
+      <SummaryPanel
+        summary={summaryState.summary}
+        isLoading={summaryState.isLoading}
+        error={summaryState.error}
+      />
+      <TaskListPage onTasksChanged={summaryState.reload} />
+    </>
+  );
+}
 
 function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -56,15 +72,7 @@ export function App() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<Navigate to="/tasks" replace />} />
-          <Route
-            path="/tasks"
-            element={
-              <>
-                <SummaryPanel />
-                <TaskListPage />
-              </>
-            }
-          />
+          <Route path="/tasks" element={<TasksPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="*" element={<Navigate to="/tasks" replace />} />
         </Route>

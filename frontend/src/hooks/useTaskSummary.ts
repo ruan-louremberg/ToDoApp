@@ -41,6 +41,8 @@ export function useTaskSummary(): UseTaskSummaryResult {
     }
   }, []);
 
+  const reload = useCallback(() => fetchSummary(false), [fetchSummary]);
+
   useEffect(() => {
     fetchSummary(false);
 
@@ -64,6 +66,6 @@ export function useTaskSummary(): UseTaskSummaryResult {
     summary,
     isLoading,
     error,
-    reload: () => fetchSummary(false),
+    reload,
   };
 }
