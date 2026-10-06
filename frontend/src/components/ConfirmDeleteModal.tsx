@@ -3,6 +3,7 @@ interface ConfirmDeleteModalProps {
   taskTitle?: string;
   itemName?: string;
   itemType?: string;
+  linkedTaskCount?: number;
   isLoading?: boolean;
   error?: string | null;
   onClose: () => void;
@@ -14,6 +15,7 @@ export function ConfirmDeleteModal({
   taskTitle,
   itemName = taskTitle ?? "",
   itemType = "tarefa",
+  linkedTaskCount,
   isLoading = false,
   error,
   onClose,
@@ -34,8 +36,20 @@ export function ConfirmDeleteModal({
         <h2>Excluir {itemType}</h2>
 
         <p className="confirm-modal__message">
-          Tem certeza que deseja excluir a {itemType}{" "}
-          <strong>{itemName}</strong>?
+          {itemType === "categoria" && linkedTaskCount !== undefined && linkedTaskCount > 0 ? (
+            <>
+              Esta categoria está vinculada a{" "}
+              <strong>
+                {linkedTaskCount} {linkedTaskCount === 1 ? "tarefa" : "tarefas"}
+              </strong>
+              . Tem certeza que deseja excluí-la?
+            </>
+          ) : (
+            <>
+              Tem certeza que deseja excluir a {itemType}{" "}
+              <strong>{itemName}</strong>?
+            </>
+          )}
         </p>
         {error && <p role="alert">{error}</p>}
 
