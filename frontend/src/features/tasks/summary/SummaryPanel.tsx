@@ -1,12 +1,17 @@
-import { useTaskSummary } from "../../../hooks/useTaskSummary";
+import type { TaskSummaryResponse } from "../../../types/TaskSummaryResponse";
 import { SummaryCard } from "./SummaryCard";
 
-export function SummaryPanel() {
-  const {
-    summary,
-    isLoading,
-    error
-  } = useTaskSummary();
+interface SummaryPanelProps {
+  summary: TaskSummaryResponse | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export function SummaryPanel({
+  summary,
+  isLoading,
+  error,
+}: SummaryPanelProps) {
 
   if (isLoading && !summary) {
     return (
