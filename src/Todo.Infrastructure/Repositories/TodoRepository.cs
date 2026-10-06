@@ -161,6 +161,8 @@ public class TodoRepository : IToDoRepository
     }
 
     public async Task<List<ToDo>> GetTrashAsync(
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         return await _context.ToDos
@@ -168,7 +170,17 @@ public class TodoRepository : IToDoRepository
             .AsNoTracking()
             .Where(t => t.IsDeleted)
             .OrderByDescending(t => t.DeletedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountTrashAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.ToDos
+            .Where(t => t.IsDeleted)
+            .CountAsync(cancellationToken);
     }
 
     public async Task<bool> RestoreAsync(
@@ -192,4 +204,3 @@ public class TodoRepository : IToDoRepository
     return true;
 }
 }
-

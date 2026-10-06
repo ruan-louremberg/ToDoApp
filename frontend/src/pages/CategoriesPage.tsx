@@ -3,7 +3,7 @@ import { Edit2, Plus, Search, Tags, Trash2 } from "lucide-react";
 import { deleteCategory } from "../api/category";
 import { getTasks } from "../api/tasks";
 import { CategoryFormModal } from "../components/CategoryFormModal";
-import { ConfirmDeleteModal } from "../components/ConfirmDeleteModal";
+import { ConfirmActionModal } from "../components/ConfirmActionModal";
 import { Pagination } from "../components/Pagination";
 import { useCategories } from "../hooks/useCategories";
 import { useDebounce } from "../hooks/useDebounce";
@@ -165,7 +165,6 @@ export function CategoriesPage() {
         ) : error && !data ? (
           <div className="categories-state categories-state--error" role="alert">
             <p>{error}</p>
-            <button type="button" onClick={() => void reload()}>Tentar novamente</button>
           </div>
         ) : categories.length === 0 ? (
           <div className="categories-empty">
@@ -265,11 +264,16 @@ export function CategoriesPage() {
           onSaved={handleCategorySaved}
         />
       )}
-      <ConfirmDeleteModal
+      <ConfirmActionModal
         isOpen={categoryToDelete !== null}
-        itemName={categoryToDelete?.name}
-        itemType="categoria"
-        linkedTaskCount={linkedTaskCount}
+        title="Excluir categoria"
+        message={
+          linkedTaskCount && linkedTaskCount > 0
+            ? `A categoria "${categoryToDelete?.name ?? ""}" está vinculada a ${linkedTaskCount} ${linkedTaskCount === 1 ? "tarefa" : "tarefas"}. Tem certeza que deseja excluí-la?`
+            : `Tem certeza que deseja excluir a categoria "${categoryToDelete?.name ?? ""}"?`
+        }
+        confirmLabel="Excluir"
+        loadingLabel="Excluindo..."
         isLoading={deleting}
         error={deleteError}
         onClose={() => {

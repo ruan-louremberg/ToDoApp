@@ -1,26 +1,28 @@
-interface ConfirmDeleteModalProps {
+interface ConfirmActionModalProps {
   isOpen: boolean;
-  taskTitle?: string;
-  itemName?: string;
-  itemType?: string;
-  linkedTaskCount?: number;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  loadingLabel: string;
+  confirmButtonClassName?: string;
   isLoading?: boolean;
   error?: string | null;
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
 }
 
-export function ConfirmDeleteModal({
+export function ConfirmActionModal({
   isOpen,
-  taskTitle,
-  itemName = taskTitle ?? "",
-  itemType = "tarefa",
-  linkedTaskCount,
+  title,
+  message,
+  confirmLabel,
+  loadingLabel,
+  confirmButtonClassName = "danger-button",
   isLoading = false,
   error,
   onClose,
   onConfirm,
-}: ConfirmDeleteModalProps) {
+}: ConfirmActionModalProps) {
   if (!isOpen) {
     return null;
   }
@@ -33,23 +35,10 @@ export function ConfirmDeleteModal({
       }}
     >
       <div className="modal confirm-modal" onClick={(event) => event.stopPropagation()}>
-        <h2>Excluir {itemType}</h2>
+        <h2>{title}</h2>
 
         <p className="confirm-modal__message">
-          {itemType === "categoria" && linkedTaskCount !== undefined && linkedTaskCount > 0 ? (
-            <>
-              Esta categoria está vinculada a{" "}
-              <strong>
-                {linkedTaskCount} {linkedTaskCount === 1 ? "tarefa" : "tarefas"}
-              </strong>
-              . Tem certeza que deseja excluí-la?
-            </>
-          ) : (
-            <>
-              Tem certeza que deseja excluir a {itemType}{" "}
-              <strong>{itemName}</strong>?
-            </>
-          )}
+          {message}
         </p>
         {error && <p role="alert">{error}</p>}
 
@@ -65,11 +54,11 @@ export function ConfirmDeleteModal({
 
           <button
             type="button"
-            className="danger-button"
+            className={confirmButtonClassName}
             onClick={() => void onConfirm()}
             disabled={isLoading}
           >
-            {isLoading ? "Excluindo..." : "Excluir"}
+            {isLoading ? loadingLabel : confirmLabel}
           </button>
         </div>
       </div>
