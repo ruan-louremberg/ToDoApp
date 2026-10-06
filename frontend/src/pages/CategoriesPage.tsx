@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Edit2, Plus, Search, Tags, Trash2 } from "lucide-react";
 import { deleteCategory } from "../api/category";
+import { getTasks } from "../api/tasks";
 import { CategoryFormModal } from "../components/CategoryFormModal";
 import { ConfirmActionModal } from "../components/ConfirmActionModal";
 import { Pagination } from "../components/Pagination";
@@ -16,6 +17,9 @@ export function CategoriesPage() {
   const [categoryToEdit, setCategoryToEdit] = useState<CategoryResponse | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<CategoryResponse | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [checkingCategoryId, setCheckingCategoryId] = useState<string | null>(null);
+  const [linkedTaskCount, setLinkedTaskCount] = useState<number | undefined>();
+  const [checkDeleteError, setCheckDeleteError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const debouncedSearch = useDebounce(search, 300);
   const { data, loading, error, reload } = useCategories({
@@ -83,6 +87,30 @@ export function CategoriesPage() {
     }
   }
 
+  async function requestDeleteConfirmation(category: CategoryResponse) {
+    setCheckingCategoryId(category.id);
+    setCheckDeleteError(null);
+    setDeleteError(null);
+
+    try {
+      const tasks = await getTasks({
+        categoryId: category.id,
+        page: 1,
+        pageSize: 1,
+      });
+      setLinkedTaskCount(tasks.totalItems);
+      setCategoryToDelete(category);
+    } catch (err) {
+      setCheckDeleteError(
+        err instanceof Error
+          ? `Não foi possível verificar as tarefas vinculadas: ${err.message}`
+          : "Não foi possível verificar as tarefas vinculadas."
+      );
+    } finally {
+      setCheckingCategoryId(null);
+    }
+  }
+
   return (
     <main className="categories-page">
       <header className="categories-page__heading">
@@ -93,6 +121,9 @@ export function CategoriesPage() {
       </header>
 
       <section className="categories-panel" aria-labelledby="categories-heading">
+        {checkDeleteError && (
+          <p className="categories-inline-error" role="alert">{checkDeleteError}</p>
+        )}
         <div className="categories-panel__header">
           <div className="categories-panel__title">
             <span className="categories-panel__title-icon" aria-hidden="true">
@@ -195,13 +226,17 @@ export function CategoriesPage() {
                     <button
                       type="button"
                       aria-label={`Excluir categoria ${category.name}`}
-                      title="Excluir categoria"
-                      onClick={() => {
-                        setDeleteError(null);
-                        setCategoryToDelete(category);
-                      }}
+                      title={checkingCategoryId === category.id
+                        ? "Verificando tarefas vinculadas..."
+                        : "Excluir categoria"}
+                      disabled={checkingCategoryId !== null}
+                      onClick={() => void requestDeleteConfirmation(category)}
                     >
-                      <Trash2 size={16} />
+                      {checkingCategoryId === category.id ? (
+                        <span aria-hidden="true">…</span>
+                      ) : (
+                        <Trash2 size={16} />
+                      )}
                     </button>
                   </div>
                 </article>
@@ -232,7 +267,11 @@ export function CategoriesPage() {
       <ConfirmActionModal
         isOpen={categoryToDelete !== null}
         title="Excluir categoria"
-        message={`Tem certeza que deseja excluir "${categoryToDelete?.name ?? ""}"?`}
+        message={
+          linkedTaskCount && linkedTaskCount > 0
+            ? `A categoria "${categoryToDelete?.name ?? ""}" está vinculada a ${linkedTaskCount} ${linkedTaskCount === 1 ? "tarefa" : "tarefas"}. Tem certeza que deseja excluí-la?`
+            : `Tem certeza que deseja excluir a categoria "${categoryToDelete?.name ?? ""}"?`
+        }
         confirmLabel="Excluir"
         loadingLabel="Excluindo..."
         isLoading={deleting}
