@@ -174,7 +174,9 @@ export function TaskListPage({ onTasksChanged }: TaskListPageProps) {
   return (
     <main>
       <div className="task-toolbar">
-        <button onClick={openCreateModal}>+ Nova Tarefa</button>
+        <button className="category-create-button" onClick={openCreateModal}>
+          + Nova tarefa
+        </button>
 
         <TaskFilters
           search={search}
