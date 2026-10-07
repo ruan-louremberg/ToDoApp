@@ -68,7 +68,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             }
           >
             <span className="sidebar__icon sidebar__icon--trash" aria-hidden="true">
-              ✗
+              🗑️
             </span>
             <span>Lixeira</span>
             <span className="sidebar__link-arrow" aria-hidden="true">›</span>
