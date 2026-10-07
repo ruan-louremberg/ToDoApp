@@ -36,6 +36,29 @@ public class UpdateTaskRequestValidatorTests
         Assert.True(result.IsValid);
     }
 
+    [Fact(DisplayName = "Aceita prazo para hoje em atualização")]
+    public void GivenDueDateToday_WhenValidatingRequest_ThenReturnsSuccess()
+    {
+        var result = new UpdateTaskRequestValidator().Validate(new UpdateTaskRequest
+        {
+            DueDate = Optional<DateTime?>.Of(DateTime.UtcNow.Date)
+        });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact(DisplayName = "Rejeita prazo de ontem em atualização")]
+    public void GivenDueDateYesterday_WhenValidatingRequest_ThenReturnsValidationError()
+    {
+        var result = new UpdateTaskRequestValidator().Validate(new UpdateTaskRequest
+        {
+            DueDate = Optional<DateTime?>.Of(DateTime.UtcNow.Date.AddDays(-1))
+        });
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, error => error.PropertyName == "DueDate.Value");
+    }
+
     [Fact(DisplayName = "Aceita campo explicitamente nulo em patch")]
     public void GivenExplicitNullField_WhenValidatingRequest_ThenReturnsSuccess()
     {
