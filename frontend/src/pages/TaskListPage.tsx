@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createTask } from "../api/tasks";
 import { TaskFormModal } from "../components/TaskFormModal";
 import { useEditTask } from "../hooks/useEditTask";
@@ -121,15 +121,19 @@ export function TaskListPage({ onTasksChanged }: TaskListPageProps) {
     }
   }
 
-  const formInitialData = selectedTask
-    ? {
+  const formInitialData = useMemo(() => {
+    if (!selectedTask) {
+      return undefined;
+    }
+
+    return {
       title: selectedTask.title,
       description: selectedTask.description ?? "",
       priority: selectedTask.priority ?? 0,
       dueDate: selectedTask.dueDate?.slice(0, 10) ?? "",
       categoryId: selectedTask.category?.id ?? "",
-    }
-    : undefined;
+    };
+  }, [selectedTask]);
 
   const {
     removeTask,
