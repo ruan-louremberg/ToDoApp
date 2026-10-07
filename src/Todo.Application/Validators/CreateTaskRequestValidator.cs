@@ -28,7 +28,9 @@ public class CreateTaskRequestValidator : AbstractValidator<CreateTaskRequest>
             .WithMessage("A descrição da tarefa deve ter no máximo 1000 caracteres.");
 
         RuleFor(request => request.DueDate)
-            .Must(dueDate => !dueDate.HasValue || dueDate.Value >= DateTime.UtcNow)
+            .Must(dueDate =>
+                !dueDate.HasValue ||
+                DateOnly.FromDateTime(dueDate.Value) >= DateOnly.FromDateTime(DateTime.UtcNow))
             .WithMessage("O prazo não pode ser no passado.");
     }
 }

@@ -12,7 +12,7 @@ public class SummaryRepository(TodoDbContext context) : ISummaryRepository
      public async Task<SummaryData> GetSummaryAsync(
           CancellationToken cancellationToken = default)
      {
-          var now = DateTime.UtcNow;
+          var today = DateTime.UtcNow.Date;
 
           var summary = await _context.ToDos
                .AsNoTracking()
@@ -25,7 +25,7 @@ public class SummaryRepository(TodoDbContext context) : ISummaryRepository
                     group.Count(task => task.Status == Status.Completed),
                     group.Count(task =>
                          task.DueDate.HasValue &&
-                         task.DueDate.Value < now &&
+                         task.DueDate.Value.Date < today &&
                          task.Status != Status.Completed)))
                .SingleOrDefaultAsync(cancellationToken);
 
