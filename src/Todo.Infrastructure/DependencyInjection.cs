@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using ToDoApp.Domain.Interfaces.Repositories;
 using ToDoApp.Infrastructure.Persistence;
 using ToDoApp.Infrastructure.Repositories;
+using ToDoApp.Application.Interfaces;
+using ToDoApp.Infrastructure.Services;
 
 namespace ToDoApp.Infrastructure;
 
@@ -20,6 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IToDoRepository, TodoRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISummaryRepository, SummaryRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IPasswordService, PasswordService>();
 
         return services;
     }

@@ -28,7 +28,7 @@ public class CreateCategoryUseCase
                 new Error(error.ErrorMessage).WithMetadata("statusCode", 400)));
         }
 
-        var category = new Category(request.Name, request.Color);
+        var category = new Category(request.UserId, request.Name, request.Color);
         var existingCategory = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
         if (existingCategory != null)
         {

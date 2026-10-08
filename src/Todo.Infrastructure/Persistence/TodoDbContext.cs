@@ -11,6 +11,7 @@ public class TodoDbContext : DbContext
 
     public DbSet<ToDo> ToDos => Set<ToDo>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +32,10 @@ public class TodoDbContext : DbContext
             builder.Property(t => t.DeletedAt);
             builder.Property(t => t.CategoryId);
             builder.HasOne(t => t.Category).WithMany().HasForeignKey(t => t.CategoryId);
+            builder.HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Category>(builder =>
@@ -41,7 +46,25 @@ public class TodoDbContext : DbContext
             builder.HasQueryFilter(c => !c.IsDeleted);
             builder.Property(c => c.IsDeleted).IsRequired();
             builder.Property(c => c.DeletedAt);
+            builder.HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<User>(builder =>
+        {
+            builder.HasKey(user => user.Id);
+            builder.Property(user => user.Name)
+                .IsRequired()
+                .HasMaxLength(120);
+            builder.Property(user => user.Email)
+                .IsRequired()
+                .HasMaxLength(320);
+            builder.Property(user => user.PasswordHash)
+                .IsRequired();
+            builder.HasIndex(user => user.Email)
+                .IsUnique();
         });
     }
 }
-
