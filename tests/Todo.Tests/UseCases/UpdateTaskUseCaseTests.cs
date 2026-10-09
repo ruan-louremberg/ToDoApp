@@ -15,10 +15,11 @@ public class UpdateTaskUseCaseTests
     [Fact(DisplayName = "Retorna não encontrado quando a tarefa não existe")]
     public async Task GivenMissingTask_WhenUpdatingTask_ThenReturnsNotFound()
     {
+        var userId = Guid.NewGuid();
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ToDo?)null);
+        repository.Setup(item => item.GetByIdAsync(userId, It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ToDo?)null);
 
-        var result = await CreateSut(repository).ExecuteAsync(Guid.NewGuid(), new UpdateTaskRequest { Title = Optional<string>.Of("Updated") });
+        var result = await CreateSut(repository).ExecuteAsync(userId, Guid.NewGuid(), new UpdateTaskRequest { Title = Optional<string>.Of("Updated") });
 
         Assert.True(result.IsFailed);
         Assert.Equal(404, result.Errors[0].Metadata["statusCode"]);
@@ -27,18 +28,19 @@ public class UpdateTaskUseCaseTests
     [Fact(DisplayName = "Retorna não encontrado quando a nova categoria não existe")]
     public async Task GivenMissingCategory_WhenUpdatingTask_ThenReturnsNotFound()
     {
+        var userId = Guid.NewGuid();
         var task = new ToDo("Task", null, Priority.Low, null);
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+        repository.Setup(item => item.GetByIdAsync(userId, task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
         var categoryRepository = new Mock<ICategoryRepository>();
-        categoryRepository.Setup(item => item.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Category?)null);
+        categoryRepository.Setup(item => item.GetByIdAsync(userId, It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Category?)null);
 
         var request = new UpdateTaskRequest
         {
             CategoryId = Optional<Guid?>.Of(Guid.NewGuid())
         };
 
-        var result = await CreateSut(repository, categoryRepository).ExecuteAsync(task.Id, request);
+        var result = await CreateSut(repository, categoryRepository).ExecuteAsync(userId, task.Id, request);
 
         Assert.True(result.IsFailed);
         Assert.Equal(404, result.Errors[0].Metadata["statusCode"]);
@@ -47,11 +49,12 @@ public class UpdateTaskUseCaseTests
     [Fact(DisplayName = "Atualiza e persiste tarefa existente")]
     public async Task GivenExistingTask_WhenUpdatingTask_ThenPersistsUpdatedValues()
     {
+        var userId = Guid.NewGuid();
         var task = new ToDo("Task", null, Priority.Low, null);
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+        repository.Setup(item => item.GetByIdAsync(userId, task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
 
-        var result = await CreateSut(repository).ExecuteAsync(task.Id, new UpdateTaskRequest
+        var result = await CreateSut(repository).ExecuteAsync(userId, task.Id, new UpdateTaskRequest
         {
             Title = Optional<string>.Of("Updated"),
             Priority = Optional<Priority?>.Of(Priority.High)
@@ -66,12 +69,13 @@ public class UpdateTaskUseCaseTests
     [Fact(DisplayName = "Mantém a due date quando o campo não veio no PATCH parcial")]
     public async Task GivenExistingDueDate_WhenPatchDoesNotIncludeDueDate_ThenKeepsCurrentValue()
     {
+        var userId = Guid.NewGuid();
         var existingDueDate = DateTime.UtcNow.AddDays(3);
         var task = new ToDo("Task", null, Priority.Low, existingDueDate);
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+        repository.Setup(item => item.GetByIdAsync(userId, task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
 
-        var result = await CreateSut(repository).ExecuteAsync(task.Id, new UpdateTaskRequest
+        var result = await CreateSut(repository).ExecuteAsync(userId, task.Id, new UpdateTaskRequest
         {
             Title = Optional<string>.Of("Updated title")
         });
@@ -83,11 +87,12 @@ public class UpdateTaskUseCaseTests
     [Fact(DisplayName = "Permite limpar a due date quando o campo vier explicitamente como null")]
     public async Task GivenExistingDueDate_WhenPatchIncludesDueDateNull_ThenClearsTheValue()
     {
+        var userId = Guid.NewGuid();
         var task = new ToDo("Task", null, Priority.Low, DateTime.UtcNow.AddDays(3));
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+        repository.Setup(item => item.GetByIdAsync(userId, task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
 
-        var result = await CreateSut(repository).ExecuteAsync(task.Id, new UpdateTaskRequest
+        var result = await CreateSut(repository).ExecuteAsync(userId, task.Id, new UpdateTaskRequest
         {
             DueDate = Optional<DateTime?>.Of(null)
         });

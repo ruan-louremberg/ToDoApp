@@ -15,12 +15,13 @@ public class ListTasksUseCase
         _toDoRepository = toDoRepository;    
     }
 
-    public async Task<ListTasksResponse> ExecuteAsync(ListTasksRequest request, CancellationToken cancellationToken = default)
+    public async Task<ListTasksResponse> ExecuteAsync(Guid userId, ListTasksRequest request, CancellationToken cancellationToken = default)
     {
         var safePage = Math.Max(request.Page, 1);
         var safePageSize = Math.Clamp(request.PageSize, 1, 100);
 
         var tasks = await _toDoRepository.GetAllAsync(
+            userId,
             request.Status,
             request.Priority,
             request.CategoryId,
@@ -33,6 +34,7 @@ public class ListTasksUseCase
         );
 
         var totalItems = await _toDoRepository.CountAsync(
+            userId,
             request.Status,
             request.Priority,
             request.CategoryId,

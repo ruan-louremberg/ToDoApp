@@ -13,10 +13,12 @@ public class DeleteTaskUseCase
     }
 
     public async Task<Result> ExecuteAsync(
+        Guid userId,
         Guid id,
         CancellationToken cancellationToken = default)
     {
         var task = await _toDoRepository.GetByIdAsync(
+            userId,
             id,
             cancellationToken
         );
@@ -28,6 +30,7 @@ public class DeleteTaskUseCase
         }
 
         await _toDoRepository.DeleteAsync(
+            userId,
             id,
             cancellationToken
         );

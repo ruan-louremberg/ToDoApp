@@ -21,16 +21,17 @@ public class TodoRepository : IToDoRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<ToDo?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ToDo?> GetByIdAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.ToDos
             .Include(t => t.Category)
             .FirstOrDefaultAsync(
-                t => t.Id == id && !t.IsDeleted,
+                t => t.UserId == userId && t.Id == id && !t.IsDeleted,
                 cancellationToken);
     }
 
    public async Task<List<ToDo>> GetAllAsync(
+        Guid userId,
         Status? status,
         Priority? priority,
         Guid? categoryId,
@@ -44,7 +45,7 @@ public class TodoRepository : IToDoRepository
         var query = _context.ToDos
             .Include(t => t.Category)
             .AsNoTracking()
-            .Where(t => !t.IsDeleted)
+            .Where(t => t.UserId == userId && !t.IsDeleted)
             .AsQueryable();
 
         if (status.HasValue)
@@ -100,6 +101,7 @@ public class TodoRepository : IToDoRepository
     }
 
     public async Task<int> CountAsync(
+        Guid userId,
         Status? status,
         Priority? priority,
         Guid? categoryId,
@@ -108,7 +110,7 @@ public class TodoRepository : IToDoRepository
     {
         var query = _context.ToDos
             .AsNoTracking()
-            .Where(t => !t.IsDeleted)
+            .Where(t => t.UserId == userId && !t.IsDeleted)
             .AsQueryable();
 
         if (status.HasValue)
@@ -144,12 +146,13 @@ public class TodoRepository : IToDoRepository
     }
 
      public async Task DeleteAsync(
+        Guid userId,
         Guid id,
         CancellationToken cancellationToken = default)
     {
         var task = await _context.ToDos
             .FirstOrDefaultAsync(
-                t => t.Id == id && !t.IsDeleted,
+                t => t.UserId == userId && t.Id == id && !t.IsDeleted,
                 cancellationToken);
 
         if (task is not null)
@@ -161,6 +164,7 @@ public class TodoRepository : IToDoRepository
     }
 
     public async Task<List<ToDo>> GetTrashAsync(
+        Guid userId,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
@@ -168,7 +172,7 @@ public class TodoRepository : IToDoRepository
         return await _context.ToDos
             .Include(t => t.Category)
             .AsNoTracking()
-            .Where(t => t.IsDeleted)
+            .Where(t => t.UserId == userId && t.IsDeleted)
             .OrderByDescending(t => t.DeletedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -176,20 +180,22 @@ public class TodoRepository : IToDoRepository
     }
 
     public async Task<int> CountTrashAsync(
+        Guid userId,
         CancellationToken cancellationToken = default)
     {
         return await _context.ToDos
-            .Where(t => t.IsDeleted)
+            .Where(t => t.UserId == userId && t.IsDeleted)
             .CountAsync(cancellationToken);
     }
 
     public async Task<bool> RestoreAsync(
+    Guid userId,
     Guid id,
     CancellationToken cancellationToken = default)
 {
     var task = await _context.ToDos
         .FirstOrDefaultAsync(
-            t => t.Id == id && t.IsDeleted,
+            t => t.UserId == userId && t.Id == id && t.IsDeleted,
             cancellationToken);
 
     if (task is null)

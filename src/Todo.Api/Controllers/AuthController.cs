@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Application.DTO.Auth;
 using ToDoApp.Application.Interfaces;
@@ -72,5 +73,21 @@ public class AuthController : ApiControllerBase
         });
 
         return Ok(user);
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("todo_auth", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            IsEssential = true
+        });
+
+        return NoContent();
     }
 }

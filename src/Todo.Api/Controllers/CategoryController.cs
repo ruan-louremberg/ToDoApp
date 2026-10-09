@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using ToDoApp.Api.Controllers;
@@ -8,6 +9,7 @@ namespace ToDo.Api.Controllers;
 
 [ApiController]
 [Route("api/categories")]
+[Authorize]
 public class CategoryController : ApiControllerBase
 {
     private readonly CreateCategoryUseCase _createCategoryUseCase;
@@ -56,7 +58,7 @@ public class CategoryController : ApiControllerBase
 
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
     {
-        var category = await _createCategoryUseCase.ExecuteAsync(request);
+        var category = await _createCategoryUseCase.ExecuteAsync(CurrentUserId, request);
 
         if (category.IsFailed)
         {
@@ -75,7 +77,7 @@ public class CategoryController : ApiControllerBase
             return FromValidationErrors(validationResult.Errors);
         }
 
-        var categories = await _listCategoriesUseCase.ExecuteAsync(request);
+        var categories = await _listCategoriesUseCase.ExecuteAsync(CurrentUserId, request);
         return Ok(categories);
     }
 
@@ -88,7 +90,7 @@ public class CategoryController : ApiControllerBase
         [FromRoute] Guid id,
         [FromBody] UpdateCategoryRequest request)
     {
-        var result = await _updateCategoryUseCase.ExecuteAsync(id, request);
+        var result = await _updateCategoryUseCase.ExecuteAsync(CurrentUserId, id, request);
 
         if (result.IsFailed)
         {
@@ -103,7 +105,7 @@ public class CategoryController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
     {
-        var result = await _deleteCategoryUseCase.ExecuteAsync(id);
+        var result = await _deleteCategoryUseCase.ExecuteAsync(CurrentUserId, id);
         if (result.IsFailed)
         {
             return FromErrors(result.Errors);
@@ -115,7 +117,7 @@ public class CategoryController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTrash()
     {
-        var categories = await _getTrashCategoryUseCase.ExecuteAsync();
+        var categories = await _getTrashCategoryUseCase.ExecuteAsync(CurrentUserId);
 
         return Ok(categories);
     }
@@ -128,7 +130,7 @@ public class CategoryController : ApiControllerBase
     public async Task<IActionResult> RestoreCategory(
         [FromRoute] Guid id)
     {
-        var result = await _restoreCategoryUseCase.ExecuteAsync(id);
+        var result = await _restoreCategoryUseCase.ExecuteAsync(CurrentUserId, id);
 
         if (result.IsFailed)
         {

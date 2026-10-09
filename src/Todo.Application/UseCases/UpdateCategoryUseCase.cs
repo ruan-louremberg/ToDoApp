@@ -19,6 +19,7 @@ public class UpdateCategoryUseCase
     }
 
     public async Task<Result<CategoryResponse>> ExecuteAsync(
+        Guid userId,
         Guid id,
         UpdateCategoryRequest request,
         CancellationToken cancellationToken = default)
@@ -30,14 +31,14 @@ public class UpdateCategoryUseCase
                 new Error(error.ErrorMessage).WithMetadata("statusCode", 400)));
         }
 
-        var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
+        var category = await _categoryRepository.GetByIdAsync(userId, id, cancellationToken);
         if (category is null)
         {
             return Result.Fail(new Error("Categoria não encontrada.")
                 .WithMetadata("statusCode", 404));
         }
 
-        var categoryWithSameName = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
+        var categoryWithSameName = await _categoryRepository.GetByNameAsync(userId, request.Name, cancellationToken);
         if (categoryWithSameName is not null && categoryWithSameName.Id != category.Id)
         {
             return Result.Fail(new Error("Já existe uma categoria com esse nome.")

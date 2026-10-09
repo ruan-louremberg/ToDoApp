@@ -13,6 +13,7 @@ public class GetTrashUseCase
     }
 
     public async Task<ListTasksResponse> ExecuteAsync(
+        Guid userId,
         int page = 1,
         int pageSize = 20,
         CancellationToken cancellationToken = default)
@@ -20,10 +21,11 @@ public class GetTrashUseCase
         var safePage = Math.Max(page, 1);
         var safePageSize = Math.Clamp(pageSize, 1, 100);
         var tasks = await _toDoRepository.GetTrashAsync(
+            userId,
             safePage,
             safePageSize,
             cancellationToken);
-        var totalItems = await _toDoRepository.CountTrashAsync(cancellationToken);
+        var totalItems = await _toDoRepository.CountTrashAsync(userId, cancellationToken);
 
         return new ListTasksResponse
         {

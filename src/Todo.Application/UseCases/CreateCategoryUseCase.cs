@@ -19,7 +19,7 @@ public class CreateCategoryUseCase
         _validator = validator;
     }
 
-    public async Task<Result<CategoryResponse>> ExecuteAsync(CreateCategoryRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<CategoryResponse>> ExecuteAsync(Guid userId, CreateCategoryRequest request, CancellationToken cancellationToken = default)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -28,8 +28,8 @@ public class CreateCategoryUseCase
                 new Error(error.ErrorMessage).WithMetadata("statusCode", 400)));
         }
 
-        var category = new Category(request.UserId, request.Name, request.Color);
-        var existingCategory = await _categoryRepository.GetByNameAsync(request.Name, cancellationToken);
+        var category = new Category(userId, request.Name, request.Color);
+        var existingCategory = await _categoryRepository.GetByNameAsync(userId, request.Name, cancellationToken);
         if (existingCategory != null)
         {
             return Result.Fail(new Error("Categoria já existe.")

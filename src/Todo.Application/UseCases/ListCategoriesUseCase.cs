@@ -12,12 +12,13 @@ public class ListCategoriesUseCase
         _categoryRepository = categoryRepository;
     }  
 
-    public async Task<ListCategoriesResponse> ExecuteAsync(ListCategoriesRequest request, CancellationToken cancellationToken = default)
+    public async Task<ListCategoriesResponse> ExecuteAsync(Guid userId, ListCategoriesRequest request, CancellationToken cancellationToken = default)
     {
         var safePage = Math.Max(request.Page, 1);
         var safePageSize = Math.Clamp(request.PageSize, 1, 100);
 
         var categories = await _categoryRepository.GetAllAsync(
+            userId,
             request.Name,
             request.Color,
             safePage,
@@ -26,6 +27,7 @@ public class ListCategoriesUseCase
         );
 
         var totalItems = await _categoryRepository.CountAsync(
+            userId,
             request.Name,
             request.Color,
             cancellationToken

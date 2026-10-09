@@ -10,13 +10,14 @@ public class SummaryRepository(TodoDbContext context) : ISummaryRepository
      private readonly TodoDbContext _context = context;
 
      public async Task<SummaryData> GetSummaryAsync(
+          Guid userId,
           CancellationToken cancellationToken = default)
      {
           var now = DateTime.UtcNow;
 
           var summary = await _context.ToDos
                .AsNoTracking()
-               .Where(task => !task.IsDeleted)
+               .Where(task => task.UserId == userId && !task.IsDeleted)
                .GroupBy(_ => 1)
                .Select(group => new SummaryData(
                     group.Count(),
@@ -32,10 +33,10 @@ public class SummaryRepository(TodoDbContext context) : ISummaryRepository
           return summary ?? new SummaryData(0, 0, 0, 0, 0);
      }
 
-     public Task<int> CountAsync(CancellationToken cancellationToken = default)
+     public Task<int> CountAsync(Guid userId, CancellationToken cancellationToken = default)
      {
           return _context.ToDos
                .AsNoTracking()
-               .CountAsync(task => !task.IsDeleted, cancellationToken);
+               .CountAsync(task => task.UserId == userId && !task.IsDeleted, cancellationToken);
      }
 }

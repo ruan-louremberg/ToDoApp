@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using ToDoApp.Application.UseCases;
@@ -6,7 +7,7 @@ namespace ToDoApp.Api.Controllers;
 
 [ApiController]
 [Route("api/tasks")]
-
+[Authorize]
 public class TaskController(
     CreateTaskUseCase createTaskUseCase,
     UpdateTaskUseCase updateTaskUseCase,
@@ -42,7 +43,7 @@ public class TaskController(
     
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest request)
     {
-        var task = await _createTaskUseCase.ExecuteAsync(request);
+        var task = await _createTaskUseCase.ExecuteAsync(CurrentUserId, request);
 
         if (task.IsFailed)
         {
@@ -60,7 +61,7 @@ public class TaskController(
     public async Task<IActionResult> UpdateTask([FromRoute] Guid id, [FromBody] UpdateTaskRequest request)
 
     {
-        var result = await _updateTaskUseCase.ExecuteAsync(id, request);
+        var result = await _updateTaskUseCase.ExecuteAsync(CurrentUserId, id, request);
 
         if (result.IsFailed)
         {
@@ -79,7 +80,7 @@ public class TaskController(
             return FromValidationErrors(validationResult.Errors);
         }
 
-        var tasks = await _listTasksUseCase.ExecuteAsync(request);
+        var tasks = await _listTasksUseCase.ExecuteAsync(CurrentUserId, request);
         return Ok(tasks);
     }
 
@@ -89,7 +90,7 @@ public class TaskController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompleteTask([FromRoute] Guid id, [FromBody] CompleteTaskRequest request)
     {
-        var result = await _completeTaskUseCase.ExecuteAsync(id, request);
+        var result = await _completeTaskUseCase.ExecuteAsync(CurrentUserId, id, request);
 
         if (result.IsFailed)
         {
@@ -104,7 +105,7 @@ public class TaskController(
     public async Task<IActionResult> DeleteTask(
         [FromRoute] Guid id)
     {
-        var result = await _deleteTaskUseCase.ExecuteAsync(id);
+        var result = await _deleteTaskUseCase.ExecuteAsync(CurrentUserId, id);
 
         if (result.IsFailed)
         {
@@ -121,7 +122,7 @@ public class TaskController(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
-        var tasks = await _getTrashUseCase.ExecuteAsync(page, pageSize);
+        var tasks = await _getTrashUseCase.ExecuteAsync(CurrentUserId, page, pageSize);
 
         return Ok(tasks);
     }
@@ -133,7 +134,7 @@ public class TaskController(
     public async Task<IActionResult> RestoreTask(
         [FromRoute] Guid id)
     {
-        var result = await _restoreTaskUseCase.ExecuteAsync(id);
+        var result = await _restoreTaskUseCase.ExecuteAsync(CurrentUserId, id);
 
         if (result.IsFailed)
         {
@@ -148,7 +149,7 @@ public class TaskController(
 
     public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
     {
-        var summary = await _getSummaryUseCase.ExecuteAsync(cancellationToken);
+        var summary = await _getSummaryUseCase.ExecuteAsync(CurrentUserId, cancellationToken);
         return Ok(summary);
     }
 }

@@ -20,7 +20,7 @@ namespace ToDoApp.Application.UseCases;
             _validator = validator;
         }
 
-        public async Task<Result<CompleteTaskResponse>> ExecuteAsync(Guid id, CompleteTaskRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<CompleteTaskResponse>> ExecuteAsync(Guid userId, Guid id, CompleteTaskRequest request, CancellationToken cancellationToken = default)
         {
             var validationResult = await _validator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
@@ -29,7 +29,7 @@ namespace ToDoApp.Application.UseCases;
                     new Error(error.ErrorMessage).WithMetadata("statusCode", 400)));
             }
 
-            var task = await _toDoRepository.GetByIdAsync(id, cancellationToken);   
+            var task = await _toDoRepository.GetByIdAsync(userId, id, cancellationToken);   
 
             if (task == null)
             {

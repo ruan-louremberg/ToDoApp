@@ -13,10 +13,12 @@ public class RestoreTaskUseCase
     }
 
     public async Task<Result> ExecuteAsync(
+        Guid userId,
         Guid id,
         CancellationToken cancellationToken = default)
     {
         var restored = await _toDoRepository.RestoreAsync(
+            userId,
             id,
             cancellationToken);
 

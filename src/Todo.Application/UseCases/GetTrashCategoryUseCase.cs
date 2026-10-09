@@ -13,9 +13,10 @@ public class GetTrashCategoryUseCase
     }
 
     public async Task<List<CategoryResponse>> ExecuteAsync(
+        Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var categories = await _categoryRepository.GetTrashAsync(cancellationToken);
+        var categories = await _categoryRepository.GetTrashAsync(userId, cancellationToken);
 
         return categories.Select(category => new CategoryResponse(
             category.Id,

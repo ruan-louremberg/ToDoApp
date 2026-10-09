@@ -22,7 +22,7 @@ public class CreateTaskUseCase
         _validator = validator;
     }
 
-    public async Task<Result<TaskResponse>> ExecuteAsync(CreateTaskRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<TaskResponse>> ExecuteAsync(Guid userId, CreateTaskRequest request, CancellationToken cancellationToken = default)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -34,7 +34,7 @@ public class CreateTaskUseCase
         Category? category = null;
         if (request.CategoryId.HasValue)
         {
-            category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value, cancellationToken);
+            category = await _categoryRepository.GetByIdAsync(userId, request.CategoryId.Value, cancellationToken);
             if (category is null)
             {
                 return Result.Fail(new Error("Categoria não encontrada.")
@@ -46,7 +46,7 @@ public class CreateTaskUseCase
             ? null
             : request.Description.Trim();
         
-        var task = new ToDo(request.UserId, request.Title, description, request.Priority, request.DueDate, request.CategoryId);
+        var task = new ToDo(userId, request.Title, description, request.Priority, request.DueDate, request.CategoryId);
         if (category != null)
         {
             task.SetCategory(category);

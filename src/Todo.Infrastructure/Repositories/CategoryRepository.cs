@@ -1,13 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Interfaces.Repositories;
 using ToDoApp.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace ToDoApp.Infrastructure.Repositories;
 
 public class CategoryRepository(TodoDbContext context) : ICategoryRepository
 {
-
     private readonly TodoDbContext _context = context;
 
     public async Task AddAsync(Category category, CancellationToken cancellationToken = default)
@@ -16,28 +15,27 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await _context.Categories.AnyAsync(c => c.Id == id, cancellationToken);
-    }
-    public async Task<Category?> GetByIdAsync(Guid value, CancellationToken cancellationToken)
-    {
-        return await _context.Categories.FirstOrDefaultAsync(c => c.Id == value, cancellationToken);
-    }
-    public async Task<Category?> GetByNameAsync(string name, CancellationToken cancellationToken)
-    {
-        return await _context.Categories.FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
-    }
+    public Task<bool> ExistsAsync(Guid userId, Guid id, CancellationToken cancellationToken = default) =>
+        _context.Categories.AnyAsync(c => c.UserId == userId && c.Id == id, cancellationToken);
+
+    public Task<Category?> GetByIdAsync(Guid userId, Guid id, CancellationToken cancellationToken) =>
+        _context.Categories.FirstOrDefaultAsync(c => c.UserId == userId && c.Id == id, cancellationToken);
+
+    public Task<Category?> GetByNameAsync(Guid userId, string name, CancellationToken cancellationToken) =>
+        _context.Categories.FirstOrDefaultAsync(c => c.UserId == userId && c.Name == name, cancellationToken);
 
     public async Task<List<Category>> GetAllAsync(
+        Guid userId,
         string? name,
         string? color,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Categories.AsNoTracking().AsQueryable();
-
+        var query = _context.Categories
+            .AsNoTracking()
+            .Where(c => c.UserId == userId)
+            .AsQueryable();
         var safeName = name?.Trim();
 
         if (!string.IsNullOrWhiteSpace(safeName))
@@ -50,17 +48,22 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
             query = query.Where(c => c.Color.Contains(color));
         }
 
-        var skip = (page - 1) * pageSize;
-        return await query.Skip(skip).Take(pageSize).ToListAsync(cancellationToken);
+        return await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<int> CountAsync(
+        Guid userId,
         string? name,
         string? color,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Categories.AsNoTracking().AsQueryable();
-
+        var query = _context.Categories
+            .AsNoTracking()
+            .Where(c => c.UserId == userId)
+            .AsQueryable();
         var safeName = name?.Trim();
 
         if (!string.IsNullOrWhiteSpace(safeName))
@@ -81,43 +84,32 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
         _context.Categories.Update(category);
         await _context.SaveChangesAsync(cancellationToken);
     }
-    public async Task DeleteAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
+
+    public async Task DeleteAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
         var category = await _context.Categories
-            .FirstOrDefaultAsync(
-                c => c.Id == id && !c.IsDeleted,
-                cancellationToken);
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == id && !c.IsDeleted, cancellationToken);
 
         if (category is not null)
         {
             category.SoftDelete();
-
             await _context.SaveChangesAsync(cancellationToken);
         }
     }
 
-    public async Task<List<Category>> GetTrashAsync(
-        CancellationToken cancellationToken = default)
-    {
-        return await _context.Categories
+    public Task<List<Category>> GetTrashAsync(Guid userId, CancellationToken cancellationToken = default) =>
+        _context.Categories
             .AsNoTracking()
             .IgnoreQueryFilters()
-            .Where(c => c.IsDeleted)
+            .Where(c => c.UserId == userId && c.IsDeleted)
             .OrderByDescending(c => c.DeletedAt)
             .ToListAsync(cancellationToken);
-    }
 
-    public async Task<bool> RestoreAsync(
-    Guid id,
-    CancellationToken cancellationToken = default)
+    public async Task<bool> RestoreAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
         var category = await _context.Categories
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(
-                c => c.Id == id && c.IsDeleted,
-                cancellationToken);
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == id && c.IsDeleted, cancellationToken);
 
         if (category is null)
         {
@@ -125,19 +117,15 @@ public class CategoryRepository(TodoDbContext context) : ICategoryRepository
         }
 
         category.Restore();
-
         await _context.SaveChangesAsync(cancellationToken);
-
         return true;
     }
-public async Task<Category?> GetDeletedByIdAsync(
-    Guid id,
-    CancellationToken cancellationToken = default)
-    {
-        return await _context.Categories
+
+    public Task<Category?> GetDeletedByIdAsync(
+        Guid userId,
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        _context.Categories
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(
-                c => c.Id == id && c.IsDeleted,
-                cancellationToken);
-    }
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Id == id && c.IsDeleted, cancellationToken);
 }
