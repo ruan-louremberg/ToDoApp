@@ -46,7 +46,7 @@ O foco **não** é a complexidade do domínio — TODO é proposital, o problema
 | `description` | string? | opcional, até 1000 caracteres |
 | `status` | enum | `Pending`, `InProgress`, `Done` |
 | `priority` | enum | `Low`, `Medium`, `High` |
-| `dueDate` | DateTime? | opcional, não pode ser no passado na criação |
+| `dueDate` | DateTime? | opcional; na criação, aceita hoje e rejeita datas anteriores ao dia atual em UTC |
 | `categoryId` | Guid? | opcional, referência a Category |
 | `createdAt` | DateTime | UTC, definido pelo servidor |
 | `updatedAt` | DateTime? | UTC, atualizado a cada alteração |
@@ -118,7 +118,7 @@ Como usuário, quero criar, listar, editar e excluir categorias.
 Como usuário, quero ver um resumo com total de tarefas, quantas estão pendentes, em andamento, concluídas e quantas estão atrasadas.
 
 *Critérios de aceite:*
-- [ ] "atrasada" = `dueDate` no passado e status diferente de `Done`;
+- [ ] "atrasada" = `dueDate` anterior ao dia atual em UTC e status diferente de `Done`;
 - [ ] o cálculo é feito no banco, não trazendo todas as tarefas para a memória da API.
 
 ---

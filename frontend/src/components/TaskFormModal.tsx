@@ -37,6 +37,7 @@ export function TaskFormModal({
   onClose,
   onSubmit,
 }: TaskFormModalProps) {
+
   const [formData, setFormData] = useState<TaskFormData>(emptyForm);
 
   useEffect(() => {
@@ -77,6 +78,24 @@ export function TaskFormModal({
         <h2>{title}</h2>
 
         <form autoComplete="off" onSubmit={handleSubmit}>
+    <div className="category-modal-backdrop">
+      <section
+        className="category-modal task-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="task-modal-title"
+      >
+        <div className="category-modal__heading">
+          <span className="category-modal__icon" aria-hidden="true">
+            ✓
+          </span>
+          <div>
+            <p className="category-modal__eyebrow">TAREFA</p>
+            <h2 id="task-modal-title">{title}</h2>
+          </div>
+        </div>
+
+        <form className="task-form" onSubmit={handleSubmit}>
           <label>
             Título
             <input
@@ -144,17 +163,23 @@ export function TaskFormModal({
             </select>
           </label>
 
-          {error && <p>{error}</p>}
+          {error && <p className="task-form__error" role="alert">{error}</p>}
 
-          <button type="button" onClick={onClose} disabled={saving}>
-            Cancelar
-          </button>
-
-          <button type="submit" disabled={saving}>
-            {saving ? "Salvando..." : submitLabel}
-          </button>
+          <div className="task-form__actions">
+            <button
+              className="task-form__cancel"
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+            >
+              Cancelar
+            </button>
+            <button className="task-form__submit" type="submit" disabled={saving}>
+              {saving ? "Salvando..." : submitLabel}
+            </button>
+          </div>
         </form>
-      </div>
+      </section>
     </div>
   );
 }
