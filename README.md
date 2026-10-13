@@ -10,6 +10,7 @@ O projeto foi desenvolvido com foco em separação de responsabilidades, valida�
 - Listar tarefas com busca, filtros, ordenação e paginação;
 - Editar parcialmente uma tarefa;
 - Alterar o status de uma tarefa;
+- Expor na API checklist por tarefa, com conclusão e ordenação de subtarefas;
 - Excluir tarefas com soft delete;
 - Listar e restaurar tarefas excluídas;
 - Criar, listar, editar, excluir e restaurar categorias;
@@ -148,6 +149,21 @@ Além do comando manual de migration, a API executa `Database.MigrateAsync()` du
 | `GET` | `/api/tasks/summary` | Retorna o resumo das tarefas | `200` |
 
 Os filtros da listagem incluem busca, status, prioridade, categoria, ordenação, página e tamanho da página. O backend limita `page` e `pageSize` para evitar solicitações inválidas ou excessivamente grandes.
+
+### Subtarefas
+
+Subtarefas pertencem ao agregado da tarefa e não têm ciclo de vida independente. A ordem é controlada pelo backend, começando em zero; ao remover um item, as posições restantes são compactadas. A API só permite acessar subtarefas por uma tarefa pertencente ao usuário autenticado.
+
+| Método | Rota | Descrição | Respostas principais |
+|---|---|---|---|
+| `GET` | `/api/tasks/{taskId}/subtasks` | Lista subtarefas ordenadas por posição | `200`, `404` |
+| `GET` | `/api/tasks/{taskId}/subtasks/{subtaskId}` | Consulta uma subtarefa | `200`, `404` |
+| `POST` | `/api/tasks/{taskId}/subtasks` | Cria subtarefa no fim da lista | `201`, `400`, `404` |
+| `PATCH` | `/api/tasks/{taskId}/subtasks/{subtaskId}` | Atualiza título e/ou conclusão | `200`, `400`, `404` |
+| `DELETE` | `/api/tasks/{taskId}/subtasks/{subtaskId}` | Remove subtarefa | `204`, `404` |
+| `PATCH` | `/api/tasks/{taskId}/subtasks/order` | Substitui a ordem completa | `204`, `400`, `404` |
+
+O corpo de reordenação tem o formato `{"subtaskIds":["<id-na-posicao-0>","<id-na-posicao-1>"]}`. Ele precisa conter, sem duplicatas ou itens extras, todos os IDs existentes na tarefa; a alteração é recusada por inteiro se a lista não corresponder. A exclusão lógica da tarefa preserva o checklist, que volta a ser acessível quando ela é restaurada.
 
 ### Categorias
 

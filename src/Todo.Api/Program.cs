@@ -102,6 +102,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>
 builder.Services.AddScoped<IToDoRepository, TodoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<CreateTaskUseCase>();
+builder.Services.AddScoped<ListSubTasksUseCase>();
+builder.Services.AddScoped<GetSubTaskUseCase>();
+builder.Services.AddScoped<CreateSubTaskUseCase>();
+builder.Services.AddScoped<UpdateSubTaskUseCase>();
+builder.Services.AddScoped<DeleteSubTaskUseCase>();
+builder.Services.AddScoped<ReorderSubTasksUseCase>();
 builder.Services.AddScoped<ListTasksUseCase>();
 builder.Services.AddScoped<CreateCategoryUseCase>();
 builder.Services.AddScoped<ListCategoriesUseCase>();

@@ -10,6 +10,7 @@ public class TodoDbContext : DbContext
     }
 
     public DbSet<ToDo> ToDos => Set<ToDo>();
+    public DbSet<SubTask> SubTasks => Set<SubTask>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<User> Users => Set<User>();
 
@@ -36,6 +37,24 @@ public class TodoDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(t => t.Subtasks)
+                .WithOne(subtask => subtask.Task)
+                .HasForeignKey(subtask => subtask.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Navigation(t => t.Subtasks)
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        modelBuilder.Entity<SubTask>(builder =>
+        {
+            builder.HasKey(subtask => subtask.Id);
+            builder.Property(subtask => subtask.Id).ValueGeneratedNever();
+            builder.Property(subtask => subtask.Title).IsRequired().HasMaxLength(120);
+            builder.Property(subtask => subtask.IsCompleted).IsRequired();
+            builder.Property(subtask => subtask.Position).IsRequired();
+            builder.Property(subtask => subtask.CreatedAt).IsRequired();
+            builder.Property(subtask => subtask.UpdatedAt);
+            builder.HasIndex(subtask => new { subtask.TaskId, subtask.Position });
         });
 
         modelBuilder.Entity<Category>(builder =>
