@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
@@ -8,6 +9,7 @@ export function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -43,7 +45,7 @@ export function RegisterPage() {
           Organize suas tarefas em um espaço só seu.
         </p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" autoComplete="off" onSubmit={handleSubmit}>
           {sessionError && (
             <p className="auth-form__error" role="alert">{sessionError}</p>
           )}
@@ -51,7 +53,7 @@ export function RegisterPage() {
           <input
             id="register-name"
             type="text"
-            autoComplete="name"
+            autoComplete="off"
             maxLength={120}
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -61,23 +63,34 @@ export function RegisterPage() {
           <input
             id="register-email"
             type="email"
-            autoComplete="email"
+            autoComplete="off"
             maxLength={320}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
           />
           <label htmlFor="register-password">Senha</label>
-          <input
-            id="register-password"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
-            maxLength={100}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
+          <div className="auth-password-field">
+            <input
+              id="register-password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="off"
+              minLength={8}
+              maxLength={100}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+            <button
+              className="auth-password-field__toggle"
+              type="button"
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword((visible) => !visible)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           <span className="auth-form__hint">Use pelo menos 8 caracteres.</span>
           {error && <p className="auth-form__error" role="alert">{error}</p>}
           <button type="submit" disabled={saving}>

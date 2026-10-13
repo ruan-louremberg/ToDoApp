@@ -86,8 +86,8 @@ export function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProps) {
             {user.name.trim().charAt(0).toLocaleUpperCase("pt-BR")}
           </span>
           <div className="sidebar__account-info">
-            <strong>{user.name}</strong>
-            <span>{user.email}</span>
+            <strong title={user.name}>{user.name}</strong>
+            <span title={user.email}>{user.email}</span>
           </div>
           <button
             className="sidebar__logout"

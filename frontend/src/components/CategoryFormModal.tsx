@@ -100,7 +100,7 @@ export function CategoryFormModal({
             id="category-name"
             name="category-title"
             autoFocus
-            autoComplete="new-password"
+            autoComplete="off"
             maxLength={50}
             value={name}
             onChange={(event) => {

@@ -21,6 +21,7 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .NotEmpty()
             .WithMessage("O e-mail é obrigatório.")
             .EmailAddress()
+            .Must(EmailAddressRules.HasValidDomain)
             .WithMessage("O e-mail informado é inválido.")
             .MaximumLength(320)
             .WithMessage("O e-mail deve ter no máximo 320 caracteres.");

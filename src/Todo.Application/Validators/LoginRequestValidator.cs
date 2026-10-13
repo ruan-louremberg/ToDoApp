@@ -11,6 +11,7 @@ public class LoginRequestValidator : AbstractValidator<LoginRequest>
             .NotEmpty()
             .WithMessage("O e-mail é obrigatório.")
             .EmailAddress()
+            .Must(EmailAddressRules.HasValidDomain)
             .WithMessage("O e-mail informado é inválido.");
 
         RuleFor(request => request.Password)
