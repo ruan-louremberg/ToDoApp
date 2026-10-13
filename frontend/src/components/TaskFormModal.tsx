@@ -73,11 +73,6 @@ export function TaskFormModal({
   }
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
-        <h2>{title}</h2>
-
-        <form autoComplete="off" onSubmit={handleSubmit}>
     <div className="category-modal-backdrop">
       <section
         className="category-modal task-modal"
