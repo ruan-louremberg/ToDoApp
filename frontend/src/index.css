@@ -192,6 +192,53 @@ p { font-weight: 400; }
 .task-table tbody tr:hover { background: #f8fafc; }
 .task-list-refreshing { margin: 0 0 10px; color: #64748b; font-size: 0.9rem; }
 .task-title-cell { min-width: 160px; color: #172033; font-weight: 700; }
+.task-checklist__toggle, .task-checklist__title {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.task-checklist__toggle { margin-right: 5px; color: #64748b; vertical-align: middle; }
+.task-checklist__title:hover { color: #5146b8; }
+.task-table tbody tr.task-checklist__row:hover { background: #fff; }
+.task-checklist__row > td { padding: 0 16px 12px 32px !important; }
+.task-checklist {
+  max-width: 560px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 6%);
+}
+.task-checklist__items { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.task-checklist__items li { display: flex; min-height: 34px; align-items: center; gap: 8px; }
+.task-checklist__grip, .task-checklist__check, .task-checklist__remove {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+.task-checklist__grip { cursor: grab; touch-action: none; }
+.task-checklist__grip:active { cursor: grabbing; }
+.task-checklist__check { width: 19px; height: 19px; border: 1px solid #94a3b8; border-radius: 4px; background: #fff; }
+.task-checklist__check.is-completed { border-color: #16a34a; background: #16a34a; color: #fff; }
+.task-checklist__items .is-completed { color: #64748b; text-decoration: line-through; }
+.task-checklist__items li > span { flex: 1; overflow-wrap: anywhere; }
+.task-checklist__remove:hover { color: #b91c1c; }
+.task-checklist__empty { margin: 0 0 10px; color: #64748b; font-size: 0.9rem; }
+.task-checklist__add { display: flex; gap: 8px; margin-top: 10px; }
+.task-checklist__add input { min-width: 0; flex: 1; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 5px; }
+.task-checklist__add button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 0; border-radius: 5px; background: #5146b8; color: #fff; cursor: pointer; }
+.task-checklist button:disabled, .task-checklist__add button:disabled { cursor: wait; opacity: 0.6; }
+.task-checklist__error { margin: 8px 0 0; color: #b91c1c; font-size: 0.88rem; }
 .task-status-cell { min-width: 140px; }
 .task-description {
   display: block;

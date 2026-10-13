@@ -6,6 +6,15 @@ export type Priority = 0 | 1 | 2;
 export type TaskStatusDto = Status;
 export type TaskPriorityDto = Priority;
 
+export interface SubTask {
+    id: string;
+    title: string;
+    isCompleted: boolean;
+    position: number;
+    createdAt: string;
+    updatedAt: string | null;
+}
+
 export interface TaskResponse {
     id: string;
     title: string;

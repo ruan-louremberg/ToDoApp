@@ -21,12 +21,30 @@ public class TodoRepository : IToDoRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task AddSubtaskAsync(SubTask subtask, CancellationToken cancellationToken = default)
+    {
+        _context.Entry(subtask).State = EntityState.Added;
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<ToDo?> GetByIdAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.ToDos
             .Include(t => t.Category)
             .FirstOrDefaultAsync(
                 t => t.UserId == userId && t.Id == id && !t.IsDeleted,
+                cancellationToken);
+    }
+
+    public async Task<ToDo?> GetByIdWithSubtasksAsync(
+        Guid userId,
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.ToDos
+            .Include(task => task.Subtasks.OrderBy(subtask => subtask.Position))
+            .FirstOrDefaultAsync(
+                task => task.UserId == userId && task.Id == id && !task.IsDeleted,
                 cancellationToken);
     }
 
@@ -141,7 +159,11 @@ public class TodoRepository : IToDoRepository
     
     public async Task UpdateAsync(ToDo task, CancellationToken cancellationToken = default)
     {
-        _context.ToDos.Update(task);
+        if (_context.Entry(task).State == EntityState.Detached)
+        {
+            _context.ToDos.Update(task);
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
     }
 

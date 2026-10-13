@@ -6,6 +6,7 @@ namespace ToDoApp.Domain.Entities
 {
     public class ToDo : BaseEntity
     {
+        private readonly List<SubTask> _subtasks = [];
 
         public Guid UserId { get; private set; }
 
@@ -31,6 +32,8 @@ namespace ToDoApp.Domain.Entities
 
         public DateTime? DeletedAt { get; private set; }
 
+        public IReadOnlyCollection<SubTask> Subtasks => _subtasks.AsReadOnly();
+
         public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
             : this(Guid.Empty, title, description, priority, dueDate, categoryId)
         {
@@ -51,6 +54,73 @@ namespace ToDoApp.Domain.Entities
         {
             Category = category;
             CategoryId = category.Id;
+        }
+
+        public SubTask AddSubtask(string title)
+        {
+            var subtask = new SubTask(this, title, _subtasks.Count);
+            _subtasks.Add(subtask);
+            SetUpdatedAt(DateTime.UtcNow);
+            return subtask;
+        }
+
+        public bool UpdateSubtask(Guid subtaskId, string? title, bool? isCompleted)
+        {
+            var subtask = _subtasks.FirstOrDefault(item => item.Id == subtaskId);
+            if (subtask is null)
+            {
+                return false;
+            }
+
+            if (title is not null)
+            {
+                subtask.Rename(title);
+            }
+
+            if (isCompleted.HasValue)
+            {
+                subtask.SetCompleted(isCompleted.Value);
+            }
+
+            SetUpdatedAt(DateTime.UtcNow);
+            return true;
+        }
+
+        public bool RemoveSubtask(Guid subtaskId)
+        {
+            var subtask = _subtasks.FirstOrDefault(item => item.Id == subtaskId);
+            if (subtask is null)
+            {
+                return false;
+            }
+
+            _subtasks.Remove(subtask);
+            for (var index = 0; index < _subtasks.Count; index++)
+            {
+                _subtasks[index].SetPosition(index);
+            }
+
+            SetUpdatedAt(DateTime.UtcNow);
+            return true;
+        }
+
+        public bool ReorderSubtasks(IReadOnlyList<Guid> subtaskIds)
+        {
+            if (subtaskIds.Count != _subtasks.Count ||
+                subtaskIds.Distinct().Count() != _subtasks.Count ||
+                subtaskIds.Any(id => _subtasks.All(item => item.Id != id)))
+            {
+                return false;
+            }
+
+            var subtasksById = _subtasks.ToDictionary(item => item.Id);
+            for (var index = 0; index < subtaskIds.Count; index++)
+            {
+                subtasksById[subtaskIds[index]].SetPosition(index);
+            }
+
+            SetUpdatedAt(DateTime.UtcNow);
+            return true;
         }
 
         public void SetUpdate(string? title, Optional<string?> description, Priority? priority, Optional<DateTime?> dueDate, Optional<Guid?> categoryId)

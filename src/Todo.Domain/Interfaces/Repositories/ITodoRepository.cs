@@ -6,7 +6,9 @@ namespace ToDoApp.Domain.Interfaces.Repositories;
 public interface IToDoRepository
 {
     Task AddAsync(ToDo task, CancellationToken cancellationToken = default);
+    Task AddSubtaskAsync(SubTask subtask, CancellationToken cancellationToken = default);
     Task<ToDo?> GetByIdAsync(Guid userId, Guid id, CancellationToken cancellationToken = default);
+    Task<ToDo?> GetByIdWithSubtasksAsync(Guid userId, Guid id, CancellationToken cancellationToken = default);
     Task<List<ToDo>> GetAllAsync(
         Guid userId,
         Status? status,

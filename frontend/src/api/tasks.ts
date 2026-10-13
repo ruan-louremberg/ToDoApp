@@ -7,6 +7,7 @@ import type { ListTasksResponse } from "../types/ListTasksResponse";
 import type {
   ChangeTaskStatusRequest,
   CreateTaskRequest,
+  SubTask,
   UpdateTaskRequest,
 } from "../types/task";
 import type { ListTasksRequest } from "../types/taskFilters";
@@ -145,4 +146,54 @@ export async function getTaskSummary(): Promise<TaskSummaryResponse> {
         await throwApiError(response, "Erro ao buscar resumo das tarefas");
     }
     return response.json();
+}
+
+export async function getSubTasks(taskId: string): Promise<SubTask[]> {
+  const response = await apiFetch(`${API_URL}/api/tasks/${taskId}/subtasks`);
+  if (!response.ok) await throwApiError(response, "Erro ao buscar subtarefas");
+  return response.json();
+}
+
+export async function createSubTask(taskId: string, title: string): Promise<SubTask> {
+  const response = await apiFetch(`${API_URL}/api/tasks/${taskId}/subtasks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title }),
+  });
+  if (!response.ok) await throwApiError(response, "Erro ao criar subtarefa");
+  return response.json();
+}
+
+export async function updateSubTask(
+  taskId: string,
+  subtaskId: string,
+  data: { title?: string; isCompleted?: boolean }
+): Promise<SubTask> {
+  const response = await apiFetch(
+    `${API_URL}/api/tasks/${taskId}/subtasks/${subtaskId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }
+  );
+  if (!response.ok) await throwApiError(response, "Erro ao atualizar subtarefa");
+  return response.json();
+}
+
+export async function deleteSubTask(taskId: string, subtaskId: string): Promise<void> {
+  const response = await apiFetch(
+    `${API_URL}/api/tasks/${taskId}/subtasks/${subtaskId}`,
+    { method: "DELETE" }
+  );
+  if (!response.ok) await throwApiError(response, "Erro ao excluir subtarefa");
+}
+
+export async function reorderSubTasks(taskId: string, subtaskIds: string[]): Promise<void> {
+  const response = await apiFetch(`${API_URL}/api/tasks/${taskId}/subtasks/order`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subtaskIds }),
+  });
+  if (!response.ok) await throwApiError(response, "Erro ao reordenar subtarefas");
 }
