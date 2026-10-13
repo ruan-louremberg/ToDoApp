@@ -8,6 +8,7 @@ using ToDoApp.Application.Validators;
 using FluentValidation;
 using Scalar.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -38,6 +39,35 @@ builder.Services
             {
                 context.Token = context.Request.Cookies["todo_auth"];
                 return Task.CompletedTask;
+            },
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/problem+json";
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Autenticação necessária",
+                    Detail = "Faça login para acessar este recurso.",
+                    Instance = context.Request.Path
+                };
+                problemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+                await context.Response.WriteAsJsonAsync(problemDetails);
+            },
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/problem+json";
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Acesso negado",
+                    Detail = "Você não tem permissão para acessar este recurso.",
+                    Instance = context.Request.Path
+                };
+                problemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+                await context.Response.WriteAsJsonAsync(problemDetails);
             }
         };
     });

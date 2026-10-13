@@ -71,6 +71,8 @@ public abstract class ApiControllerBase : ControllerBase
         return statusCode switch
         {
             StatusCodes.Status400BadRequest => "Erro de validação",
+            StatusCodes.Status401Unauthorized => "Autenticação inválida",
+            StatusCodes.Status403Forbidden => "Acesso negado",
             StatusCodes.Status404NotFound => "Recurso não encontrado",
             StatusCodes.Status409Conflict => "Conflito",
             _ => "Erro na requisição"

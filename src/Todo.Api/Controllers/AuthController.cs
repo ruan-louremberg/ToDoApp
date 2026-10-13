@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Application.DTO.Auth;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Application.UseCases;
+using ToDoApp.Domain.Interfaces.Repositories;
 
 namespace ToDoApp.Api.Controllers;
 
@@ -13,15 +14,18 @@ public class AuthController : ApiControllerBase
     private readonly RegisterUserUseCase _registerUserUseCase;
     private readonly LoginUserUseCase _loginUserUseCase;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IUserRepository _userRepository;
 
     public AuthController(
         RegisterUserUseCase registerUserUseCase,
         LoginUserUseCase loginUserUseCase,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        IUserRepository userRepository)
     {
         _registerUserUseCase = registerUserUseCase;
         _loginUserUseCase = loginUserUseCase;
         _jwtTokenService = jwtTokenService;
+        _userRepository = userRepository;
     }
 
     [HttpPost("register")]
@@ -73,6 +77,29 @@ public class AuthController : ApiControllerBase
         });
 
         return Ok(user);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByIdAsync(CurrentUserId, cancellationToken);
+        if (user is null)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Sessão inválida",
+                Detail = "Faça login novamente para continuar.",
+                Instance = HttpContext.Request.Path
+            };
+            problemDetails.Extensions["traceId"] = HttpContext.TraceIdentifier;
+            return Unauthorized(problemDetails);
+        }
+
+        return Ok(new UserResponse(user.Id, user.Name, user.Email));
     }
 
     [Authorize]

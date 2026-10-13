@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-import { throwApiError } from "./tasks";
+import { apiFetch, throwApiError } from "./client";
 import type {
 	CategoryResponse,
 	CreateCategoryRequest,
@@ -20,7 +20,7 @@ export async function getCategories(
 	if (filters.pageSize !== undefined) params.set("pageSize", String(filters.pageSize));
 
 	const query = params.toString();
-	const response = await fetch(`${API_URL}/api/categories${query ? `?${query}` : ""}`);
+	const response = await apiFetch(`${API_URL}/api/categories${query ? `?${query}` : ""}`);
 
 	if (!response.ok) {
 		await throwApiError(response, "Erro ao buscar categorias");
@@ -32,7 +32,7 @@ export async function getCategories(
 export async function createCategory(
 	data: CreateCategoryRequest
 	): Promise<{ success: boolean; error?: string }> {
-	const response = await fetch(`${API_URL}/api/categories`, {
+	const response = await apiFetch(`${API_URL}/api/categories`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -51,7 +51,7 @@ export async function updateCategory(
 	id: string,
 	data: UpdateCategoryRequest
 	): Promise<{ success: boolean; error?: string }> {
-	const response = await fetch(`${API_URL}/api/categories/${id}`, {
+	const response = await apiFetch(`${API_URL}/api/categories/${id}`, {
 		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
@@ -69,7 +69,7 @@ export async function updateCategory(
 export async function deleteCategory(
 	id: string
 ): Promise<{ success: boolean; error?: string }> {
-	const response = await fetch(`${API_URL}/api/categories/${id}`, {
+	const response = await apiFetch(`${API_URL}/api/categories/${id}`, {
 		method: "DELETE",
 	});
 
@@ -81,7 +81,7 @@ export async function deleteCategory(
 }
 
 export async function getDeletedCategories(): Promise<CategoryResponse[]> {
-	const response = await fetch(`${API_URL}/api/categories/trash`);
+	const response = await apiFetch(`${API_URL}/api/categories/trash`);
 
 	if (!response.ok) {
 		await throwApiError(response, "Erro ao buscar categorias excluídas");
@@ -93,7 +93,7 @@ export async function getDeletedCategories(): Promise<CategoryResponse[]> {
 export async function restoreCategory(
 	id: string
 ): Promise<{ success: boolean; error?: string }> {
-	const response = await fetch(`${API_URL}/api/categories/${id}/restore`, {
+	const response = await apiFetch(`${API_URL}/api/categories/${id}/restore`, {
 		method: "PATCH",
 	});
 
