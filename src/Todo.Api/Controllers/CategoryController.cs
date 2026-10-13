@@ -54,6 +54,7 @@ public class CategoryController : ApiControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
 
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
@@ -64,7 +65,7 @@ public class CategoryController : ApiControllerBase
         {
             return FromErrors(category.Errors);
         }
-        return Ok(category.Value);
+        return CreatedAtAction(nameof(CreateCategory), new { id = category.Value.Id }, category.Value);
     }
 
     [HttpGet]
@@ -82,7 +83,7 @@ public class CategoryController : ApiControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -97,11 +98,11 @@ public class CategoryController : ApiControllerBase
             return FromErrors(result.Errors);
         }
 
-        return Ok(result.Value);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
     {
@@ -110,7 +111,7 @@ public class CategoryController : ApiControllerBase
         {
             return FromErrors(result.Errors);
         }
-        return Ok();
+        return NoContent();
     }
 
     [HttpGet("trash")]

@@ -53,7 +53,7 @@ public class TaskController(
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
 
@@ -67,7 +67,7 @@ public class TaskController(
         {
             return FromErrors(result.Errors);
         }
-        return Ok(result.Value);
+        return NoContent();
     }
 
     [HttpGet]
@@ -85,7 +85,7 @@ public class TaskController(
     }
 
     [HttpPatch("{id:guid}/status")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompleteTask([FromRoute] Guid id, [FromBody] CompleteTaskRequest request)
@@ -96,7 +96,7 @@ public class TaskController(
         {
             return FromErrors(result.Errors);
         }
-        return Ok(result.Value);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
