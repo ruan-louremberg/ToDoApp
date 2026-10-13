@@ -21,16 +21,15 @@ public class CreateTaskRequestValidator : AbstractValidator<CreateTaskRequest>
 
         RuleFor(request => request.Description)
             .Must(description =>
-                string.IsNullOrWhiteSpace(description) ||
+                description == null ||
+                (description.Trim().Length == 0 && description.Length == 0) ||
                 description.Trim().Length >= 10)
-            .WithMessage("A descrição da tarefa deve ter pelo menos 10 caracteres.")
+            .WithMessage("A descrição da tarefa deve ter pelo menos 10 caracteres úteis (sem contar espaços).")
             .MaximumLength(1000)
             .WithMessage("A descrição da tarefa deve ter no máximo 1000 caracteres.");
 
         RuleFor(request => request.DueDate)
-            .Must(dueDate =>
-                !dueDate.HasValue ||
-                DateOnly.FromDateTime(dueDate.Value) >= DateOnly.FromDateTime(DateTime.UtcNow))
+            .Must(dueDate => !dueDate.HasValue || dueDate.Value.Date >= DateTime.Today)
             .WithMessage("O prazo não pode ser no passado.");
     }
 }

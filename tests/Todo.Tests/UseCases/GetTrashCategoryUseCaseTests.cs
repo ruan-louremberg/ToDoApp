@@ -10,12 +10,13 @@ public class GetTrashCategoryUseCaseTests
     [Fact(DisplayName = "Retorna categorias da lixeira mapeadas")]
     public async Task GivenDeletedCategories_WhenGettingTrash_ThenReturnsMappedCategories()
     {
+        var userId = Guid.NewGuid();
         var category = new Category("Deleted", "#FFFFFF");
         category.SoftDelete();
         var repository = new Mock<ICategoryRepository>();
-        repository.Setup(item => item.GetTrashAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category> { category });
+        repository.Setup(item => item.GetTrashAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category> { category });
 
-        var result = await new GetTrashCategoryUseCase(repository.Object).ExecuteAsync();
+        var result = await new GetTrashCategoryUseCase(repository.Object).ExecuteAsync(userId);
 
         Assert.Single(result);
         Assert.Equal(category.Id, result[0].Id);
@@ -25,10 +26,11 @@ public class GetTrashCategoryUseCaseTests
     [Fact(DisplayName = "Retorna lista vazia quando a lixeira de categorias está vazia")]
     public async Task GivenEmptyTrash_WhenGettingTrash_ThenReturnsEmptyList()
     {
+        var userId = Guid.NewGuid();
         var repository = new Mock<ICategoryRepository>();
-        repository.Setup(item => item.GetTrashAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category>());
+        repository.Setup(item => item.GetTrashAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Category>());
 
-        var result = await new GetTrashCategoryUseCase(repository.Object).ExecuteAsync();
+        var result = await new GetTrashCategoryUseCase(repository.Object).ExecuteAsync(userId);
 
         Assert.Empty(result);
     }

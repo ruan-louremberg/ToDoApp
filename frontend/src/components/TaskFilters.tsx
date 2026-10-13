@@ -19,6 +19,7 @@ export function TaskFilters({
     <div className="filters">
       <input
         type="text"
+        autoComplete="off"
         placeholder="buscar por título..."
         aria-label="Buscar por título"
         value={search}

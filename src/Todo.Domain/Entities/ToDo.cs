@@ -7,6 +7,10 @@ namespace ToDoApp.Domain.Entities
     public class ToDo : BaseEntity
     {
 
+        public Guid UserId { get; private set; }
+
+        public User User { get; private set; } = null!;
+
         public string Title { get; private set; } = null!;
 
         public string? Description { get; private set; }
@@ -28,7 +32,13 @@ namespace ToDoApp.Domain.Entities
         public DateTime? DeletedAt { get; private set; }
 
         public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
+            : this(Guid.Empty, title, description, priority, dueDate, categoryId)
         {
+        }
+
+        public ToDo(Guid userId, string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
+        {
+            UserId = userId;
             Title = title;
             Description = description;
             Status = Status.Pending;

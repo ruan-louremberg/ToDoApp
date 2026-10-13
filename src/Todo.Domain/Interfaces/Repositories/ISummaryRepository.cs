@@ -2,8 +2,8 @@ namespace ToDoApp.Domain.Interfaces.Repositories;
 
 public interface ISummaryRepository
 {
-    Task<SummaryData> GetSummaryAsync(CancellationToken cancellationToken = default);
-    Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<SummaryData> GetSummaryAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<int> CountAsync(Guid userId, CancellationToken cancellationToken = default);
 }
 
 public record SummaryData(

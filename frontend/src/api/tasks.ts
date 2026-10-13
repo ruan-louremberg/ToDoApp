@@ -1,7 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+import { apiFetch, throwApiError } from "./client";
+export { ApiError } from "./client";
+
 import type { ListTasksResponse } from "../types/ListTasksResponse";
-import type { ProblemDetails } from "../types/problemDetails";
 import type {
   ChangeTaskStatusRequest,
   CreateTaskRequest,
@@ -9,29 +11,6 @@ import type {
 } from "../types/task";
 import type { ListTasksRequest } from "../types/taskFilters";
 import type { TaskSummaryResponse } from "../types/TaskSummaryResponse";
-
-export class ApiError extends Error {
-  readonly problemDetails?: ProblemDetails;
-
-  constructor(
-    message: string,
-    problemDetails?: ProblemDetails
-  ) {
-    super(message);
-    this.problemDetails = problemDetails;
-    this.name = "ApiError";
-  }
-}
-
-export async function throwApiError(response: Response, fallbackMessage: string): Promise<never> {
-  const problem: ProblemDetails = await response.json().catch(() => ({}));
-
-  throw new ApiError(
-    problem.detail ?? fallbackMessage,
-    problem
-  );
-}
-
 
 export async function getTasks(filters?: ListTasksRequest): Promise<ListTasksResponse> {
     const params = new URLSearchParams();
@@ -50,7 +29,7 @@ export async function getTasks(filters?: ListTasksRequest): Promise<ListTasksRes
 
     const queryString = params.toString() ? `?${params.toString()}` : "";
 
-    const response = await fetch(`${API_URL}/api/tasks${queryString}`)
+    const response = await apiFetch(`${API_URL}/api/tasks${queryString}`)
 
     if (!response.ok) {
         await throwApiError(response, "Erro ao buscar tarefas");
@@ -62,7 +41,7 @@ export async function getTasks(filters?: ListTasksRequest): Promise<ListTasksRes
 export async function createTask(
   data: CreateTaskRequest
 ): Promise<{ success: boolean; error?: string }> {
-  const response = await fetch(`${API_URL}/api/tasks`, {
+  const response = await apiFetch(`${API_URL}/api/tasks`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +60,7 @@ export async function editTask(
   id: string,
   data: UpdateTaskRequest
 ): Promise<{ success: boolean; error?: string }> {
-  const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+  const response = await apiFetch(`${API_URL}/api/tasks/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -99,7 +78,7 @@ export async function editTask(
 export async function deleteTask(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
-  const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+  const response = await apiFetch(`${API_URL}/api/tasks/${id}`, {
     method: "DELETE",
   });
 
@@ -118,7 +97,7 @@ export async function getTrashTasks(
     page: String(page),
     pageSize: String(pageSize),
   });
-  const response = await fetch(`${API_URL}/api/tasks/trash?${params}`);
+  const response = await apiFetch(`${API_URL}/api/tasks/trash?${params}`);
 
   if (!response.ok) {
     await throwApiError(response, "Erro ao buscar tarefas excluídas");
@@ -130,7 +109,7 @@ export async function getTrashTasks(
 export async function restoreTask(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
-  const response = await fetch(`${API_URL}/api/tasks/${id}/restore`, {
+  const response = await apiFetch(`${API_URL}/api/tasks/${id}/restore`, {
     method: "PATCH",
   });
 
@@ -145,7 +124,7 @@ export async function changeTaskStatus(
   id: string,
   data: ChangeTaskStatusRequest
 ): Promise<{ success: boolean; error?: string }> {
-  const response = await fetch(`${API_URL}/api/tasks/${id}/status`, {
+  const response = await apiFetch(`${API_URL}/api/tasks/${id}/status`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -161,7 +140,7 @@ export async function changeTaskStatus(
 }
 
 export async function getTaskSummary(): Promise<TaskSummaryResponse> {
-    const response = await fetch(`${API_URL}/api/tasks/summary`);
+    const response = await apiFetch(`${API_URL}/api/tasks/summary`);
     if (!response.ok) {
         await throwApiError(response, "Erro ao buscar resumo das tarefas");
     }

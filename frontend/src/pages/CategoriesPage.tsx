@@ -144,6 +144,7 @@ export function CategoriesPage() {
               <span className="visually-hidden">Buscar categorias</span>
               <input
                 type="search"
+                autoComplete="off"
                 value={search}
                 onChange={(event) => handleSearchChange(event.target.value)}
                 placeholder="Buscar categoria..."

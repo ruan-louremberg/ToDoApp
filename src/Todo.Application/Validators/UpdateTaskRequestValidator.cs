@@ -32,9 +32,7 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
             .WithMessage("A prioridade informada é inválida.");
 
         RuleFor(request => request.DueDate.Value)
-            .Must(dueDate =>
-                !dueDate.HasValue ||
-                DateOnly.FromDateTime(dueDate.Value) >= DateOnly.FromDateTime(DateTime.UtcNow))
+            .Must(dueDate => !dueDate.HasValue || dueDate.Value.Date >= DateTime.Today)
             .When(request => request.DueDate.IsSet && request.DueDate.Value is not null && request.DueDate.Value.HasValue)
             .WithMessage("O prazo não pode ser no passado.");
     }

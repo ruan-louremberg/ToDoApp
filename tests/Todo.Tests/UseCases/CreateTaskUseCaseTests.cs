@@ -14,12 +14,13 @@ public class CreateTaskUseCaseTests
     [Fact(DisplayName = "Retorna erro quando a requisição é inválida")]
     public async Task GivenInvalidRequest_WhenCreatingTask_ThenReturnsBadRequest()
     {
+        var userId = Guid.NewGuid();
         var repository = new Mock<IToDoRepository>();
         var categoryRepository = new Mock<ICategoryRepository>();
         var validator = CreateValidator<CreateTaskRequest>(false);
 
         var result = await new CreateTaskUseCase(repository.Object, categoryRepository.Object, validator.Object)
-            .ExecuteAsync(new CreateTaskRequest());
+            .ExecuteAsync(userId, new CreateTaskRequest());
 
         Assert.True(result.IsFailed);
         repository.Verify(item => item.AddAsync(It.IsAny<ToDo>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -28,11 +29,12 @@ public class CreateTaskUseCaseTests
     [Fact(DisplayName = "Retorna não encontrado quando a categoria não existe")]
     public async Task GivenMissingCategory_WhenCreatingTask_ThenReturnsNotFound()
     {
+        var userId = Guid.NewGuid();
         var categoryRepository = new Mock<ICategoryRepository>();
-        categoryRepository.Setup(item => item.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+        categoryRepository.Setup(item => item.GetByIdAsync(userId, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Category?)null);
 
-        var result = await CreateSut(categoryRepository: categoryRepository).ExecuteAsync(
+        var result = await CreateSut(categoryRepository: categoryRepository).ExecuteAsync(userId, 
             new CreateTaskRequest { Title = "Task", CategoryId = Guid.NewGuid() });
 
         Assert.True(result.IsFailed);
@@ -42,12 +44,13 @@ public class CreateTaskUseCaseTests
     [Fact(DisplayName = "Cria tarefa e associa categoria existente")]
     public async Task GivenValidRequestAndExistingCategory_WhenCreatingTask_ThenPersistsTaskAndReturnsResponse()
     {
+        var userId = Guid.NewGuid();
         var category = new Category("Work", "#FFFFFF");
         var categoryRepository = new Mock<ICategoryRepository>();
-        categoryRepository.Setup(item => item.GetByIdAsync(category.Id, It.IsAny<CancellationToken>())).ReturnsAsync(category);
+        categoryRepository.Setup(item => item.GetByIdAsync(userId, category.Id, It.IsAny<CancellationToken>())).ReturnsAsync(category);
         var repository = new Mock<IToDoRepository>();
 
-        var result = await CreateSut(repository, categoryRepository).ExecuteAsync(new CreateTaskRequest
+        var result = await CreateSut(repository, categoryRepository).ExecuteAsync(userId, new CreateTaskRequest
         {
             Title = "Task",
             Priority = Priority.High,

@@ -9,10 +9,11 @@ public class RestoreTaskUseCaseTests
     [Fact(DisplayName = "Retorna não encontrado quando a tarefa não está na lixeira")]
     public async Task GivenTaskNotInTrash_WhenRestoringTask_ThenReturnsNotFound()
     {
+        var userId = Guid.NewGuid();
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.RestoreAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        repository.Setup(item => item.RestoreAsync(userId, It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
-        var result = await new RestoreTaskUseCase(repository.Object).ExecuteAsync(Guid.NewGuid());
+        var result = await new RestoreTaskUseCase(repository.Object).ExecuteAsync(userId, Guid.NewGuid());
 
         Assert.True(result.IsFailed);
     }
@@ -20,10 +21,11 @@ public class RestoreTaskUseCaseTests
     [Fact(DisplayName = "Restaura tarefa que está na lixeira")]
     public async Task GivenTaskInTrash_WhenRestoringTask_ThenReturnsSuccess()
     {
+        var userId = Guid.NewGuid();
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.RestoreAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        repository.Setup(item => item.RestoreAsync(userId, It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var result = await new RestoreTaskUseCase(repository.Object).ExecuteAsync(Guid.NewGuid());
+        var result = await new RestoreTaskUseCase(repository.Object).ExecuteAsync(userId, Guid.NewGuid());
 
         Assert.True(result.IsSuccess);
     }

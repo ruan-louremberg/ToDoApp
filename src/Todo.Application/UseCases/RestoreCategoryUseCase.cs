@@ -14,11 +14,12 @@ public class RestoreCategoryUseCase
     }
 
    public async Task<Result> ExecuteAsync(
+        Guid userId,
         Guid id,
         CancellationToken cancellationToken = default)
     {
 
-        var categoria = await _categoryRepository.GetDeletedByIdAsync(id, cancellationToken);
+        var categoria = await _categoryRepository.GetDeletedByIdAsync(userId, id, cancellationToken);
 
         if (categoria is null)
         {
@@ -26,7 +27,7 @@ public class RestoreCategoryUseCase
                 .WithMetadata("statusCode", 404));
         }
 
-        var existingCategory = await _categoryRepository.GetByNameAsync(categoria.Name, cancellationToken);
+        var existingCategory = await _categoryRepository.GetByNameAsync(userId, categoria.Name, cancellationToken);
 
         if (existingCategory != null)
         {
@@ -35,6 +36,7 @@ public class RestoreCategoryUseCase
         }
 
         var restored = await _categoryRepository.RestoreAsync(
+            userId,
             id,
             cancellationToken);
 

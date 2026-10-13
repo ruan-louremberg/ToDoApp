@@ -8,9 +8,9 @@ public class DeleteCategoryUseCase
     {
         _categoryRepository = categoryRepository;
     }
-    public async Task<Result> ExecuteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Result> ExecuteAsync(Guid userId, Guid id, CancellationToken cancellationToken = default)
     {
-        var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
+        var category = await _categoryRepository.GetByIdAsync(userId, id, cancellationToken);
         if (category is null)
         {
             return Result.Fail(new Error("Categoria não encontrada.")

@@ -54,24 +54,25 @@ public class CreateTaskRequestValidatorTests
     {
         var result = new CreateTaskRequestValidator().Validate(new CreateTaskRequest
         {
-            Title = "Task with due date today",
-            DueDate = DateTime.UtcNow.Date
+            Title = "Valid title",
+            DueDate = DateTime.Today
         });
 
         Assert.True(result.IsValid);
     }
 
-    [Fact(DisplayName = "Rejeita prazo de ontem")]
-    public void GivenDueDateYesterday_WhenValidatingRequest_ThenReturnsValidationError()
+    [Fact(DisplayName = "Rejeita prazo anterior a hoje")]
+    public void GivenPastDueDate_WhenValidatingRequest_ThenReturnsValidationError()
     {
         var result = new CreateTaskRequestValidator().Validate(new CreateTaskRequest
         {
-            Title = "Task with past due date",
-            DueDate = DateTime.UtcNow.Date.AddDays(-1)
+            Title = "Valid title",
+            DueDate = DateTime.Today.AddDays(-1)
         });
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, error => error.PropertyName == nameof(CreateTaskRequest.DueDate));
+        Assert.Contains(result.Errors, error =>
+            error.PropertyName == nameof(CreateTaskRequest.DueDate));
     }
 
     [Fact(DisplayName = "Rejeita prioridade inválida")]

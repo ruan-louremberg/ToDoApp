@@ -13,9 +13,10 @@ public class GetSummaryUseCase
     }
 
     public async Task<TaskSummaryResponse> ExecuteAsync(
+        Guid userId,
         CancellationToken cancellationToken = default)
     {
-        var summary = await _summaryRepository.GetSummaryAsync(cancellationToken);
+        var summary = await _summaryRepository.GetSummaryAsync(userId, cancellationToken);
 
         return new TaskSummaryResponse
         {

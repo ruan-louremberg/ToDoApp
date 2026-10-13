@@ -50,6 +50,13 @@ export function TaskFormModal({
     return null;
   }
 
+  const now = new Date();
+  const minimumDueDate = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+
   function updateField<Key extends keyof TaskFormData>(
     field: Key,
     value: TaskFormData[Key]
@@ -66,6 +73,11 @@ export function TaskFormModal({
   }
 
   return (
+    <div className="modal-backdrop">
+      <div className="modal">
+        <h2>{title}</h2>
+
+        <form autoComplete="off" onSubmit={handleSubmit}>
     <div className="category-modal-backdrop">
       <section
         className="category-modal task-modal"
@@ -88,6 +100,7 @@ export function TaskFormModal({
             Título
             <input
               value={formData.title}
+              autoComplete="off"
               onChange={(event) => updateField("title", event.target.value)}
               minLength={3}
               maxLength={120}
@@ -99,6 +112,7 @@ export function TaskFormModal({
             Descrição
             <textarea
               value={formData.description}
+              autoComplete="off"
               onChange={(event) =>
                 updateField("description", event.target.value)
               }
@@ -125,6 +139,8 @@ export function TaskFormModal({
             <input
               type="date"
               value={formData.dueDate}
+              min={minimumDueDate}
+              autoComplete="off"
               onChange={(event) => updateField("dueDate", event.target.value)}
             />
           </label>

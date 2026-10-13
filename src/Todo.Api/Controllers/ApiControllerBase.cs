@@ -1,11 +1,18 @@
 using FluentResults;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ToDoApp.Api.Controllers;
 
 public abstract class ApiControllerBase : ControllerBase
 {
+    protected Guid CurrentUserId =>
+        Guid.Parse(
+            User.FindFirstValue("sub")
+            ?? User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new InvalidOperationException("O usuário autenticado não possui um identificador válido."));
+
     protected IActionResult FromErrors(IEnumerable<IError> errors)
     {
         var errorList = errors.ToList();
@@ -64,6 +71,8 @@ public abstract class ApiControllerBase : ControllerBase
         return statusCode switch
         {
             StatusCodes.Status400BadRequest => "Erro de validação",
+            StatusCodes.Status401Unauthorized => "Autenticação inválida",
+            StatusCodes.Status403Forbidden => "Acesso negado",
             StatusCodes.Status404NotFound => "Recurso não encontrado",
             StatusCodes.Status409Conflict => "Conflito",
             _ => "Erro na requisição"

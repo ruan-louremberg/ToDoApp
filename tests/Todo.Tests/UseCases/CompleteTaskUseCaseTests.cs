@@ -15,10 +15,11 @@ public class CompleteTaskUseCaseTests
     [Fact(DisplayName = "Retorna não encontrado quando a tarefa não existe")]
     public async Task GivenMissingTask_WhenChangingStatus_ThenReturnsNotFound()
     {
+        var userId = Guid.NewGuid();
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ToDo?)null);
+        repository.Setup(item => item.GetByIdAsync(userId, It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((ToDo?)null);
 
-        var result = await CreateSut(repository).ExecuteAsync(Guid.NewGuid(), new CompleteTaskRequest { Status = Status.Completed });
+        var result = await CreateSut(repository).ExecuteAsync(userId, Guid.NewGuid(), new CompleteTaskRequest { Status = Status.Completed });
 
         Assert.True(result.IsFailed);
         Assert.Equal(404, result.Errors[0].Metadata["statusCode"]);
@@ -27,12 +28,13 @@ public class CompleteTaskUseCaseTests
     [Fact(DisplayName = "Atualiza status e retorna a tarefa concluída")]
     public async Task GivenExistingTask_WhenChangingStatusToCompleted_ThenUpdatesAndReturnsTask()
     {
+        var userId = Guid.NewGuid();
         var task = new ToDo("Task", null, Priority.Medium, null);
         task.ChangeStatus(Status.InProgress);
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+        repository.Setup(item => item.GetByIdAsync(userId, task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
 
-        var result = await CreateSut(repository).ExecuteAsync(task.Id, new CompleteTaskRequest { Status = Status.Completed });
+        var result = await CreateSut(repository).ExecuteAsync(userId, task.Id, new CompleteTaskRequest { Status = Status.Completed });
 
         Assert.True(result.IsSuccess);
         Assert.Equal(Status.Completed, result.Value.Status);
@@ -43,11 +45,12 @@ public class CompleteTaskUseCaseTests
     [Fact(DisplayName = "Retorna conflito para transição de status não permitida")]
     public async Task GivenDisallowedTransition_WhenChangingStatus_ThenReturnsConflict()
     {
+        var userId = Guid.NewGuid();
         var task = new ToDo("Task", null, Priority.Medium, null);
         var repository = new Mock<IToDoRepository>();
-        repository.Setup(item => item.GetByIdAsync(task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
+        repository.Setup(item => item.GetByIdAsync(userId, task.Id, It.IsAny<CancellationToken>())).ReturnsAsync(task);
 
-        var result = await CreateSut(repository).ExecuteAsync(
+        var result = await CreateSut(repository).ExecuteAsync(userId, 
             task.Id,
             new CompleteTaskRequest { Status = Status.Completed });
 

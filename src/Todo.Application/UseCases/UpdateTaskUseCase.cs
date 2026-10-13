@@ -24,7 +24,7 @@ public class UpdateTaskUseCase
         _validator = validator;
     }
 
-    public async Task<Result<TaskResponse>> ExecuteAsync(Guid id, UpdateTaskRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<TaskResponse>> ExecuteAsync(Guid userId, Guid id, UpdateTaskRequest request, CancellationToken cancellationToken = default)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -33,7 +33,7 @@ public class UpdateTaskUseCase
                 new Error(error.ErrorMessage).WithMetadata("statusCode", 400)));
         }
 
-        var task = await _toDoRepository.GetByIdAsync(id, cancellationToken);
+        var task = await _toDoRepository.GetByIdAsync(userId, id, cancellationToken);
 
         if (task == null)
         {
@@ -54,7 +54,7 @@ public class UpdateTaskUseCase
 
         if (optionalCategoryId.IsSet && optionalCategoryId.Value is not null && optionalCategoryId.Value.HasValue)
         {
-            var category = await _categoryRepository.GetByIdAsync(optionalCategoryId.Value.Value, cancellationToken);
+            var category = await _categoryRepository.GetByIdAsync(userId, optionalCategoryId.Value.Value, cancellationToken);
             if (category is null)
             {
                 return Result.Fail(new Error("Categoria não encontrada.")
@@ -75,7 +75,7 @@ public class UpdateTaskUseCase
 
         await _toDoRepository.UpdateAsync(task, cancellationToken);
 
-        var updatedTask = await _toDoRepository.GetByIdAsync(id, cancellationToken);
+        var updatedTask = await _toDoRepository.GetByIdAsync(userId, id, cancellationToken);
 
         if (updatedTask is null)
         {

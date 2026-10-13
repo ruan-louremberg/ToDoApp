@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import type { AuthUser } from "../api/auth";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  user: AuthUser;
+  onLogout: () => void;
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, user, onLogout }: SidebarProps) {
   useEffect(() => {
     if (!isOpen) return;
 
@@ -77,6 +80,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="sidebar__note">
           <span className="sidebar__note-mark" aria-hidden="true">✦</span>
           <p>Pequenos passos também levam longe.</p>
+        </div>
+        <div className="sidebar__account">
+          <span className="sidebar__avatar" aria-hidden="true">
+            {user.name.trim().charAt(0).toLocaleUpperCase("pt-BR")}
+          </span>
+          <div className="sidebar__account-info">
+            <strong title={user.name}>{user.name}</strong>
+            <span title={user.email}>{user.email}</span>
+          </div>
+          <button
+            className="sidebar__logout"
+            type="button"
+            onClick={onLogout}
+            aria-label="Sair da conta"
+            title="Sair"
+          >
+            Sair
+          </button>
         </div>
       </aside>
     </>
