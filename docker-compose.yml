@@ -8,6 +8,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: "Data Source=/app/data/todo.db"
+      RESEND_APIKEY: ${RESEND_APIKEY:-}
+      Frontend__BaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      Reminder__TimeZoneId: ${REMINDER_TIME_ZONE_ID:-America/Sao_Paulo}
     volumes:
       - todo-data:/app/data
 

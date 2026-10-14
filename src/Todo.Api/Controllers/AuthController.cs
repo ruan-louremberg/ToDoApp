@@ -15,17 +15,69 @@ public class AuthController : ApiControllerBase
     private readonly LoginUserUseCase _loginUserUseCase;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IUserRepository _userRepository;
+    private readonly ForgotPasswordUseCase _forgotPasswordUseCase;
+    private readonly ResetPasswordUseCase _resetPasswordUseCase;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         RegisterUserUseCase registerUserUseCase,
         LoginUserUseCase loginUserUseCase,
         IJwtTokenService jwtTokenService,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        ForgotPasswordUseCase forgotPasswordUseCase,
+        ResetPasswordUseCase resetPasswordUseCase,
+        ILogger<AuthController> logger)
     {
         _registerUserUseCase = registerUserUseCase;
         _loginUserUseCase = loginUserUseCase;
         _jwtTokenService = jwtTokenService;
         _userRepository = userRepository;
+        _forgotPasswordUseCase = forgotPasswordUseCase;
+        _resetPasswordUseCase = resetPasswordUseCase;
+        _logger = logger;
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(PasswordResetRequestedResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _forgotPasswordUseCase.ExecuteAsync(request, cancellationToken);
+            if (result.IsFailed)
+            {
+                return FromErrors(result.Errors);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (EmailDeliveryException exception)
+        {
+            _logger.LogError(exception, "Password reset email could not be sent.");
+        }
+
+        return Ok(new PasswordResetRequestedResponse(
+            "Se o e-mail estiver cadastrado, você receberá instruções para redefinir a senha."));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _resetPasswordUseCase.ExecuteAsync(request, cancellationToken);
+        return result.IsFailed
+            ? FromErrors(result.Errors)
+            : NoContent();
     }
 
     [HttpPost("register")]

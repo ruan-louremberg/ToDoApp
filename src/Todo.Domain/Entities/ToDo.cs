@@ -32,6 +32,8 @@ namespace ToDoApp.Domain.Entities
 
         public DateTime? DeletedAt { get; private set; }
 
+        public DateTime? ReminderSentAt { get; private set; }
+
         public IReadOnlyCollection<SubTask> Subtasks => _subtasks.AsReadOnly();
 
         public ToDo(string title, string? description, Priority priority, DateTime? dueDate, Guid? categoryId = null)
@@ -170,6 +172,12 @@ namespace ToDoApp.Domain.Entities
         {
             IsDeleted = false;
             DeletedAt = null;
+        }
+
+        public void MarkReminderSent(DateTime? sentAt = null)
+        {
+            ReminderSentAt = sentAt ?? DateTime.UtcNow;
+            SetUpdatedAt(DateTime.UtcNow);
         }
     }
 }

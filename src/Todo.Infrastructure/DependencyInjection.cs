@@ -6,6 +6,7 @@ using ToDoApp.Infrastructure.Persistence;
 using ToDoApp.Infrastructure.Repositories;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Infrastructure.Services;
+using Resend;
 
 namespace ToDoApp.Infrastructure;
 
@@ -25,6 +26,16 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IEmailService, ResendEmailService>();
+        services.AddHttpClient<ResendClient>();
+        services.AddTransient<IResend>(provider => provider.GetRequiredService<ResendClient>());
+        services.Configure<ResendClientOptions>(options =>
+        {
+            options.ApiToken = configuration["Resend:ApiKey"]
+                ?? Environment.GetEnvironmentVariable("RESEND_APIKEY")
+                ?? Environment.GetEnvironmentVariable("RESEND_API_KEY")
+                ?? string.Empty;
+        });
 
         return services;
     }

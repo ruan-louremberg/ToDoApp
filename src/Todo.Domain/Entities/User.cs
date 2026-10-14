@@ -8,6 +8,10 @@ public class User : BaseEntity
 
     public string PasswordHash { get; private set; } = null!;
 
+    public string? PasswordResetTokenHash { get; private set; }
+
+    public DateTime? PasswordResetTokenExpiresAt { get; private set; }
+
     public User(string name, string email, string passwordHash)
     {
         Name = name;
@@ -18,6 +22,15 @@ public class User : BaseEntity
     public void UpdatePassword(string passwordHash)
     {
         PasswordHash = passwordHash;
+        PasswordResetTokenHash = null;
+        PasswordResetTokenExpiresAt = null;
+        SetUpdatedAt(DateTime.UtcNow);
+    }
+
+    public void SetPasswordResetToken(string tokenHash, DateTime expiresAt)
+    {
+        PasswordResetTokenHash = tokenHash;
+        PasswordResetTokenExpiresAt = expiresAt;
         SetUpdatedAt(DateTime.UtcNow);
     }
 }
