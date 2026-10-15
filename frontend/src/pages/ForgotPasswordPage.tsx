@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { requestPasswordReset } from "../api/auth";
 
@@ -7,6 +7,19 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  useEffect(() => {
+    if (cooldownSeconds === 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCooldownSeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [cooldownSeconds]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -17,6 +30,7 @@ export function ForgotPasswordPage() {
     try {
       const response = await requestPasswordReset({ email });
       setMessage(response.message);
+      setCooldownSeconds(60);
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -55,8 +69,18 @@ export function ForgotPasswordPage() {
           />
           {error && <p className="auth-form__error" role="alert">{error}</p>}
           {message && <p className="auth-form__success" role="status">{message}</p>}
-          <button type="submit" disabled={saving}>
-            {saving ? "Enviando..." : "Enviar instruções"}
+          {cooldownSeconds > 0 && (
+            <span className="auth-form__hint" role="timer" aria-live="off">
+              Você poderá solicitar outro link em {Math.floor(cooldownSeconds / 60)}:
+              {String(cooldownSeconds % 60).padStart(2, "0")}.
+            </span>
+          )}
+          <button type="submit" disabled={saving || cooldownSeconds > 0}>
+            {saving
+              ? "Enviando..."
+              : cooldownSeconds > 0
+                ? `Aguarde ${Math.floor(cooldownSeconds / 60)}:${String(cooldownSeconds % 60).padStart(2, "0")}`
+                : "Enviar instruções"}
           </button>
         </form>
 

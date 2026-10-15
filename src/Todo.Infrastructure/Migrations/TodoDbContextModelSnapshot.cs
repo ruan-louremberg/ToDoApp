@@ -176,6 +176,9 @@ namespace Todo.Infrastructure.Migrations
                     b.Property<DateTime?>("PasswordResetTokenExpiresAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("PasswordResetRequestedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 

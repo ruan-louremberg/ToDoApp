@@ -14,6 +14,7 @@ public sealed class ForgotPasswordUseCase(
     IValidator<ForgotPasswordRequest> validator)
 {
     private static readonly TimeSpan TokenLifetime = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan RequestCooldown = TimeSpan.FromMinutes(1);
 
     public async Task<Result> ExecuteAsync(
         ForgotPasswordRequest request,
@@ -34,10 +35,25 @@ public sealed class ForgotPasswordUseCase(
         }
 
         var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        var requestedAt = DateTime.UtcNow;
+        var tokenHash = PasswordResetTokenHasher.Hash(token);
+        var scheduled = await userRepository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            requestedAt.Add(TokenLifetime),
+            requestedAt,
+            requestedAt.Subtract(RequestCooldown),
+            cancellationToken);
+
+        if (!scheduled)
+        {
+            return Result.Ok();
+        }
+
         user.SetPasswordResetToken(
-            PasswordResetTokenHasher.Hash(token),
-            DateTime.UtcNow.Add(TokenLifetime));
-        await userRepository.UpdateAsync(user, cancellationToken);
+            tokenHash,
+            requestedAt.Add(TokenLifetime),
+            requestedAt);
         await emailService.SendPasswordResetEmailAsync(
             user.Email,
             user.Name,

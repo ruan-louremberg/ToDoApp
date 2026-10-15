@@ -53,6 +53,29 @@ public class UserRepository(TodoDbContext context) : IUserRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<bool> TrySchedulePasswordResetAsync(
+        string email,
+        string tokenHash,
+        DateTime tokenExpiresAt,
+        DateTime requestedAt,
+        DateTime cooldownCutoff,
+        CancellationToken cancellationToken = default)
+    {
+        var affectedRows = await _context.Users
+            .Where(user => user.Email == email
+                && (user.PasswordResetRequestedAt == null
+                    || user.PasswordResetRequestedAt <= cooldownCutoff))
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(user => user.PasswordResetTokenHash, tokenHash)
+                    .SetProperty(user => user.PasswordResetTokenExpiresAt, tokenExpiresAt)
+                    .SetProperty(user => user.PasswordResetRequestedAt, requestedAt)
+                    .SetProperty(user => user.UpdatedAt, requestedAt),
+                cancellationToken);
+
+        return affectedRows == 1;
+    }
+
     public Task<bool> HasValidPasswordResetTokenAsync(
         string tokenHash,
         DateTime now,

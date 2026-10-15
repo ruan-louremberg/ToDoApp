@@ -20,6 +20,14 @@ public interface IUserRepository
 
     Task UpdateAsync(User user, CancellationToken cancellationToken = default);
 
+    Task<bool> TrySchedulePasswordResetAsync(
+        string email,
+        string tokenHash,
+        DateTime tokenExpiresAt,
+        DateTime requestedAt,
+        DateTime cooldownCutoff,
+        CancellationToken cancellationToken = default);
+
     Task<bool> HasValidPasswordResetTokenAsync(
         string tokenHash,
         DateTime now,

@@ -86,6 +86,7 @@ public class TodoDbContext : DbContext
             builder.Property(user => user.PasswordResetTokenHash)
                 .HasMaxLength(64);
             builder.Property(user => user.PasswordResetTokenExpiresAt);
+            builder.Property(user => user.PasswordResetRequestedAt);
             builder.HasIndex(user => user.PasswordResetTokenHash)
                 .IsUnique();
             builder.HasIndex(user => user.Email)

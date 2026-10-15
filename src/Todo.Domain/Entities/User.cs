@@ -12,6 +12,8 @@ public class User : BaseEntity
 
     public DateTime? PasswordResetTokenExpiresAt { get; private set; }
 
+    public DateTime? PasswordResetRequestedAt { get; private set; }
+
     public User(string name, string email, string passwordHash)
     {
         Name = name;
@@ -27,10 +29,14 @@ public class User : BaseEntity
         SetUpdatedAt(DateTime.UtcNow);
     }
 
-    public void SetPasswordResetToken(string tokenHash, DateTime expiresAt)
+    public void SetPasswordResetToken(
+        string tokenHash,
+        DateTime expiresAt,
+        DateTime requestedAt)
     {
         PasswordResetTokenHash = tokenHash;
         PasswordResetTokenExpiresAt = expiresAt;
-        SetUpdatedAt(DateTime.UtcNow);
+        PasswordResetRequestedAt = requestedAt;
+        SetUpdatedAt(requestedAt);
     }
 }

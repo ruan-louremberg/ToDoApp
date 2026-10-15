@@ -43,6 +43,15 @@ public class PasswordResetUseCaseTests
         repository
             .Setup(item => item.GetByEmailAsync("maria@example.com", It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
+        repository
+            .Setup(item => item.TrySchedulePasswordResetAsync(
+                user.Email,
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var emailService = new Mock<IEmailService>();
         string? emailedToken = null;
         emailService
@@ -70,7 +79,13 @@ public class PasswordResetUseCaseTests
             DateTime.UtcNow.AddMinutes(14),
             DateTime.UtcNow.AddMinutes(16));
         repository.Verify(
-            item => item.UpdateAsync(user, It.IsAny<CancellationToken>()),
+            item => item.TrySchedulePasswordResetAsync(
+                user.Email,
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
         emailService.Verify(
             item => item.SendPasswordResetEmailAsync(
@@ -79,6 +94,41 @@ public class PasswordResetUseCaseTests
                 emailedToken,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task GivenRecentResetRequest_WhenRequestingAgain_ThenDoesNotSendAnotherEmail()
+    {
+        var user = new User("Maria", "maria@example.com", "old-password-hash");
+        var repository = new Mock<IUserRepository>();
+        repository
+            .Setup(item => item.GetByEmailAsync(user.Email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        repository
+            .Setup(item => item.TrySchedulePasswordResetAsync(
+                user.Email,
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        var emailService = new Mock<IEmailService>();
+
+        var result = await new ForgotPasswordUseCase(
+                repository.Object,
+                emailService.Object,
+                new ForgotPasswordRequestValidator())
+            .ExecuteAsync(new ForgotPasswordRequest { Email = user.Email });
+
+        Assert.True(result.IsSuccess);
+        emailService.Verify(
+            item => item.SendPasswordResetEmailAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

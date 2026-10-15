@@ -27,19 +27,36 @@ public class PasswordResetMigrationTests
 
         const string tokenHash = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
         var now = DateTime.UtcNow;
-        user.SetPasswordResetToken(tokenHash, now.AddMinutes(15));
         var repository = new UserRepository(context);
-        await repository.UpdateAsync(user);
+        Assert.True(await repository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            now.AddMinutes(15),
+            now,
+            now.AddMinutes(-1)));
+        Assert.False(await repository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            now.AddMinutes(15),
+            now.AddSeconds(30),
+            now.AddSeconds(-30)));
+        Assert.True(await repository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            now.AddMinutes(15),
+            now.AddMinutes(1),
+            now));
 
-        Assert.True(await repository.HasValidPasswordResetTokenAsync(tokenHash, now));
-        Assert.True(await repository.ResetPasswordAsync(tokenHash, "new-password-hash", now));
-        Assert.False(await repository.HasValidPasswordResetTokenAsync(tokenHash, now));
-        Assert.False(await repository.ResetPasswordAsync(tokenHash, "another-password-hash", now));
+        Assert.True(await repository.HasValidPasswordResetTokenAsync(tokenHash, now.AddMinutes(1)));
+        Assert.True(await repository.ResetPasswordAsync(tokenHash, "new-password-hash", now.AddMinutes(1)));
+        Assert.False(await repository.HasValidPasswordResetTokenAsync(tokenHash, now.AddMinutes(1)));
+        Assert.False(await repository.ResetPasswordAsync(tokenHash, "another-password-hash", now.AddMinutes(1)));
 
         context.ChangeTracker.Clear();
         var updatedUser = await context.Users.SingleAsync(item => item.Id == user.Id);
         Assert.Equal("new-password-hash", updatedUser.PasswordHash);
         Assert.Null(updatedUser.PasswordResetTokenHash);
         Assert.Null(updatedUser.PasswordResetTokenExpiresAt);
+        Assert.Equal(now.AddMinutes(1), updatedUser.PasswordResetRequestedAt);
     }
 }
