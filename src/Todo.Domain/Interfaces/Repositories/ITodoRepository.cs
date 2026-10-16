@@ -47,4 +47,9 @@ public interface IToDoRepository
     Guid userId,
     Guid id,
     CancellationToken cancellationToken = default);
+
+    Task<List<ToDo>> GetPendingTasksDueBetweenAsync(
+        DateTime start,
+        DateTime end,
+        CancellationToken cancellationToken = default);
 }

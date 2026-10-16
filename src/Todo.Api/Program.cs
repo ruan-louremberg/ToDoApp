@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ToDoApp.Api.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -123,6 +124,18 @@ builder.Services.AddScoped<DeleteCategoryUseCase>();
 builder.Services.AddScoped<GetSummaryUseCase>();
 builder.Services.AddScoped<RegisterUserUseCase>();
 builder.Services.AddScoped<LoginUserUseCase>();
+builder.Services.AddScoped<ForgotPasswordUseCase>();
+builder.Services.AddScoped<ResetPasswordUseCase>();
+builder.Services.AddScoped<SendDueDateRemindersUseCase>(serviceProvider =>
+    new SendDueDateRemindersUseCase(
+        serviceProvider.GetRequiredService<IToDoRepository>(),
+        serviceProvider.GetRequiredService<ToDoApp.Application.Interfaces.IEmailService>(),
+        builder.Configuration["Frontend:BaseUrl"] ?? "http://localhost:5173"));
+builder.Services.AddSingleton(TimeProvider.System);
+var reminderTimeZoneId = builder.Configuration["Reminder:TimeZoneId"] ?? "America/Sao_Paulo";
+var reminderTimeZone = TimeZoneInfo.FindSystemTimeZoneById(reminderTimeZoneId);
+builder.Services.AddSingleton(reminderTimeZone);
+builder.Services.AddHostedService<DueDateReminderBackgroundService>();
 
 
 var app = builder.Build();

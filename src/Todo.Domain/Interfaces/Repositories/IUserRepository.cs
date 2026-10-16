@@ -17,4 +17,30 @@ public interface IUserRepository
     Task<bool> ExistsByEmailAsync(
         string email,
         CancellationToken cancellationToken = default);
+
+    Task UpdateAsync(User user, CancellationToken cancellationToken = default);
+
+    Task<bool> TrySchedulePasswordResetAsync(
+        string email,
+        string tokenHash,
+        DateTime tokenExpiresAt,
+        DateTime requestedAt,
+        DateTime cooldownCutoff,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> HasValidPasswordResetTokenAsync(
+        string tokenHash,
+        DateTime now,
+        CancellationToken cancellationToken = default);
+
+    Task<string?> GetPasswordHashForValidPasswordResetTokenAsync(
+        string tokenHash,
+        DateTime now,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ResetPasswordAsync(
+        string tokenHash,
+        string passwordHash,
+        DateTime now,
+        CancellationToken cancellationToken = default);
 }

@@ -1,0 +1,62 @@
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using ToDoApp.Domain.Entities;
+using ToDoApp.Infrastructure.Persistence;
+using ToDoApp.Infrastructure.Repositories;
+
+namespace ToDoApp.Tests.Persistence;
+
+public class PasswordResetMigrationTests
+{
+    [Fact]
+    public async Task GivenFreshDatabase_WhenApplyingMigrations_ThenPasswordResetTokensArePersistedAndConsumedOnce()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<TodoDbContext>()
+            .UseSqlite(connection)
+            .Options;
+        await using var context = new TodoDbContext(options);
+
+        await context.Database.MigrateAsync();
+
+        var user = new User("Maria", "maria@example.com", "old-password-hash");
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        const string tokenHash = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        var now = DateTime.UtcNow;
+        var repository = new UserRepository(context);
+        Assert.True(await repository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            now.AddMinutes(15),
+            now,
+            now.AddMinutes(-1)));
+        Assert.False(await repository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            now.AddMinutes(15),
+            now.AddSeconds(30),
+            now.AddSeconds(-30)));
+        Assert.True(await repository.TrySchedulePasswordResetAsync(
+            user.Email,
+            tokenHash,
+            now.AddMinutes(15),
+            now.AddMinutes(1),
+            now));
+
+        Assert.True(await repository.HasValidPasswordResetTokenAsync(tokenHash, now.AddMinutes(1)));
+        Assert.True(await repository.ResetPasswordAsync(tokenHash, "new-password-hash", now.AddMinutes(1)));
+        Assert.False(await repository.HasValidPasswordResetTokenAsync(tokenHash, now.AddMinutes(1)));
+        Assert.False(await repository.ResetPasswordAsync(tokenHash, "another-password-hash", now.AddMinutes(1)));
+
+        context.ChangeTracker.Clear();
+        var updatedUser = await context.Users.SingleAsync(item => item.Id == user.Id);
+        Assert.Equal("new-password-hash", updatedUser.PasswordHash);
+        Assert.Null(updatedUser.PasswordResetTokenHash);
+        Assert.Null(updatedUser.PasswordResetTokenExpiresAt);
+        Assert.Equal(now.AddMinutes(1), updatedUser.PasswordResetRequestedAt);
+    }
+}

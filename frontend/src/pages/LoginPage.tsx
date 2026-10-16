@@ -77,6 +77,9 @@ export function LoginPage() {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+          <Link className="auth-form__forgot-link" to="/forgot-password">
+            Esqueci minha senha
+          </Link>
           {error && <p className="auth-form__error" role="alert">{error}</p>}
           <button type="submit" disabled={saving}>
             {saving ? "Entrando..." : "Entrar"}

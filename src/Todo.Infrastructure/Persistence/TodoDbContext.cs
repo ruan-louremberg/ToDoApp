@@ -31,6 +31,7 @@ public class TodoDbContext : DbContext
             builder.Property(t => t.UpdatedAt);
             builder.Property(t => t.IsDeleted).IsRequired();
             builder.Property(t => t.DeletedAt);
+            builder.Property(t => t.ReminderSentAt);
             builder.Property(t => t.CategoryId);
             builder.HasOne(t => t.Category).WithMany().HasForeignKey(t => t.CategoryId);
             builder.HasOne(t => t.User)
@@ -82,6 +83,12 @@ public class TodoDbContext : DbContext
                 .HasMaxLength(320);
             builder.Property(user => user.PasswordHash)
                 .IsRequired();
+            builder.Property(user => user.PasswordResetTokenHash)
+                .HasMaxLength(64);
+            builder.Property(user => user.PasswordResetTokenExpiresAt);
+            builder.Property(user => user.PasswordResetRequestedAt);
+            builder.HasIndex(user => user.PasswordResetTokenHash)
+                .IsUnique();
             builder.HasIndex(user => user.Email)
                 .IsUnique();
         });
