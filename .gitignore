@@ -12,6 +12,9 @@ out/
 *.sqlite
 *.sqlite3
 
+## Local secrets
+.env
+
 ## IDE & User settings
 .vs/
 .vscode/
