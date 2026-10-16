@@ -9,15 +9,22 @@ export function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSaving(true);
     setError(null);
 
+    if (password !== confirmPassword) {
+      setError("As senhas informadas não coincidem.");
+      return;
+    }
+
+    setSaving(true);
     try {
       await register({ name, email, password });
       navigate("/tasks", { replace: true });
@@ -92,6 +99,28 @@ export function RegisterPage() {
             </button>
           </div>
           <span className="auth-form__hint">Use pelo menos 8 caracteres.</span>
+          <label htmlFor="register-confirm-password">Confirme a senha</label>
+          <div className="auth-password-field">
+            <input
+              id="register-confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              autoComplete="new-password"
+              minLength={8}
+              maxLength={100}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
+            />
+            <button
+              className="auth-password-field__toggle"
+              type="button"
+              aria-label={showConfirmPassword ? "Ocultar confirmação da senha" : "Mostrar confirmação da senha"}
+              aria-pressed={showConfirmPassword}
+              onClick={() => setShowConfirmPassword((visible) => !visible)}
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {error && <p className="auth-form__error" role="alert">{error}</p>}
           <button type="submit" disabled={saving}>
             {saving ? "Criando conta..." : "Criar conta"}

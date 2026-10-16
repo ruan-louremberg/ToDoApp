@@ -118,10 +118,29 @@
   font-size: 0.76rem;
 }
 
+.auth-form__forgot-link {
+  justify-self: end;
+  color: #5148c5;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-form__forgot-link:hover {
+  text-decoration: underline;
+}
+
 .auth-form__error,
 .sidebar__error {
   margin: 5px 0;
   color: #b42318;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.auth-form__success {
+  margin: 5px 0;
+  color: #16794b;
   font-size: 0.84rem;
   line-height: 1.5;
 }

@@ -13,6 +13,8 @@ import { Sidebar } from "./components/Sidebar";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { TaskListPage } from "./pages/TaskListPage";
 import { TrashPage } from "./pages/TrashPage";
 import { SummaryPanel } from "./features/tasks/summary/SummaryPanel";
@@ -128,6 +130,14 @@ export function App() {
           <Route
             path="/register"
             element={<GuestOnly><RegisterPage /></GuestOnly>}
+          />
+          <Route
+            path="/forgot-password"
+            element={<GuestOnly><ForgotPasswordPage /></GuestOnly>}
+          />
+          <Route
+            path="/reset-password"
+            element={<GuestOnly><ResetPasswordPage /></GuestOnly>}
           />
           <Route element={<RequireAuth />}>
             <Route element={<AppLayout />}>

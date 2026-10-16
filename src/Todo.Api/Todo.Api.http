@@ -1,6 +1,33 @@
 @Todo.Api_HostAddress = http://localhost:5263
+@resetToken = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 GET {{Todo.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+### Request a password reset (returns the same message for registered and unknown addresses)
+POST {{Todo.Api_HostAddress}}/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "maria@example.com"
+}
+
+### Reset the password with the one-time token sent by email
+POST {{Todo.Api_HostAddress}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "password": "nova-senha-segura"
+}
+
+### Invalid or expired tokens return 400
+POST {{Todo.Api_HostAddress}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "password": "nova-senha-segura"
+}

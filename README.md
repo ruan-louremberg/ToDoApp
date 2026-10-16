@@ -16,6 +16,8 @@ O projeto foi desenvolvido com foco em separação de responsabilidades, valida�
 - Criar, listar, editar, excluir e restaurar categorias;
 - Desvincular tarefas quando uma categoria é excluída, sem apagar as tarefas;
 - Exibir resumo agregado das tarefas;
+- Redefinir a senha por link enviado por e-mail, com token de uso único que expira em 15 minutos;
+- Enviar um resumo diário por e-mail às 08:00 (horário de Brasília) com as tarefas ainda não concluídas que vencem no dia;
 - Mostrar erros da API no formato `ProblemDetails`;
 - Manter os valores digitados no modal de edição quando uma validação falha.
 
@@ -214,6 +216,16 @@ VITE_API_URL=http://localhost:5080
 
 Não coloque a URL da API diretamente nos componentes ou nos clientes HTTP.
 
+### E-mail e lembretes
+
+Configure a variável de ambiente `RESEND_APIKEY` (ou `Resend:ApiKey` via configuração .NET) para enviar e-mails. Sem essa configuração, o restante da API inicia normalmente, mas o envio de e-mails falha explicitamente e é registrado nos logs. `Resend:FromEmail` pode ser configurado para usar um remetente verificado; `Resend:DevRecipientEmail` é opcional e só redireciona mensagens quando definido.
+
+Pedidos de redefinição de senha têm um intervalo mínimo de 1 minuto por conta; a tela mostra uma contagem regressiva antes de permitir outra solicitação.
+
+`Frontend:BaseUrl` define os links incluídos nos e-mails (padrão local: `http://localhost:5173`). `Reminder:TimeZoneId` controla o fuso horário do agendamento (padrão: `America/Sao_Paulo`). O worker executa junto da API às 08:00, tenta recuperar a execução do dia quando inicia depois desse horário e repete a tentativa após falhas de envio. No Docker Compose, essas opções podem ser fornecidas pelas variáveis `RESEND_APIKEY`, `FRONTEND_BASE_URL` e `REMINDER_TIME_ZONE_ID`.
+
+Para receber os e-mails no Resend em produção, configure uma chave válida e um domínio/remetente verificado. A chave não deve ser gravada no repositório.
+
 ## Execução local
 
 ### 1. Clonar o repositório
@@ -346,7 +358,7 @@ dotnet test tests/Todo.Tests/Todo.Tests.csproj `
   --filter "FullyQualifiedName~CreateTaskUseCaseTests"
 ```
 
-Os testes atuais cobrem entidades, validadores e casos de uso de tarefas e categorias.
+Os testes cobrem entidades, persistência, validadores e casos de uso de tarefas, categorias, redefinição de senha e lembretes.
 
 ### Frontend
 

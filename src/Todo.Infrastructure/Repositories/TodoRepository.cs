@@ -231,4 +231,21 @@ public class TodoRepository : IToDoRepository
 
     return true;
 }
+
+    public async Task<List<ToDo>> GetPendingTasksDueBetweenAsync(
+        DateTime start,
+        DateTime end,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.ToDos
+            .Include(t => t.User)
+            .Include(t => t.Category)
+            .Where(t => !t.IsDeleted
+                     && t.Status != Status.Completed
+                     && t.DueDate.HasValue
+                     && t.DueDate.Value >= start
+                     && t.DueDate.Value < end
+                     && t.ReminderSentAt == null)
+            .ToListAsync(cancellationToken);
+    }
 }
