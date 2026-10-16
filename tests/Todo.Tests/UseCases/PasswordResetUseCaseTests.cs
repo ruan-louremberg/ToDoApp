@@ -136,13 +136,14 @@ public class PasswordResetUseCaseTests
     {
         var token = new string('A', 64);
         const string passwordHash = "new-password-hash";
+        const string currentPasswordHash = "old-password-hash";
         var repository = new Mock<IUserRepository>();
         repository
-            .Setup(item => item.HasValidPasswordResetTokenAsync(
+            .Setup(item => item.GetPasswordHashForValidPasswordResetTokenAsync(
                 It.Is<string>(hash => hash.Length == 64),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .ReturnsAsync(currentPasswordHash);
         repository
             .Setup(item => item.ResetPasswordAsync(
                 It.Is<string>(hash => hash.Length == 64),
@@ -151,6 +152,9 @@ public class PasswordResetUseCaseTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         var passwordService = new Mock<IPasswordService>();
+        passwordService
+            .Setup(item => item.Verify("new-password", currentPasswordHash))
+            .Returns(false);
         passwordService.Setup(item => item.Hash("new-password")).Returns(passwordHash);
 
         var result = await new ResetPasswordUseCase(
@@ -164,6 +168,9 @@ public class PasswordResetUseCaseTests
             });
 
         Assert.True(result.IsSuccess);
+        passwordService.Verify(
+            item => item.Verify("new-password", currentPasswordHash),
+            Times.Once);
         repository.Verify(
             item => item.ResetPasswordAsync(
                 It.IsAny<string>(),
@@ -196,6 +203,46 @@ public class PasswordResetUseCaseTests
             });
 
         Assert.True(result.IsFailed);
+        Assert.Equal(400, result.Errors[0].Metadata["statusCode"]);
+        passwordService.Verify(item => item.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        passwordService.Verify(item => item.Hash(It.IsAny<string>()), Times.Never);
+        repository.Verify(
+            item => item.ResetPasswordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task GivenSamePassword_WhenResettingPassword_ThenRejectsItWithShortMessage()
+    {
+        const string currentPasswordHash = "old-password-hash";
+        var repository = new Mock<IUserRepository>();
+        repository
+            .Setup(item => item.GetPasswordHashForValidPasswordResetTokenAsync(
+                It.IsAny<string>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(currentPasswordHash);
+        var passwordService = new Mock<IPasswordService>();
+        passwordService
+            .Setup(item => item.Verify("same-password", currentPasswordHash))
+            .Returns(true);
+
+        var result = await new ResetPasswordUseCase(
+                repository.Object,
+                passwordService.Object,
+                new ResetPasswordRequestValidator())
+            .ExecuteAsync(new ResetPasswordRequest
+            {
+                Token = new string('A', 64),
+                Password = "same-password"
+            });
+
+        Assert.True(result.IsFailed);
+        Assert.Equal("Escolha uma senha diferente da atual.", result.Errors[0].Message);
         Assert.Equal(400, result.Errors[0].Metadata["statusCode"]);
         passwordService.Verify(item => item.Hash(It.IsAny<string>()), Times.Never);
         repository.Verify(

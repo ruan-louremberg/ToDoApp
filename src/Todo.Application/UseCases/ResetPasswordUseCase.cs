@@ -25,12 +25,19 @@ public sealed class ResetPasswordUseCase(
 
         var tokenHash = PasswordResetTokenHasher.Hash(request.Token);
         var now = DateTime.UtcNow;
-        if (!await userRepository.HasValidPasswordResetTokenAsync(
+        var currentPasswordHash = await userRepository.GetPasswordHashForValidPasswordResetTokenAsync(
                 tokenHash,
                 now,
-                cancellationToken))
+                cancellationToken);
+        if (currentPasswordHash is null)
         {
             return InvalidOrExpiredToken();
+        }
+
+        if (passwordService.Verify(request.Password, currentPasswordHash))
+        {
+            return Result.Fail(new Error("Escolha uma senha diferente da atual.")
+                .WithMetadata("statusCode", 400));
         }
 
         var passwordHash = passwordService.Hash(request.Password);

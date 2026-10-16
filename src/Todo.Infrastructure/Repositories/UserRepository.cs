@@ -87,6 +87,18 @@ public class UserRepository(TodoDbContext context) : IUserRepository
             cancellationToken);
     }
 
+    public Task<string?> GetPasswordHashForValidPasswordResetTokenAsync(
+        string tokenHash,
+        DateTime now,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.Users
+            .Where(user => user.PasswordResetTokenHash == tokenHash
+                && user.PasswordResetTokenExpiresAt > now)
+            .Select(user => user.PasswordHash)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<bool> ResetPasswordAsync(
         string tokenHash,
         string passwordHash,

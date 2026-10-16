@@ -33,6 +33,11 @@ public interface IUserRepository
         DateTime now,
         CancellationToken cancellationToken = default);
 
+    Task<string?> GetPasswordHashForValidPasswordResetTokenAsync(
+        string tokenHash,
+        DateTime now,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ResetPasswordAsync(
         string tokenHash,
         string passwordHash,
