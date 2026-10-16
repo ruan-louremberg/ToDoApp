@@ -14,8 +14,6 @@ out/
 
 ## Local secrets
 .env
-.env.*
-!.env.example
 
 ## IDE & User settings
 .vs/

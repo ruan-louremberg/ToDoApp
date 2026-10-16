@@ -38,6 +38,7 @@ O projeto foi desenvolvido com foco em separação de responsabilidades, valida�
 | Ícones | lucide-react |
 | Lint frontend | Oxlint |
 | Containers | Docker e Docker Compose |
+| Métricas | OpenTelemetry, Prometheus e Grafana |
 | Testes backend | xUnit, Moq e Coverlet |
 
 ## Estrutura do projeto
@@ -53,6 +54,7 @@ O projeto foi desenvolvido com foco em separação de responsabilidades, valida�
 │   └── Todo.Tests/
 ├── frontend/
 ├── docker-compose.yml
+├── prometheus.yml
 └── ToDoApp.slnx
 ```
 
@@ -299,6 +301,21 @@ Endereços:
 - Frontend: `http://localhost:5173`;
 - API: `http://localhost:5080`;
 - Scalar: `http://localhost:5080/scalar`.
+- Métricas da API: `http://localhost:5080/metrics`;
+- Prometheus: `http://localhost:9090`;
+- Grafana: `http://localhost:3000` (login inicial `admin` / `admin`).
+
+OpenTelemetry coleta as métricas HTTP da API, e Prometheus as consulta a cada
+5 segundos. O Grafana já vem provisionado com Prometheus como fonte de dados.
+Após entrar no Grafana, crie um dashboard e use consultas PromQL como:
+
+```promql
+rate(http_server_request_duration_seconds_count[1m])
+```
+
+Essa consulta mostra a taxa de requisições HTTP por segundo. Para confirmar a
+coleta diretamente no Prometheus, acesse `http://localhost:9090/targets` e
+verifique se o job `todo-api` está como `UP`.
 
 Para parar os containers:
 
